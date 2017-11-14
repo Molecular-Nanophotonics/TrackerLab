@@ -376,7 +376,8 @@ class Window(QMainWindow):
         self.update()
         
         
-    def closeEvent(self, e):  
+    def closeEvent(self, e):
+        # save the settings in the TrackerLab.ini file
         self.settings.setValue('Dir', self.dir)
         self.settings.setValue('Pre-Processing/MedianState', self.medianCheckBox.checkState())
         self.settings.setValue('Pre-Processing/MedianValue', self.medianSpinBox.value())
@@ -385,7 +386,7 @@ class Window(QMainWindow):
         self.settings.setValue('Tab1/Threshold', self.tab1Threshold)
         self.settings.setValue('Tab1/MinArea', self.tab1MinArea)
         self.settings.setValue('Tab1/MaxArea', self.tab1MaxArea)
-        #self.settings.setValue('Tab1/Invert', self.tab1InvertCheckBox.checkState())
+        self.settings.setValue('Tab1/Invert', self.tab1InvertCheckBox.checkState())
         self.settings.setValue('Tab2/Threshold', self.tab2Threshold)
         self.settings.setValue('Tab2/MaxSigma', self.tab2MaxSigma)
         e.accept()
