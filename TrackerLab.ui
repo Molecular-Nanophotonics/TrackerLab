@@ -539,31 +539,12 @@
         <rect>
          <x>550</x>
          <y>10</y>
-         <width>201</width>
+         <width>231</width>
          <height>17</height>
         </rect>
        </property>
        <property name="text">
         <string> Tracking</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-      <widget class="QCheckBox" name="displayCheckBox">
-       <property name="geometry">
-        <rect>
-         <x>880</x>
-         <y>8</y>
-         <width>161</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string>Display Tracking Images</string>
        </property>
        <property name="checked">
         <bool>true</bool>

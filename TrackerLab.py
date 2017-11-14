@@ -76,8 +76,6 @@ class Window(QMainWindow):
         self.tab2ThresholdSpinBox.valueChanged.connect(self.update)  
         self.tab2MaxSigmaSpinBox.valueChanged.connect(self.update)    
         
-        self.displayCheckBox.stateChanged.connect(self.update)  
-        
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 0.75)
         
@@ -195,17 +193,14 @@ class Window(QMainWindow):
                 self.maskChanged()
             self.processedImage = self.mask*self.processedImage
         
-        if not self.displayCheckBox.checkState():
-            self.im2.setImage(self.processedImage) 
-        
         if self.trackingCheckBox.checkState():
             # Tracking
             if self.tabIndex == 0:
                 spots = self.findSpots1(self.frameSlider.value())   
             if self.tabIndex == 1:
                 spots = self.findSpots2(self.frameSlider.value())
-            if self.displayCheckBox.checkState():
-                self.im2.setImage(self.processedImage) 
+                
+            self.im2.setImage(self.processedImage) 
                   
             if spots.size > 0:
                 self.sp.setData(x=spots.x.tolist(), y=spots.y.tolist(), size=2*np.sqrt(np.array(spots.area.tolist())/np.pi))
@@ -370,15 +365,18 @@ class Window(QMainWindow):
         self.batch = False
         self.abort = False
         
+        
     def abortButtonClicked(self):
         self.abort = True
        
+        
     def trackingCheckBoxChanged(self):
         if self.trackingCheckBox.checkState():
             self.tabWidget.setEnabled(True)
         else:
             self.tabWidget.setEnabled(False)
         self.update()
+        
         
     def closeEvent(self, e):  
         self.settings.setValue('Dir', self.dir)
