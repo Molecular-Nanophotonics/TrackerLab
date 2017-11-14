@@ -18,8 +18,6 @@ from skimage.feature import blob_log, blob_dog
 from skimage.util import invert
 
 from scipy import ndimage
-
-
 import os, fnmatch
 
 from nptdms import TdmsFile
