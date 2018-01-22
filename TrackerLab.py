@@ -43,7 +43,9 @@ class Window(QMainWindow):
         self.settings = QSettings('TrackerLab.ini', QSettings.IniFormat)
         self.dir = self.settings.value('Dir', '.')
 
-
+        self.tabWidget.setCurrentIndex(int(self.settings.value('TabIndex', '0'))) 
+        self.trackingCheckBox.setCheckState(int(self.settings.value('TrackingState', '2')))
+        
         self.medianCheckBox.setCheckState(int(self.settings.value('Pre-Processing/MedianState', '0')))
         self.medianSpinBox.setValue(int(self.settings.value('Pre-Processing/MedianValue', '2')))  
         self.medianCheckBox.stateChanged.connect(self.update)  
@@ -191,6 +193,7 @@ class Window(QMainWindow):
                 self.maskChanged()
             self.processedImage = self.mask*self.processedImage
         
+        spots = pd.DataFrame()
         if self.trackingCheckBox.checkState():
             # Tracking
             if self.tabIndex == 0:
@@ -305,15 +308,16 @@ class Window(QMainWindow):
                     self.fileComboBox.addItem(os.path.basename(file))       
             self.frameSlider.setValue(0) # Here, self.update() is called
             self.frameSlider.setMaximum(self.frames-1)
-            self.propertiesLabel.setText(str(self.dimx) + ' x ' + str(self.dimy))
+            self.propertiesLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames) + '\n' + 'Binning: ' + str(self.binning))
             self.setEnabled(True)
             self.dir = os.path.dirname(self.files[0])
         
                     
     def loadTDMSImages(self, file):
         tdms_file = TdmsFile(file)
-        p = tdms_file.object().properties   
-        self.dimx = int(p['dimx'])  
+        p = tdms_file.object().properties
+        self.binning = int(p['binning'])
+        self.dimx = int(p['dimx'])
         self.dimy = int(p['dimy'])
         self.frames = int(p['dimz'])
         images = tdms_file.channel_data('Image', 'Image')
@@ -379,6 +383,8 @@ class Window(QMainWindow):
     def closeEvent(self, e):
         # save the settings in the TrackerLab.ini file
         self.settings.setValue('Dir', self.dir)
+        self.settings.setValue('TabIndex', self.tabWidget.currentIndex())
+        self.settings.setValue('TrackingState', self.trackingCheckBox.checkState())
         self.settings.setValue('Pre-Processing/MedianState', self.medianCheckBox.checkState())
         self.settings.setValue('Pre-Processing/MedianValue', self.medianSpinBox.value())
         self.settings.setValue('Pre-Processing/MaskState', self.maskCheckBox.checkState())
