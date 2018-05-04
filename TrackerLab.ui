@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1127</width>
-    <height>811</height>
+    <width>1134</width>
+    <height>909</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,7 +26,7 @@
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>225</height>
+        <height>325</height>
        </size>
       </property>
       <property name="frameShape">
@@ -45,10 +45,13 @@
         </rect>
        </property>
        <property name="text">
-        <string>Open Files...</string>
+        <string>Open...</string>
        </property>
       </widget>
       <widget class="QSpinBox" name="frameSpinBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>280</x>
@@ -75,6 +78,9 @@
        </property>
       </widget>
       <widget class="QComboBox" name="fileComboBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>60</x>
@@ -98,6 +104,9 @@
        </property>
       </widget>
       <widget class="QSlider" name="frameSlider">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>60</x>
@@ -117,7 +126,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>195</y>
+         <y>300</y>
          <width>161</width>
          <height>16</height>
         </rect>
@@ -126,13 +135,16 @@
         <string>x = 0    y = 0    [0]</string>
        </property>
       </widget>
-      <widget class="QTabWidget" name="tabWidget">
+      <widget class="QTabWidget" name="trackingTabWidget">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
-         <x>550</x>
+         <x>570</x>
          <y>30</y>
-         <width>561</width>
-         <height>181</height>
+         <width>541</width>
+         <height>221</height>
         </rect>
        </property>
        <property name="autoFillBackground">
@@ -145,7 +157,7 @@
         <attribute name="title">
          <string>Measure Labels</string>
         </attribute>
-        <widget class="QDoubleSpinBox" name="tab1ThresholdSpinBox">
+        <widget class="QSpinBox" name="tab1ThresholdSpinBox">
          <property name="geometry">
           <rect>
            <x>80</x>
@@ -161,16 +173,16 @@
           <bool>false</bool>
          </property>
          <property name="minimum">
-          <double>0.010000000000000</double>
+          <number>1</number>
          </property>
          <property name="maximum">
-          <double>1.000000000000000</double>
+          <number>10000</number>
          </property>
          <property name="singleStep">
-          <double>0.010000000000000</double>
+          <number>10</number>
          </property>
          <property name="value">
-          <double>0.100000000000000</double>
+          <number>1000</number>
          </property>
         </widget>
         <widget class="QLabel" name="tab1ThresholdLabel">
@@ -278,6 +290,47 @@
           <string>Invert</string>
          </property>
         </widget>
+        <widget class="QLabel" name="tab1MaxFeaturesLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>130</y>
+           <width>111</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>Max. # of Features:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="tab1MaxFeaturesSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>120</x>
+           <y>130</y>
+           <width>61</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="keyboardTracking">
+          <bool>false</bool>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="value">
+          <number>1000</number>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="tab2">
         <attribute name="title">
@@ -362,6 +415,9 @@
        </widget>
       </widget>
       <widget class="QPushButton" name="batchButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>150</x>
@@ -375,6 +431,9 @@
        </property>
       </widget>
       <widget class="QPushButton" name="abortButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>250</x>
@@ -384,14 +443,14 @@
         </rect>
        </property>
        <property name="text">
-        <string>Abort</string>
+        <string>Cancel</string>
        </property>
       </widget>
       <widget class="QLabel" name="numberOfSpots">
        <property name="geometry">
         <rect>
-         <x>280</x>
-         <y>192</y>
+         <x>650</x>
+         <y>280</y>
          <width>61</width>
          <height>20</height>
         </rect>
@@ -409,26 +468,26 @@
       <widget class="QLabel" name="numberOfSpotsLabel">
        <property name="geometry">
         <rect>
-         <x>160</x>
-         <y>191</y>
-         <width>111</width>
+         <x>570</x>
+         <y>279</y>
+         <width>81</width>
          <height>20</height>
         </rect>
        </property>
        <property name="text">
         <string> # of Spots:</string>
        </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
       </widget>
       <widget class="QFrame" name="preprocessingFrame">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>370</x>
          <y>30</y>
-         <width>161</width>
-         <height>181</height>
+         <width>181</width>
+         <height>221</height>
         </rect>
        </property>
        <property name="frameShape">
@@ -453,7 +512,7 @@
        <widget class="QSpinBox" name="medianSpinBox">
         <property name="geometry">
          <rect>
-          <x>80</x>
+          <x>100</x>
           <y>10</y>
           <width>51</width>
           <height>22</height>
@@ -473,7 +532,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>90</y>
+          <y>118</y>
           <width>70</width>
           <height>21</height>
          </rect>
@@ -482,11 +541,11 @@
          <string>Mask:</string>
         </property>
        </widget>
-       <widget class="QSpinBox" name="maskSpinBox">
+       <widget class="QSpinBox" name="maskRadiusSpinBox">
         <property name="geometry">
          <rect>
-          <x>80</x>
-          <y>90</y>
+          <x>30</x>
+          <y>178</y>
           <width>51</width>
           <height>22</height>
          </rect>
@@ -507,6 +566,104 @@
          <number>25</number>
         </property>
        </widget>
+       <widget class="QSpinBox" name="maskXSpinBox">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>148</y>
+          <width>51</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="keyboardTracking">
+         <bool>false</bool>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>1000</number>
+        </property>
+        <property name="value">
+         <number>100</number>
+        </property>
+       </widget>
+       <widget class="QSpinBox" name="maskYSpinBox">
+        <property name="geometry">
+         <rect>
+          <x>119</x>
+          <y>148</y>
+          <width>51</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="keyboardTracking">
+         <bool>false</bool>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>1000</number>
+        </property>
+        <property name="value">
+         <number>100</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="frameLabel_2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>150</y>
+          <width>21</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>X:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="frameLabel_3">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>180</y>
+          <width>21</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>R:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="frameLabel_4">
+        <property name="geometry">
+         <rect>
+          <x>99</x>
+          <y>150</y>
+          <width>21</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Y:</string>
+        </property>
+       </widget>
+       <zorder>medianCheckBox</zorder>
+       <zorder>medianSpinBox</zorder>
+       <zorder>maskCheckBox</zorder>
+       <zorder>frameLabel_2</zorder>
+       <zorder>frameLabel_3</zorder>
+       <zorder>frameLabel_4</zorder>
+       <zorder>maskYSpinBox</zorder>
+       <zorder>maskXSpinBox</zorder>
+       <zorder>maskRadiusSpinBox</zorder>
       </widget>
       <widget class="QLabel" name="preprocessingFrameLabel">
        <property name="geometry">
@@ -535,9 +692,12 @@
        </property>
       </widget>
       <widget class="QCheckBox" name="trackingCheckBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
-         <x>550</x>
+         <x>570</x>
          <y>10</y>
          <width>231</width>
          <height>17</height>
@@ -548,6 +708,174 @@
        </property>
        <property name="checked">
         <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QSlider" name="lminSlider">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>230</y>
+         <width>221</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <widget class="QSlider" name="lmaxSlider">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>260</y>
+         <width>221</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="value">
+        <number>0</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="lminSpinBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>280</x>
+         <y>229</y>
+         <width>61</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="singleStep">
+        <number>100</number>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="lmaxSpinBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>280</x>
+         <y>259</y>
+         <width>61</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="singleStep">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>0</number>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="colormapComboBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>190</y>
+         <width>91</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>Gray</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="colorScaleLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>193</y>
+         <width>71</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Color Scale:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="scalingComboBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>190</y>
+         <width>91</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>Full Dynamic</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Given Range</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="minLevelLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>230</y>
+         <width>31</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Min.</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="maxLevelLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>260</y>
+         <width>31</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Max.</string>
        </property>
       </widget>
      </widget>
@@ -593,6 +921,58 @@
     <bool>false</bool>
    </property>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1134</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionSettings"/>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuAbout"/>
+  </widget>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open...</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

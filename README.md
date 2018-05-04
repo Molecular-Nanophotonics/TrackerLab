@@ -1,5 +1,5 @@
 # TrackerLab
-TrackerLab of the Molecular Nanophotonics Group
+TrackerLab of the Molecular Nanophotonics Group.
 
 Required Packages:
 
