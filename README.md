@@ -1,7 +1,7 @@
 # TrackerLab
 TrackerLab of the Molecular Nanophotonics Group.
 
-Required Packages:
+## Required Packages:
 
 - nptdms
 - pyqtgraph

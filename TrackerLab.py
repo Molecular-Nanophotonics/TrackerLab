@@ -132,8 +132,16 @@ class Window(QMainWindow):
         self.p2.setXLink(self.p1.vb)
         self.p2.setYLink(self.p1.vb)
 
-        self.sp = pg.ScatterPlotItem(pen=pg.mkPen('r', width=2), brush=pg.mkBrush(None), pxMode=False)
+        self.sp = pg.ScatterPlotItem(pen=pg.mkPen('r', width=3), brush=pg.mkBrush(None), pxMode=False)
         self.p2.addItem(self.sp)
+        
+        self.lp1 = pg.PlotCurveItem(pen=pg.mkPen('b', width=3), brush=pg.mkBrush(None), pxMode=False)  
+        self.lp2 = pg.PlotCurveItem(pen=pg.mkPen('r', width=3), brush=pg.mkBrush(None), pxMode=False)
+        self.p2.addItem(self.lp1)
+        self.p2.addItem(self.lp2)
+                
+        #self.lp = pg.PlotCurveItem(pen=pg.mkPen('b', width=3), brush=pg.mkBrush(None), pxMode=False)
+        #self.p2.addItem(self.lp)
         
         #self.p = pg.PlotItem(pen=pg.mkPen('r', width=2), brush=pg.mkBrush(None), pxMode=False)
         #self.p2.addItem(self.p)
@@ -241,13 +249,45 @@ class Window(QMainWindow):
                 spots = self.findSpots2(self.frameSlider.value())
                 
             self.im2.setImage(self.processedImage) 
-                  
+            
+            # Overlay
             if spots.size > 0:
-                self.sp.setData(x=spots.x.tolist(), y=spots.y.tolist(), size=2*np.sqrt(np.array(spots.area.tolist())/np.pi))
+                #self.sp.setData(x=spots.x.tolist(), y=spots.y.tolist(), size=2*np.sqrt(np.array(spots.area.tolist())/np.pi))
+                axesX = []
+                axesY = []
+                clist = []
+                ellipsesX = []
+                ellipsesY = []
+                ellipsesConnect = []
+                phi = np.linspace(0, 2*np.pi, 25)
+                for index, s in spots.iterrows():
+                    # Ellipse
+                    x = 0.5*s.minor_axis_length*np.cos(phi)
+                    y = 0.5*s.major_axis_length*np.sin(phi)
+                    ellipsesX.extend(s.x +  x*np.sin(s.orientation) - y*np.cos(s.orientation))
+                    ellipsesY.extend(s.y +  x*np.cos(s.orientation) + y*np.sin(s.orientation))
+                    connect = np.ones(phi.size)
+                    connect[-1] = 0 # replace last element with 0
+                    ellipsesConnect.extend(connect)
+                    # Axes
+                    x1 = np.cos(s.orientation)*0.5*s.major_axis_length
+                    y1 = np.sin(s.orientation)*0.5*s.major_axis_length
+                    x2 = -np.sin(s.orientation)*0.5*s.minor_axis_length
+                    y2 = np.cos(s.orientation)*0.5*s.minor_axis_length
+                    axesX.extend([s.x, s.x + x1, s.x + x2, s.x])
+                    axesY.extend([s.y, s.y - y1, s.y - y2, s.y])
+                    clist.extend([1, 0, 1, 0])
+                    
+                self.lp1.setData(x=axesX, y=axesY, connect=np.array(clist)) 
+                self.lp2.setData(x=ellipsesX, y=ellipsesY, connect=np.array(ellipsesConnect))
+                #self.lp1.setData(x=[spots.x[0], spots.x[0] + x1, spots.x[0] + x2, spots.x[0]], y=[spots.y[0], spots.y[0] - y1, spots.y[0] - y2, spots.y[0]], connect=np.array([1, 0, 1, 1]))
+                #self.lp2.setData(x=[spots.x[0], spots.x[0] + x1], y=[spots.y[0], spots.y[0] - y1])
                 self.numberOfSpots.setText(str(spots.shape[0]))
             else:
                 self.numberOfSpots.setText('0')
                 self.sp.setData(x=None, y=None)
+                self.lp1.setData(x=None, y=None)
+                self.lp2.setData(x=None, y=None)
         else:
             self.trackingTabWidget.setEnabled(False)
             if self.scalingComboBox.currentIndex() == 0:
@@ -255,6 +295,8 @@ class Window(QMainWindow):
             else:
                 self.im2.setImage(self.processedImage, levels=[self.lminSlider.value(), self.lmaxSlider.value()])
             self.sp.setData(x=None, y=None)
+            self.lp1.setData(x=None, y=None)
+            self.lp2.setData(x=None, y=None)
         
         if self.batch:
             self.spots = self.spots.append(spots)
