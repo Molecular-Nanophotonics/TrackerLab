@@ -7,7 +7,7 @@ from PyQt5.uic import loadUi
 
 import pyqtgraph as pg
 from pyqtgraph import QtCore, QtGui
-import inspect
+#import inspect
 
 from matplotlib import cm # for colormaps
 
@@ -311,7 +311,7 @@ class Window(QMainWindow):
         self.processedImage = (self.processedImage > self.tab1Threshold).astype(int) # relative threshold
         #self.processedImage = self.processedImage < self.tab1MinThreshold
         if self.tab1InvertCheckBox.checkState():
-            self.processedImage = invert(self.processedImage)
+            self.processedImage = 1 - self.processedImage
         labelImage = skimage.measure.label(self.processedImage)
         regions = skimage.measure.regionprops(label_image=labelImage, intensity_image=self.intensityImage) # http://scikit-image.org/docs/dev/api/skimage.measure.html
         j = 0
