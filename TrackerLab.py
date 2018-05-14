@@ -198,14 +198,14 @@ class Window(QMainWindow):
             x = int(mousePoint.x())
             y = int(mousePoint.y()) 
             if x > 0 and x < self.dimx and y > 0 and y < self.dimy:
-                self.infoLabel.setText("x = %d\ty = %d\t[%d]" % (x, y, self.images[self.frameSlider.value(), x ,y]))
+                self.infoLabel.setText("x = %d\ty = %d\t[%d]" % (x, y, self.images[self.frameSlider.value(), y ,x]))
                 
         if self.p2.vb.sceneBoundingRect().contains(e):
             mousePoint = self.p2.vb.mapSceneToView(e)  
             x = int(mousePoint.x())
             y = int(mousePoint.y()) 
             if x > 0 and x < self.dimx and y > 0 and y < self.dimy:
-                self.infoLabel.setText("x = %d\ty = %d\t[%d]" % (x, y, self.processedImage[x, y]))
+                self.infoLabel.setText("x = %d\ty = %d\t[%d]" % (x, y, self.processedImage[y, x]))
                 
             #vLine.setPos(mousePoint.x())
             #hLine.setPos(mousePoint.y())
@@ -308,7 +308,7 @@ class Window(QMainWindow):
     def findSpots1(self, i): # rename to trackingTab1 ???
         spots = pd.DataFrame()
         self.intensityImage = self.processedImage
-        self.processedImage = self.processedImage > self.tab1Threshold # relative threshold
+        self.processedImage = (self.processedImage > self.tab1Threshold).astype(int) # relative threshold
         #self.processedImage = self.processedImage < self.tab1MinThreshold
         if self.tab1InvertCheckBox.checkState():
             self.processedImage = invert(self.processedImage)
@@ -353,13 +353,6 @@ class Window(QMainWindow):
         self.mask = (((xx - x0)**2 + (yy - y0)**2) < (diameter/2)**2).astype(int)
         self.update()
         
-        
-    def editImage(self, i):
-        image = self.images[i] > self.tab1Threshold
-        if self.tab1InvertCheckBox.checkState():
-            return invert(image)
-        else:
-            return image
        
     def frameSliderChanged(self, value):
         self.frameSpinBox.setValue(value)
@@ -465,7 +458,7 @@ class Window(QMainWindow):
         self.dimy = int(p['dimy'])
         self.binning = int(p['binning'])
         self.frames = int(p['dimz'])
-        self.exposure = float(p['exposure'])
+        self.exposure = float(p['exposure'].replace(',', '.'))
         images = tdms_file.channel_data('Image', 'Image')
         return images.reshape(self.frames, self.dimx, self.dimy)
         
