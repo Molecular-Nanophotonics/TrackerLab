@@ -517,10 +517,10 @@ class Window(QMainWindow):
                     metadata['pp_mask_r'] = self.maskRadiusSpinBox.value()
                     
                 if self.tabIndex == 0:
-                    metadata['tt_method'] = self.trackingTabWidget.tabText(self.tabIndex)
-                    metadata['tt_threshold'] = self.tab1Threshold
-                    metadata['tt_area_min'] = self.tab1MinArea
-                    metadata['tt_area_max'] =  self.tab1MaxArea
+                    metadata['t_method'] = self.trackingTabWidget.tabText(self.tabIndex)
+                    metadata['t_threshold'] = self.tab1Threshold
+                    metadata['t_area_min'] = self.tab1MinArea
+                    metadata['t_area_max'] =  self.tab1MaxArea
                 
                 store.put('metadata', metadata)
                 
