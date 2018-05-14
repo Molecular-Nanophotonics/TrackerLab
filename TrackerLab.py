@@ -428,7 +428,8 @@ class Window(QMainWindow):
 
             
     def openFilesDialog(self):
-        self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Open Files...', self.dir, 'TDMS Files (*.tdms);;TIFF Files (*.tif)') # 'All Files (*)'
+        #self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Open Files...', self.dir, 'TDMS Files (*.tdms);;TIFF Files (*.tif)') # 'All Files (*)'
+        self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Open Files...', self.dir, 'TDMS Files (*.tdms);;TIFF Files (*.tif)',options=QtWidgets.QFileDialog.DontUseNativeDialog) # 'All Files (*)'   # for MAC the native filedialog finder crashes sometimes
         if self.files:
             self.imageFiles = []
             self.fileComboBox.blockSignals(True)
@@ -458,7 +459,7 @@ class Window(QMainWindow):
         self.dimy = int(p['dimy'])
         self.binning = int(p['binning'])
         self.frames = int(p['dimz'])
-        self.exposure = float(p['exposure'].replace(',', '.'))
+        self.exposure = float(p['exposure'].replace(',','.'))
         images = tdms_file.channel_data('Image', 'Image')
         return images.reshape(self.frames, self.dimx, self.dimy)
         
