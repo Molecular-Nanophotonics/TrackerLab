@@ -24,7 +24,6 @@ from scipy import ndimage
 import os, fnmatch, glob
 
 from nptdms import TdmsFile
-import pickle
 
 class SettingsWindow(QDialog):
     def __init__(self):
@@ -75,15 +74,22 @@ class Window(QMainWindow):
         self.trackingTabWidget.currentChanged.connect(self.update) 
         self.tabIndex = 0
         
+        # Tab 1
         self.tab1ThresholdSpinBox.valueChanged.connect(self.update)  
         self.tab1MinAreaSpinBox.valueChanged.connect(self.update)  
         self.tab1MaxAreaSpinBox.valueChanged.connect(self.update)          
         self.tab1InvertCheckBox.stateChanged.connect(self.update) 
         self.tab1MaxFeaturesSpinBox.valueChanged.connect(self.update) 
         
+        # Tab 2
         self.tab2ThresholdSpinBox.valueChanged.connect(self.update)  
         self.tab2MaxSigmaSpinBox.valueChanged.connect(self.update)    
      
+        # Tab 3
+        self.tab3ThresholdSpinBox.valueChanged.connect(self.update)  
+        self.tab3MinAreaSpinBox.valueChanged.connect(self.update)  
+        self.tab3MaxAreaSpinBox.valueChanged.connect(self.update)   
+        
         self.actionOpen.triggered.connect(self.openFilesDialog)
         self.actionExit.triggered.connect(self.close)
         self.actionSettings.triggered.connect(self.showSettingsWindow)
@@ -172,9 +178,9 @@ class Window(QMainWindow):
         # load colormaps        
         self.colormaps = []
         self.colormapComboBox.clear()
-        for file in glob.glob('Colormaps/*.pkl'):
+        for file in glob.glob('Colormaps/*.csv'):
             self.colormapComboBox.addItem(os.path.splitext(os.path.basename(file))[0])
-            self.colormaps.append(pickle.load(open(file, 'rb')))
+            self.colormaps.append(np.loadtxt(file, delimiter=','))
                
         if not self.colormaps:
             self.colormapsComboBox.addItem('Gray') # default
@@ -183,7 +189,6 @@ class Window(QMainWindow):
           
         #pg.SignalProxy(self.p.scene().sigMouseMoved, rateLimit=60, slot=self.mouseMoved)
         #pg.SignalProxy(self.p2.scene().sigMouseMoved, rateLimit=60, slot=self.mouseMoved)
-        
         
         self.settingsWindow = SettingsWindow() 
         self.settingsWindow.checkBoxHDF5.setChecked(self.hdf5)
@@ -223,6 +228,10 @@ class Window(QMainWindow):
         self.tab2Threshold = self.tab2ThresholdSpinBox.value()
         self.tab2MaxSigma = self.tab2MaxSigmaSpinBox.value()
         
+        self.tab3Threshold = self.tab3ThresholdSpinBox.value()
+        self.tab3MinArea = self.tab3MinAreaSpinBox.value()
+        self.tab3MaxArea = self.tab3MaxAreaSpinBox.value()
+        
         if self.scalingComboBox.currentIndex() == 0:
             self.im1.setImage(self.images[self.frameSlider.value()])
         else:
@@ -247,41 +256,13 @@ class Window(QMainWindow):
                 
             if self.tabIndex == 1:
                 spots = self.findSpots2(self.frameSlider.value())
+            
+            if self.tabIndex == 2:
+                spots = self.findSpots3(self.frameSlider.value())
                 
             self.im2.setImage(self.processedImage) 
             
-            # Overlay
             if spots.size > 0:
-                #self.sp.setData(x=spots.x.tolist(), y=spots.y.tolist(), size=2*np.sqrt(np.array(spots.area.tolist())/np.pi))
-                axesX = []
-                axesY = []
-                clist = []
-                ellipsesX = []
-                ellipsesY = []
-                ellipsesConnect = []
-                phi = np.linspace(0, 2*np.pi, 25)
-                for index, s in spots.iterrows():
-                    # Ellipse
-                    x = 0.5*s.minor_axis_length*np.cos(phi)
-                    y = 0.5*s.major_axis_length*np.sin(phi)
-                    ellipsesX.extend(s.x +  x*np.sin(s.orientation) - y*np.cos(s.orientation))
-                    ellipsesY.extend(s.y +  x*np.cos(s.orientation) + y*np.sin(s.orientation))
-                    connect = np.ones(phi.size)
-                    connect[-1] = 0 # replace last element with 0
-                    ellipsesConnect.extend(connect)
-                    # Axes
-                    x1 = np.cos(s.orientation)*0.5*s.major_axis_length
-                    y1 = np.sin(s.orientation)*0.5*s.major_axis_length
-                    x2 = -np.sin(s.orientation)*0.5*s.minor_axis_length
-                    y2 = np.cos(s.orientation)*0.5*s.minor_axis_length
-                    axesX.extend([s.x, s.x + x1, s.x + x2, s.x])
-                    axesY.extend([s.y, s.y - y1, s.y - y2, s.y])
-                    clist.extend([1, 0, 1, 0])
-                    
-                self.lp1.setData(x=axesX, y=axesY, connect=np.array(clist)) 
-                self.lp2.setData(x=ellipsesX, y=ellipsesY, connect=np.array(ellipsesConnect))
-                #self.lp1.setData(x=[spots.x[0], spots.x[0] + x1, spots.x[0] + x2, spots.x[0]], y=[spots.y[0], spots.y[0] - y1, spots.y[0] - y2, spots.y[0]], connect=np.array([1, 0, 1, 1]))
-                #self.lp2.setData(x=[spots.x[0], spots.x[0] + x1], y=[spots.y[0], spots.y[0] - y1])
                 self.numberOfSpots.setText(str(spots.shape[0]))
             else:
                 self.numberOfSpots.setText('0')
@@ -331,6 +312,40 @@ class Window(QMainWindow):
                                    'max_intensity': region.max_intensity,
                                    'frame': i,}]) 
             j += 1 # feature added
+        
+        # Overlay
+        if spots.size > 0:
+            #self.sp.setData(x=spots.x.tolist(), y=spots.y.tolist(), size=2*np.sqrt(np.array(spots.area.tolist())/np.pi))
+            axesX = []
+            axesY = []
+            clist = []
+            ellipsesX = []
+            ellipsesY = []
+            ellipsesConnect = []
+            phi = np.linspace(0, 2*np.pi, 25)
+            for index, s in spots.iterrows():
+                # Ellipse
+                x = 0.5*s.minor_axis_length*np.cos(phi)
+                y = 0.5*s.major_axis_length*np.sin(phi)
+                ellipsesX.extend(s.x +  x*np.sin(s.orientation) - y*np.cos(s.orientation))
+                ellipsesY.extend(s.y +  x*np.cos(s.orientation) + y*np.sin(s.orientation))
+                connect = np.ones(phi.size)
+                connect[-1] = 0 # replace last element with 0
+                ellipsesConnect.extend(connect)
+                # Axes
+                x1 = np.cos(s.orientation)*0.5*s.major_axis_length
+                y1 = np.sin(s.orientation)*0.5*s.major_axis_length
+                x2 = -np.sin(s.orientation)*0.5*s.minor_axis_length
+                y2 = np.cos(s.orientation)*0.5*s.minor_axis_length
+                axesX.extend([s.x, s.x + x1, s.x + x2, s.x])
+                axesY.extend([s.y, s.y - y1, s.y - y2, s.y])
+                clist.extend([1, 0, 1, 0])
+                
+            self.lp1.setData(x=axesX, y=axesY, connect=np.array(clist)) 
+            self.lp2.setData(x=ellipsesX, y=ellipsesY, connect=np.array(ellipsesConnect))
+            #self.lp1.setData(x=[spots.x[0], spots.x[0] + x1, spots.x[0] + x2, spots.x[0]], y=[spots.y[0], spots.y[0] - y1, spots.y[0] - y2, spots.y[0]], connect=np.array([1, 0, 1, 1]))
+            #self.lp2.setData(x=[spots.x[0], spots.x[0] + x1], y=[spots.y[0], spots.y[0] - y1])
+   
         return spots  
 
     # Difference of Gaussians
@@ -342,8 +357,32 @@ class Window(QMainWindow):
         else:
             return pd.DataFrame()
           
-    # Janus Particle 1
-        
+    # Janus Particles
+    def findSpots3(self, i): 
+        spots = pd.DataFrame()
+        self.intensityImage = self.processedImage
+        self.binaryImage1 = (self.processedImage > self.tab3Threshold).astype(int) # threshold
+        labelImage1 = skimage.measure.label(self.binaryImage1)
+        regions = skimage.measure.regionprops(label_image=labelImage1, intensity_image=self.intensityImage) # http://scikit-image.org/docs/dev/api/skimage.measure.html
+        for region in regions:
+            if region.area < self.tab3MinArea or region.area > self.tab3MaxArea:   # do not add feature
+                continue
+            # detect the cap
+            binaryImage2 = (self.processedImage > 5000).astype(int)
+            labelImage2 = skimage.measure.label(self.binaryImage2)
+            self.regions2 = skimage.measure.regionprops(label_image=labelImage2)
+                
+            spots = spots.append([{'y': region.centroid[0], 
+                                   'x': region.centroid[1],
+                                   'area': region.area,
+                                   'bbox': region.bbox,
+                                   'max_intensity': region.max_intensity,
+                                   'frame': i,}]) 
+
+        if spots.size > 0:
+            self.sp.setData(x=spots.x.tolist(), y=spots.y.tolist(), size=2*np.sqrt(np.array(spots.area.tolist())/np.pi))
+        return spots  
+    
     
     def maskChanged(self):
         x0 = self.maskXSpinBox.value() #int(self.dimx/2)
@@ -470,7 +509,6 @@ class Window(QMainWindow):
         self.dimy = images.shape[2]
         return images        
     
-
     
     def batchButtonClicked(self):
         self.trackingCheckBox.setCheckState(2)
@@ -612,6 +650,7 @@ class Window(QMainWindow):
             self.trackingTabWidget.setEnabled(True)
         else:
             self.trackingTabWidget.setEnabled(False)
+            self.im2.setLookupTable(self.colormaps[self.colormapComboBox.currentIndex()])
         self.update()
         
         
@@ -638,6 +677,9 @@ class Window(QMainWindow):
         self.settings.setValue('Tab1/MaxFeatures', self.tab1MaxFeaturesSpinBox.value())
         self.settings.setValue('Tab2/Threshold', self.tab2ThresholdSpinBox.value())
         self.settings.setValue('Tab2/MaxSigma', self.tab2MaxSigmaSpinBox.value())
+        self.settings.setValue('Tab3/Threshold', self.tab3ThresholdSpinBox.value())
+        self.settings.setValue('Tab3/MinArea', self.tab3MinAreaSpinBox.value())
+        self.settings.setValue('Tab3/MaxArea', self.tab3MaxAreaSpinBox.value())
         self.settings.setValue('Settings/HDF5', self.hdf5)
         self.settings.setValue('Settings/CSV', self.csv)
         
@@ -658,6 +700,9 @@ class Window(QMainWindow):
         self.tab1MaxFeaturesSpinBox.setValue(int(self.settings.value('Tab1/MaxFeatures', '1000')))
         self.tab2ThresholdSpinBox.setValue(float(self.settings.value('Tab2/Threshold', '0.1')))
         self.tab2MaxSigmaSpinBox.setValue(int(self.settings.value('Tab2/MaxSigma', '10')))
+        self.tab3ThresholdSpinBox.setValue(int(self.settings.value('Tab3/Threshold', '1000')))
+        self.tab3MinAreaSpinBox.setValue(int(self.settings.value('Tab3/MinArea', '10')))
+        self.tab3MaxAreaSpinBox.setValue(int(self.settings.value('Tab3/MaxArea', '250')))
         self.hdf5 = int(self.settings.value('Settings/HDF5', '2'))
         self.csv = int(self.settings.value('Settings/CSV', '0'))
 
@@ -691,7 +736,7 @@ class Window(QMainWindow):
        
     def aboutClicked(self):
        QMessageBox.about(self, 'About', 
-                               'This is the Molecular Nanophotonics TrackerLab. '
+                               'This is the Molecular Nanophotonics TrackerLab'
                              + 'It is based on PyQt and the PyQtGraph libary.' + 2*'\n'
                              + 'Martin Fränzl')    
        
