@@ -698,7 +698,7 @@ class Window(QMainWindow):
        about.setText("This is the Molecular Nanophotonics TrackerLab. " +
                      "It is based on PyQt and the PyQtGraph libary." + 2*"<br>" +
                      "<a href='http://github.com/Molecular-Nanophotonics/TrackerLab'>http://github.com/molecular-nanophotonics/trackerlab</a>" + 2*"<br>" +
-                     "M. Fränzl and N. Söcker")
+                     "M. Fränzl and N. Söker")
        about.exec()
 
      
