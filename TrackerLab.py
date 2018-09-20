@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Discription: This is the Molecular Nanophotonics TrackLab.
+Author(s): M. Fränzl
+Data: 18/09/18
+"""
+
 import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QSettings
@@ -17,13 +24,15 @@ import pandas as pd
 import skimage
 #from skimage import io
 from skimage import morphology      
-from skimage.feature import blob_log, blob_dog
 from skimage.util import invert
 
 from scipy import ndimage
 import os, fnmatch, glob
 
 from nptdms import TdmsFile
+
+import Modules
+
 
 class SettingsWindow(QDialog):
     def __init__(self):
@@ -41,14 +50,21 @@ class Window(QMainWindow):
         
         self.ui = loadUi('TrackerLab.ui', self)
 
+        self.displayedIcon = QtGui.QIcon(QtGui.QPixmap("Resources/Circle.png")) 
+        
         # restore setting from TrackerLab.ini file
-        self.settings = QSettings('TrackerLab.ini', QSettings.IniFormat)
         self.restoreSettings() 
         
-        self.openFilesButton.clicked.connect(self.openFilesDialog)
+        self.selectFilesButton.clicked.connect(self.selectFilesDialog)
+        self.addFilesButton.clicked.connect(self.addFilesDialog)
+        self.removeFilesButton.clicked.connect(self.removeFiles)
+        
+        self.fileList = []
+        self.fileListWidget.itemDoubleClicked.connect(self.fileDoubleClicked)
+        
         self.frameSlider.valueChanged.connect(self.frameSliderChanged)   
         self.frameSpinBox.valueChanged.connect(self.frameSpinBoxChanged)  
-        self.fileComboBox.currentIndexChanged.connect(self.fileComboBoxChanged) 
+        #self.fileComboBox.currentIndexChanged.connect(self.fileComboBoxChanged) 
       
         self.colormapComboBox.currentIndexChanged.connect(self.colormapComboBoxChanged) 
         self.scalingComboBox.currentIndexChanged.connect(self.scalingComboBoxChanged) 
@@ -71,26 +87,20 @@ class Window(QMainWindow):
         self.mask = np.array([])
         
         self.trackingCheckBox.stateChanged.connect(self.trackingCheckBoxChanged)
-        self.trackingTabWidget.currentChanged.connect(self.update) 
+        self.tabWidget.currentChanged.connect(self.update) 
         self.tabIndex = 0
         
-        # Tab 1
-        self.tab1ThresholdSpinBox.valueChanged.connect(self.update)  
-        self.tab1MinAreaSpinBox.valueChanged.connect(self.update)  
-        self.tab1MaxAreaSpinBox.valueChanged.connect(self.update)          
-        self.tab1InvertCheckBox.stateChanged.connect(self.update) 
-        self.tab1MaxFeaturesSpinBox.valueChanged.connect(self.update) 
+        # Connect all valueChange and stateChange events in the tabWidget to update()      
+        for tabIndex in range(self.tabWidget.count()):
+            tab = self.tabWidget.widget(tabIndex);
+            for obj in tab.findChildren(QtGui.QWidget):
+                if obj.metaObject().className() == 'QSpinBox':
+                    obj.valueChanged.connect(self.update)  
+                if obj.metaObject().className() == 'QCheckBox':
+                    obj.stateChanged.connect(self.update) 
+                    
         
-        # Tab 2
-        self.tab2ThresholdSpinBox.valueChanged.connect(self.update)  
-        self.tab2MaxSigmaSpinBox.valueChanged.connect(self.update)    
-     
-        # Tab 3
-        self.tab3ThresholdSpinBox.valueChanged.connect(self.update)  
-        self.tab3MinAreaSpinBox.valueChanged.connect(self.update)  
-        self.tab3MaxAreaSpinBox.valueChanged.connect(self.update)   
-        
-        self.actionOpen.triggered.connect(self.openFilesDialog)
+        self.actionOpen.triggered.connect(self.selectFilesDialog)
         self.actionExit.triggered.connect(self.close)
         self.actionSettings.triggered.connect(self.showSettingsWindow)
         self.actionAbout.triggered.connect(self.aboutClicked)
@@ -138,28 +148,24 @@ class Window(QMainWindow):
         self.p2.setXLink(self.p1.vb)
         self.p2.setYLink(self.p1.vb)
 
-        self.sp = pg.ScatterPlotItem(pen=pg.mkPen('r', width=3), brush=pg.mkBrush(None), pxMode=False)
-        self.p2.addItem(self.sp)
+        # items for overlay
+        #self.sp1 = pg.ScatterPlotItem(pen=pg.mkPen('r', width=3), brush=pg.mkBrush(None), pxMode=False)
+        #self.p2.addItem(self.sp1)
         
         self.lp1 = pg.PlotCurveItem(pen=pg.mkPen('b', width=3), brush=pg.mkBrush(None), pxMode=False)  
-        self.lp2 = pg.PlotCurveItem(pen=pg.mkPen('r', width=3), brush=pg.mkBrush(None), pxMode=False)
         self.p2.addItem(self.lp1)
+
+        self.lp2 = pg.PlotCurveItem(pen=pg.mkPen('r', width=3), brush=pg.mkBrush(None), pxMode=False)
         self.p2.addItem(self.lp2)
                 
-        #self.lp = pg.PlotCurveItem(pen=pg.mkPen('b', width=3), brush=pg.mkBrush(None), pxMode=False)
-        #self.p2.addItem(self.lp)
-        
         #self.p = pg.PlotItem(pen=pg.mkPen('r', width=2), brush=pg.mkBrush(None), pxMode=False)
         #self.p2.addItem(self.p)
         
-        #self.vb = self.p.vb
-        #self.p.scene().sigMouseMoved.connect(self.mouseMoved)  
-                
+
+        # mouse moved events                
         self.p1.scene().sigMouseMoved.connect(self.mouseMoved)   
         self.p2.getViewBox().scene().sigMouseMoved.connect(self.mouseMoved) 
 
-        #self.vb.scene().sigMouseMoved.connect(self.mouseMoved)   
-        #self.vb2.scene().sigMouseMoved.connect(self.mouseMoved) 
         
         self.batch = False
         self.spots = pd.DataFrame()
@@ -196,6 +202,12 @@ class Window(QMainWindow):
         #self.settingsWindow.hdf5 = self.hdf5 
         #self.settingsWindow.csv = self.csv
         
+        #pixmap = QtGui.QPixmap(32, 32)
+        #pixmap.fill(QtCore.Qt.white)
+        #painter = QtGui.QPainter(pixmap)
+        #painter.setBrush(QtCore.Qt.black)
+        #painter.drawEllipse(QtCore.QPoint(16, 16), 5, 5)
+        #self.displayedIcon = QtGui.QIcon(pixmap)
         
     def mouseMoved(self, e):
         if self.p1.vb.sceneBoundingRect().contains(e):
@@ -218,7 +230,10 @@ class Window(QMainWindow):
         
     def update(self):
             
-        self.tabIndex =  self.trackingTabWidget.currentIndex()
+        if self.tabIndex != self.tabWidget.currentIndex():
+            self.lp1.clear()
+            self.lp2.clear()
+            self.tabIndex = self.tabWidget.currentIndex()
         
         self.tab1Threshold = self.tab1ThresholdSpinBox.value()
         self.tab1MinArea = self.tab1MinAreaSpinBox.value()
@@ -228,9 +243,6 @@ class Window(QMainWindow):
         self.tab2Threshold = self.tab2ThresholdSpinBox.value()
         self.tab2MaxSigma = self.tab2MaxSigmaSpinBox.value()
         
-        self.tab3Threshold = self.tab3ThresholdSpinBox.value()
-        self.tab3MinArea = self.tab3MinAreaSpinBox.value()
-        self.tab3MaxArea = self.tab3MaxAreaSpinBox.value()
         
         if self.scalingComboBox.currentIndex() == 0:
             self.im1.setImage(self.images[self.frameSlider.value()])
@@ -251,33 +263,24 @@ class Window(QMainWindow):
         # Tracking
         spots = pd.DataFrame()
         if self.trackingCheckBox.checkState():
-            if self.tabIndex == 0:
-                spots = self.findSpots1(self.frameSlider.value())   
-                
-            if self.tabIndex == 1:
-                spots = self.findSpots2(self.frameSlider.value())
-            
-            if self.tabIndex == 2:
-                spots = self.findSpots3(self.frameSlider.value())
-                
+            spots = self.findSpots(self.frameSlider.value())   
+
             self.im2.setImage(self.processedImage) 
             
             if spots.size > 0:
                 self.numberOfSpots.setText(str(spots.shape[0]))
             else:
                 self.numberOfSpots.setText('0')
-                self.sp.setData(x=None, y=None)
-                self.lp1.setData(x=None, y=None)
-                self.lp2.setData(x=None, y=None)
+                self.lp1.clear()
+                self.lp2.clear()
         else:
-            self.trackingTabWidget.setEnabled(False)
+            self.tabWidget.setEnabled(False)
             if self.scalingComboBox.currentIndex() == 0:
                 self.im2.setImage(self.processedImage)
             else:
                 self.im2.setImage(self.processedImage, levels=[self.lminSlider.value(), self.lmaxSlider.value()])
-            self.sp.setData(x=None, y=None)
-            self.lp1.setData(x=None, y=None)
-            self.lp2.setData(x=None, y=None)
+            self.lp1.clear()
+            self.lp2.clear()
         
         if self.batch:
             self.spots = self.spots.append(spots)
@@ -286,104 +289,26 @@ class Window(QMainWindow):
      
         
      # Maximum Tracking     
-    def findSpots1(self, i): # rename to trackingTab1 ???
-        spots = pd.DataFrame()
-        self.intensityImage = self.processedImage
-        self.processedImage = (self.processedImage > self.tab1Threshold).astype(int) # relative threshold
-        #self.processedImage = self.processedImage < self.tab1MinThreshold
-        if self.tab1InvertCheckBox.checkState():
-            self.processedImage = 1 - self.processedImage
-        labelImage = skimage.measure.label(self.processedImage)
-        regions = skimage.measure.regionprops(label_image=labelImage, intensity_image=self.intensityImage) # http://scikit-image.org/docs/dev/api/skimage.measure.html
-        j = 0
-        for region in regions:
-            # area filter first
-            if region.area < self.tab1MinArea or region.area > self.tab1MaxArea:   # do not add feature
-                continue
-            if j >= self.tab1MaxFeatures: # do not add feature
-                continue 
-            spots = spots.append([{'y': region.centroid[0], 
-                                   'x': region.centroid[1],
-                                   'orientation': region.orientation,
-                                   'minor_axis_length': region.minor_axis_length,
-                                   'major_axis_length': region.major_axis_length,
-                                   'area': region.area,
-                                   #'bbox': region.bbox,
-                                   'max_intensity': region.max_intensity,
-                                   'frame': i,}]) 
-            j += 1 # feature added
+    def findSpots(self, i):
         
-        # Overlay
-        if spots.size > 0:
-            #self.sp.setData(x=spots.x.tolist(), y=spots.y.tolist(), size=2*np.sqrt(np.array(spots.area.tolist())/np.pi))
-            axesX = []
-            axesY = []
-            clist = []
-            ellipsesX = []
-            ellipsesY = []
-            ellipsesConnect = []
-            phi = np.linspace(0, 2*np.pi, 25)
-            for index, s in spots.iterrows():
-                # Ellipse
-                x = 0.5*s.minor_axis_length*np.cos(phi)
-                y = 0.5*s.major_axis_length*np.sin(phi)
-                ellipsesX.extend(s.x +  x*np.sin(s.orientation) - y*np.cos(s.orientation))
-                ellipsesY.extend(s.y +  x*np.cos(s.orientation) + y*np.sin(s.orientation))
-                connect = np.ones(phi.size)
-                connect[-1] = 0 # replace last element with 0
-                ellipsesConnect.extend(connect)
-                # Axes
-                x1 = np.cos(s.orientation)*0.5*s.major_axis_length
-                y1 = np.sin(s.orientation)*0.5*s.major_axis_length
-                x2 = -np.sin(s.orientation)*0.5*s.minor_axis_length
-                y2 = np.cos(s.orientation)*0.5*s.minor_axis_length
-                axesX.extend([s.x, s.x + x1, s.x + x2, s.x])
-                axesY.extend([s.y, s.y - y1, s.y - y2, s.y])
-                clist.extend([1, 0, 1, 0])
-                
-            self.lp1.setData(x=axesX, y=axesY, connect=np.array(clist)) 
-            self.lp2.setData(x=ellipsesX, y=ellipsesY, connect=np.array(ellipsesConnect))
-            #self.lp1.setData(x=[spots.x[0], spots.x[0] + x1, spots.x[0] + x2, spots.x[0]], y=[spots.y[0], spots.y[0] - y1, spots.y[0] - y2, spots.y[0]], connect=np.array([1, 0, 1, 1]))
-            #self.lp2.setData(x=[spots.x[0], spots.x[0] + x1], y=[spots.y[0], spots.y[0] - y1])
-   
-        return spots  
-
-    # Difference of Gaussians
-    def findSpots2(self, i):
-        spots = blob_dog(self.processedImage/self.processedImage.max(), max_sigma=self.tab2MaxSigma, threshold=self.tab2Threshold)
-        if spots.size > 0:
-            spots[:, 2] = np.pi*(spots[:, 2]*np.sqrt(2))**2 # area
-            return pd.DataFrame(np.transpose([spots[:,0], spots[:,1], spots[:,2], i*np.ones(spots.shape[0])]), columns=['x', 'y', 'area', 'frame'])   
-        else:
-            return pd.DataFrame()
-          
-    # Janus Particles
-    def findSpots3(self, i): 
         spots = pd.DataFrame()
-        self.intensityImage = self.processedImage
-        self.binaryImage1 = (self.processedImage > self.tab3Threshold).astype(int) # threshold
-        labelImage1 = skimage.measure.label(self.binaryImage1)
-        regions = skimage.measure.regionprops(label_image=labelImage1, intensity_image=self.intensityImage) # http://scikit-image.org/docs/dev/api/skimage.measure.html
-        for region in regions:
-            if region.area < self.tab3MinArea or region.area > self.tab3MaxArea:   # do not add feature
-                continue
-            # detect the cap
-            binaryImage2 = (self.processedImage > 5000).astype(int)
-            labelImage2 = skimage.measure.label(self.binaryImage2)
-            self.regions2 = skimage.measure.regionprops(label_image=labelImage2)
-                
-            spots = spots.append([{'y': region.centroid[0], 
-                                   'x': region.centroid[1],
-                                   'area': region.area,
-                                   'bbox': region.bbox,
-                                   'max_intensity': region.max_intensity,
-                                   'frame': i,}]) 
+        
+        args = {}
+        for obj in self.tabWidget.currentWidget().findChildren(QtGui.QWidget):
+            if obj.metaObject().className() == 'QSpinBox':
+                args[obj.objectName()] = obj.value();
+            if obj.metaObject().className() == 'QCheckBox':
+                args[obj.objectName()] = obj.checkState();     
 
-        if spots.size > 0:
-            self.sp.setData(x=spots.x.tolist(), y=spots.y.tolist(), size=2*np.sqrt(np.array(spots.area.tolist())/np.pi))
+        method = getattr(Modules, self.tabWidget.currentWidget().objectName())
+        spots, self.processedImage  = method(i, self.processedImage, self.lp1, self.lp2, **args)
+       
+        #Overlay
+        #sp.setData(x=features.x.tolist(), y=features.y.tolist(), size=2*np.sqrt(np.array(features.area.tolist())/np.pi))
+                                                        
         return spots  
-    
-    
+
+
     def maskChanged(self):
         x0 = self.maskXSpinBox.value() #int(self.dimx/2)
         y0 = self.maskYSpinBox.value() #int(self.dimy/2)
@@ -437,7 +362,7 @@ class Window(QMainWindow):
         
     def fileComboBoxChanged(self, value):
         
-        file = self.imageFiles[value]
+        file = self.fileList[value]
         extension = os.path.splitext(file)[1]
         self.statusBar.showMessage('...')
         if extension == '.tdms':
@@ -465,19 +390,21 @@ class Window(QMainWindow):
 
         self.statusBar.showMessage('Ready')
 
-            
-    def openFilesDialog(self):
-        #self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Open Files...', self.dir, 'TDMS Files (*.tdms);;TIFF Files (*.tif)') # 'All Files (*)'
-        self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Open Files...', self.dir, 'TDMS Files (*.tdms);;TIFF Files (*.tif)',options=QtWidgets.QFileDialog.DontUseNativeDialog) # 'All Files (*)'   # for MAC the native filedialog finder crashes sometimes
+
+
+    def selectFilesDialog(self):
+        self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Select Files...', self.dir, 'TDMS Files (*.tdms);;TIFF Files (*.tif)') # 'All Files (*)'
         if self.files:
-            self.imageFiles = []
-            self.fileComboBox.blockSignals(True)
-            self.fileComboBox.clear()
-            self.fileComboBox.blockSignals(False)
+            self.fileList = []
+            self.fileListWidget.clear()
             for file in self.files:
                 if fnmatch.fnmatch(file,'*_movie.tdms') or fnmatch.fnmatch(file,'*.tif'):
-                    self.imageFiles.append(file)
-                    self.fileComboBox.addItem(os.path.basename(file))       
+                    self.fileList.append(file)
+                    self.fileListWidget.addItem(os.path.basename(file))  
+            self.displayedItem = self.fileListWidget.item(0)
+            self.displayedItemChanged(0)
+            self.displayedItem.setIcon(self.displayedIcon)
+            #print(self.fileList)
             self.frameSlider.setValue(0) # Here, self.update() is called
             self.frameSlider.setMaximum(self.frames-1)
             self.propertiesLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames) + '\n' + 'Binning: ' + str(self.binning) + '\n' + 'Exposure: ' + str(self.exposure) + ' s')
@@ -488,9 +415,74 @@ class Window(QMainWindow):
             if self.scalingComboBox.currentIndex():
                 self.enableLevels(True) 
             self.dir = os.path.dirname(self.files[0])
-            self.update()
+   
+            
+    def addFilesDialog(self):
+        if not self.fileList:
+            self.selectFilesDialog()
+        else:     
+            self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Select Files...', self.dir, 'TDMS Files (*.tdms);;TIFF Files (*.tif)') # 'All Files (*)'
+            if self.files:
+                for file in self.files:
+                    if fnmatch.fnmatch(file, '*_movie.tdms') or fnmatch.fnmatch(file, '*.tif'):
+                        self.fileList.append(file)
+                        self.fileListWidget.addItem(os.path.basename(file))   
+            #print(self.fileList)
         
-                    
+        
+    def removeFiles(self):
+        for item in self.fileListWidget.selectedItems():
+            if item == self.displayedItem:
+                self.clearGraphs()
+            del self.fileList[self.fileListWidget.row(item)]
+            self.fileListWidget.takeItem(self.fileListWidget.row(item))
+
+        if not self.fileList:
+            self.clearGraphs()
+            self.setEnabled(False)
+            
+       # print(self.fileList)            
+    
+    def fileDoubleClicked(self, item):
+        #self.displayedItem.setForeground(QtGui.QColor("black"))
+        #item.setForeground(QtGui.QColor("red"))
+        self.displayedItem.setIcon(QtGui.QIcon())
+        item.setIcon(self.displayedIcon)
+        self.displayedItem = item
+        self.displayedItemChanged(self.fileListWidget.row(item))
+     
+        
+    def displayedItemChanged(self, value):
+        
+        file = self.fileList[value]
+        extension = os.path.splitext(file)[1]
+        self.statusBar.showMessage('...')
+        if extension == '.tdms':
+            self.images = self.loadTDMSImages(file)
+        if extension == '.tif':
+            self.images = self.loadTIFFStack(file)
+        if self.frameSlider.value() == 0:
+            self.update() 
+        else:
+            self.frameSlider.setValue(0) # Here, self.update() is called
+        self.frameSlider.setMaximum(self.frames-1)
+        self.frameSpinBox.setMaximum(self.frames-1)
+        #self.p.setLimits(xMax=self.dimx, yMax=self.dimy)
+        self.p1.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy])
+        #self.p2.setLimits(xMax=self.dimx, yMax=self.dimy)
+        self.p2.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy])
+        
+        lmaxmax = np.max(self.images) 
+        self.lminSlider.setMaximum(lmaxmax)
+        self.lminSpinBox.setMaximum(lmaxmax)
+        self.lmaxSlider.setMaximum(lmaxmax)
+        self.lmaxSpinBox.setMaximum(lmaxmax)
+        self.lminSlider.setValue(0)
+        self.lmaxSlider.setValue(lmaxmax)
+
+        self.statusBar.showMessage('Ready')
+        
+        
     def loadTDMSImages(self, file):
         tdms_file = TdmsFile(file)
         p = tdms_file.object().properties
@@ -498,7 +490,7 @@ class Window(QMainWindow):
         self.dimy = int(p['dimy'])
         self.binning = int(p['binning'])
         self.frames = int(p['dimz'])
-        self.exposure = float(p['exposure'].replace(',','.'))
+        self.exposure = float(p['exposure'].replace(',', '.'))
         images = tdms_file.channel_data('Image', 'Image')
         return images.reshape(self.frames, self.dimx, self.dimy)
         
@@ -514,17 +506,23 @@ class Window(QMainWindow):
     def batchButtonClicked(self):
         self.trackingCheckBox.setCheckState(2)
         self.setEnabled(False)
+        for item in self.fileListWidget.selectedItems():
+            item.setSelected(False)
+
         self.batch = True
-        self.openFilesButton.setEnabled(False)
+        self.selectFilesButton.setEnabled(False)
+        self.addFilesButton.setEnabled(False)
+        self.removeFilesButton.setEnabled(False)
         self.abortButton.setEnabled(True)
         processedFrames = 0
-        totalFrames = self.images.shape[0]*self.fileComboBox.count() # estimate the total number of frames from the first file
-        for i, imageFile in enumerate(self.imageFiles):
+        totalFrames = self.images.shape[0]*len(self.fileList) # estimate the total number of frames from the first file
+        for i, imageFile in enumerate(self.fileList):
             self.spots = pd.DataFrame()
-            if self.fileComboBox.currentIndex() == 0 and i == 0:
-                self.fileComboBoxChanged(0)
+            if self.fileListWidget.row(self.displayedItem) == 0 and i == 0:
+                #self.fileDoubleClicked(self.fileListWidget.item(0))
+                print('Test')
             else:
-                self.fileComboBox.setCurrentIndex(i)
+                self.fileDoubleClicked(self.fileListWidget.item(i))
             self.statusBar.showMessage('Batch...')
             for j in range(self.images.shape[0]):
                 self.frameSlider.setValue(j)
@@ -537,7 +535,7 @@ class Window(QMainWindow):
                     break
                 
             if self.hdf5:
-                store = pd.HDFStore(os.path.splitext(imageFile)[0].replace('_movie', '') + '_spots.h5', 'w')
+                store = pd.HDFStore(os.path.splitext(imageFile)[0].replace('_movie', '') + '_features.h5', 'w')
 
                 store.put('spots', self.spots)
                 
@@ -549,41 +547,24 @@ class Window(QMainWindow):
                                           'exposure': self.exposure}])
                 
                 if self.medianCheckBox.checkState():
-                    metadata['pp_median'] = self.medianSpinBox.value()
+                    metadata['median'] = self.medianSpinBox.value()
                 if self.maskCheckBox.checkState():
-                    metadata['pp_mask_x'] = self.maskXSpinBox.value()
-                    metadata['pp_mask_y'] = self.maskYSpinBox.value()
-                    metadata['pp_mask_r'] = self.maskRadiusSpinBox.value()
+                    metadata['maskX'] = self.maskXSpinBox.value()
+                    metadata['maskY'] = self.maskYSpinBox.value()
+                    metadata['maskR'] = self.maskRadiusSpinBox.value()
+                
+                # self.tabWidget.currentWidget() is same as self.tabWidget.widget(self.tabWidget.currentIndex())
+                
+                metadata['method'] = self.tabWidget.tabText(self.tabIndex)
+                for obj in self.tabWidget.currentWidget().findChildren(QtGui.QWidget):
+                    if obj.metaObject().className() == 'QSpinBox':
+                        metadata[obj.objectName()] = obj.value();   
+                    if obj.metaObject().className() == 'QCheckBox':
+                        metadata[obj.objectName()] = obj.checkState();     
                     
-                if self.tabIndex == 0:
-                    metadata['t_method'] = self.trackingTabWidget.tabText(self.tabIndex)
-                    metadata['t_threshold'] = self.tab1Threshold
-                    metadata['t_area_min'] = self.tab1MinArea
-                    metadata['t_area_max'] =  self.tab1MaxArea
-                
                 store.put('metadata', metadata)
-                
                 store.close()
                 
-                '''
-                store.get_storer('spots').attrs.dimx = self.dimx
-                store.get_storer('spots').attrs.dimy = self.dimy
-                store.get_storer('spots').attrs.binning = self.binning
-                store.get_storer('spots').attrs.frames = self.frames
-                store.get_storer('spots').attrs.exposure = self.exposure
-                
-                if self.medianCheckBox.checkState():
-                    store.get_storer('spots').attrs.pp_median = self.medianSpinBox.value()
-                if self.maskCheckBox.checkState():
-                    store.get_storer('spots').attrs.pp_mask_x = self.maskXSpinBox.value()
-                    store.get_storer('spots').attrs.pp_mask_y = self.maskYSpinBox.value()
-                    store.get_storer('spots').attrs.pp_mask_radius = self.maskRadiusSpinBox.value()
-                    
-                if self.tabIndex == 0:
-                    store.get_storer('spots').attrs.t_threshold = self.tab1Threshold
-                    store.get_storer('spots').attrs.t_minarea = self.tab1MinArea
-                    store.get_storer('spots').attrs.t_maxarea = self.tab1MaxArea
-                '''
                 
             if self.csv: # save as csv file
                 file = os.path.splitext(imageFile)[0].replace('_movie', '') + '_spots.csv'
@@ -592,47 +573,14 @@ class Window(QMainWindow):
                     f.write('# %d,%d,%d,%d\n' % (self.dimx, self.dimy, self.frames, self.binning))
 
                 self.spots.to_csv(file, mode='a')
-                
-                
-            '''    
-            else: # save metadata 
-                self.spots.to_pickle(os.path.splitext(imageFile)[0].replace('_movie', '') + '_features.pkl')
-                metadata = {'dimx': self.dimx,
-                            'dimy': self.dimx,
-                            'binning': self.binning,
-                            'frames': self.frames,
-                            'exposure': self.exposure}
-                # Pre-Processing
-                if self.medianCheckBox.checkState():
-                    metadata['pp_median'] = self.medianSpinBox.value()
-                if self.maskCheckBox.checkState():
-                    metadata['pp_mask_x'] = self.maskXSpinBox.value()
-                    metadata['pp_mask_y'] = self.maskYSpinBox.value()
-                    metadata['pp_mask_r'] = self.maskRadiusSpinBox.value()
-                # Tracking
-                if self.tabIndex == 0:
-                    metadata['t_method'] = self.trackingTabWidget.tabText(self.tabIndex)
-                    metadata['t_threshold'] = self.tab1Threshold
-                    metadata['t_area_min'] = self.tab1MinArea
-                    metadata['t_area_max'] =  self.tab1MaxArea
-                
-                with open(os.path.splitext(imageFile)[0].replace('_movie', '') + '_metadata.pkl', 'wb') as f:
-                    pickle.dump(metadata, f)
-        
-                #f = open(os.path.splitext(imageFile)[0].replace('_movie', '') + '_metadata.csv', 'wb')
-                #w = csv.writer(f, delimiter=",") #delimiter=","
-                #for key, val in metadata.items():
-                #    w.writerow([key, val])
-   
-                #df = pd.DataFrame([metadata])  
-                #df.to_pickle(os.path.splitext(imageFile)[0].replace('_movie', '') + '_metadata.pkl')
-            '''
             
             if self.abort:
                 break
             
         self.setEnabled(True)
-        self.openFilesButton.setEnabled(True)
+        self.selectFilesButton.setEnabled(True)
+        self.addFilesButton.setEnabled(True)
+        self.removeFilesButton.setEnabled(True)
         self.abortButton.setEnabled(False)
         if not self.abort:
             self.progressBar.setValue(100)
@@ -648,9 +596,9 @@ class Window(QMainWindow):
         
     def trackingCheckBoxChanged(self):
         if self.trackingCheckBox.checkState():
-            self.trackingTabWidget.setEnabled(True)
+            self.tabWidget.setEnabled(True)
         else:
-            self.trackingTabWidget.setEnabled(False)
+            self.tabWidget.setEnabled(False)
             self.im2.setLookupTable(self.colormaps[self.colormapComboBox.currentIndex()])
         self.update()
         
@@ -663,7 +611,7 @@ class Window(QMainWindow):
         
     def saveSettings(self):
         self.settings.setValue('Dir', self.dir)
-        self.settings.setValue('TrackingTabIndex', self.trackingTabWidget.currentIndex())
+        self.settings.setValue('TabIndex', self.tabWidget.currentIndex())
         self.settings.setValue('TrackingState', self.trackingCheckBox.checkState())
         self.settings.setValue('Pre-Processing/MedianState', self.medianCheckBox.checkState())
         self.settings.setValue('Pre-Processing/MedianValue', self.medianSpinBox.value())
@@ -671,53 +619,61 @@ class Window(QMainWindow):
         self.settings.setValue('Pre-Processing/MaskX', self.maskXSpinBox.value())
         self.settings.setValue('Pre-Processing/MaskY', self.maskYSpinBox.value())
         self.settings.setValue('Pre-Processing/MaskRadius', self.maskRadiusSpinBox.value())
-        self.settings.setValue('Tab1/Threshold', self.tab1ThresholdSpinBox.value())
-        self.settings.setValue('Tab1/MinArea', self.tab1MinAreaSpinBox.value())
-        self.settings.setValue('Tab1/MaxArea', self.tab1MaxAreaSpinBox.value())
-        self.settings.setValue('Tab1/Invert', self.tab1InvertCheckBox.checkState())
-        self.settings.setValue('Tab1/MaxFeatures', self.tab1MaxFeaturesSpinBox.value())
-        self.settings.setValue('Tab2/Threshold', self.tab2ThresholdSpinBox.value())
-        self.settings.setValue('Tab2/MaxSigma', self.tab2MaxSigmaSpinBox.value())
-        self.settings.setValue('Tab3/Threshold', self.tab3ThresholdSpinBox.value())
-        self.settings.setValue('Tab3/MinArea', self.tab3MinAreaSpinBox.value())
-        self.settings.setValue('Tab3/MaxArea', self.tab3MaxAreaSpinBox.value())
         self.settings.setValue('Settings/HDF5', self.hdf5)
         self.settings.setValue('Settings/CSV', self.csv)
         
+        for tabCount in range(self.tabWidget.count()):
+            tab = self.tabWidget.widget(tabCount);
+            for obj in tab.findChildren(QtGui.QWidget):
+                if obj.metaObject().className() == 'QSpinBox':
+                    self.settings.setValue('Tab' + str(tabCount + 1) + '/' + obj.objectName(), str(obj.value()))
+                if obj.metaObject().className() == 'QCheckBox':
+                    self.settings.setValue('Tab' + str(tabCount + 1) + '/' + obj.objectName(), str(obj.checkState()))
+                    
         
     def restoreSettings(self):
+        if os.path.isfile('TrackerLab.ini'):
+            self.settings = QSettings('TrackerLab.ini', QSettings.IniFormat) # Opens 'TrackerLab.ini' 
+            for tabCount in range(self.tabWidget.count()):
+                tab = self.tabWidget.widget(tabCount);
+                for obj in tab.findChildren(QtGui.QWidget):
+                    if obj.metaObject().className() == 'QSpinBox':
+                        obj.setValue(int(self.settings.value('Tab' + str(tabCount + 1) + '/' + obj.objectName())))
+                    if obj.metaObject().className() == 'QCheckBox':
+                        obj.setCheckState(int(self.settings.value('Tab' + str(tabCount + 1) + '/' + obj.objectName())))
+        else:
+            self.settings = QSettings('TrackerLab.ini', QSettings.IniFormat) # Creates 'TrackerLab.ini' 
+
         self.dir = self.settings.value('Dir', '.')
         self.trackingCheckBox.setCheckState(int(self.settings.value('TrackingState', '2')))
-        self.trackingTabWidget.setCurrentIndex(int(self.settings.value('TrackingTabIndex', '0'))) 
+        self.tabWidget.setCurrentIndex(int(self.settings.value('tabIndex', '0'))) 
         self.medianCheckBox.setCheckState(int(self.settings.value('Pre-Processing/MedianState', '0')))
         self.medianSpinBox.setValue(int(self.settings.value('Pre-Processing/MedianValue', '2'))) 
         self.maskCheckBox.setCheckState(int(self.settings.value('Pre-Processing/MaskState', '0')))
         self.maskXSpinBox.setValue(int(self.settings.value('Pre-Processing/MaskX', '100')))  
         self.maskYSpinBox.setValue(int(self.settings.value('Pre-Processing/MaskY', '100')))  
         self.maskRadiusSpinBox.setValue(int(self.settings.value('Pre-Processing/MaskRadius', '100')))  
-        self.tab1ThresholdSpinBox.setValue(int(self.settings.value('Tab1/Threshold', '1000')))
-        self.tab1MinAreaSpinBox.setValue(int(self.settings.value('Tab1/MinArea', '10')))
-        self.tab1MaxAreaSpinBox.setValue(int(self.settings.value('Tab1/MaxArea', '250')))
-        self.tab1MaxFeaturesSpinBox.setValue(int(self.settings.value('Tab1/MaxFeatures', '1000')))
-        self.tab2ThresholdSpinBox.setValue(float(self.settings.value('Tab2/Threshold', '0.1')))
-        self.tab2MaxSigmaSpinBox.setValue(int(self.settings.value('Tab2/MaxSigma', '10')))
-        self.tab3ThresholdSpinBox.setValue(int(self.settings.value('Tab3/Threshold', '1000')))
-        self.tab3MinAreaSpinBox.setValue(int(self.settings.value('Tab3/MinArea', '10')))
-        self.tab3MaxAreaSpinBox.setValue(int(self.settings.value('Tab3/MaxArea', '250')))
         self.hdf5 = int(self.settings.value('Settings/HDF5', '2'))
         self.csv = int(self.settings.value('Settings/CSV', '0'))
 
-            
+    def clearGraphs(self):
+        self.im1.clear()
+        self.im2.clear()
+        #self.sp1.clear()
+        self.lp1.clear()
+        self.lp2.clear()
+        
     def setEnabled(self, state):
-        self.fileComboBox.setEnabled(state)
+        self.fileListWidget.setEnabled(state)
         self.frameSlider.setEnabled(state)
         self.frameSpinBox.setEnabled(state)
         self.batchButton.setEnabled(state)
         self.preprocessingFrame.setEnabled(state)
         self.trackingCheckBox.setEnabled(state)
-        self.trackingTabWidget.setEnabled(state)
+        self.tabWidget.setEnabled(state)
+        self.removeFilesButton.setEnabled(state)
 
-       
+
     def enableLevels(self, state): 
        self.lminSlider.setEnabled(state)  
        self.lminSpinBox.setEnabled(state) 
@@ -736,11 +692,15 @@ class Window(QMainWindow):
             
        
     def aboutClicked(self):
-       QMessageBox.about(self, 'About', 
-                               'This is the Molecular Nanophotonics TrackerLab'
-                             + 'It is based on PyQt and the PyQtGraph libary.' + 2*'\n'
-                             + 'Martin Fränzl')    
-       
+       about = QMessageBox()
+       about.setWindowTitle("About")
+       about.setTextFormat(QtCore.Qt.RichText)   
+       about.setText("This is the Molecular Nanophotonics TrackerLab. " +
+                     "It is based on PyQt and the PyQtGraph libary." + 2*"<br>" +
+                     "<a href='http://github.com/Molecular-Nanophotonics/TrackerLab'>http://github.com/molecular-nanophotonics/trackerlab</a>" + 2*"<br>" +
+                     "M. Fränzl and N. Söcker")
+       about.exec()
+
      
 if __name__ == '__main__':
     app = QApplication(sys.argv)
