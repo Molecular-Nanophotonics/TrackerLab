@@ -27,16 +27,16 @@ Linux: -
 
 ## Installation Guide
 
-The TrackerLab requires the [Anaconda](https://www.anaconda.com/download/) framework with Python 3 to be installed. 
+The TrackerLab supports Windows, Mac OS and Linux and requires the [Anaconda](https://www.anaconda.com/download/) framework with Python 3 to be installed. 
 
 ### Required Packages:
 
-The following packages are required:
+In addition, the following Python packages are required:
 
 1. nptdms
 2. pyqtgraph
 
-Optional: ffmpeg
+To use the Video Export functionality FFmpeg needs to be installed.
 
 
 ## Instructions for Use
