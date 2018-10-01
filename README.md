@@ -1,4 +1,4 @@
-# Tracking and Data Analysis of Single Amyloid Fibrils in a Thermophoretic Trap
+# TrackerLab
 
 ## Contents
 
@@ -11,7 +11,7 @@
 
 ## Discription
 
-This is the repository for the *"TrackerLab"* of the Molecular Nanophotonics Group. It is a GUI for image processing, tracking and video conversion based on PyQt, PyQtGraph packages and FFmpeg.
+This is the repository for the Molecular Nanophotonics TrackerLab. It is a modular GUI writen in Python for the tracking of nano-objects based on PyQt and PyQtGraph.
 
 ## Sample Data
 
@@ -19,15 +19,15 @@ A sample dataset for testing is available at: ...
 
 ## System Requirements
 
-The TrackerLab is supported for Windows, Mac OS and Linux. The software has been tested on the following systems:
+The TrackerLab supports Windows, Mac OS and Linux. It has been tested on the following systems:
 
 Windows: 10  
 Mac OS: 10.12  
-Linux:   
+Linux: -  
 
 ## Installation Guide
 
-The software requires the [Anaconda](https://www.anaconda.com/download/) framework with Python 3 to be installed. 
+The TrackerLab requires the [Anaconda](https://www.anaconda.com/download/) framework with Python 3 to be installed. 
 
 ### Required Packages:
 
@@ -35,17 +35,19 @@ The following packages are required:
 
 1. nptdms
 2. pyqtgraph
-3. ffmpeg (optional)
+
+Optional: ffmpeg
+
 
 ## Instructions for Use
 
-Then, run the TrackerLab.py script. With all packages installed properly you should see a GUI similar to the screenshot below. 
-To open a video file click `Open...` and select all `*_video.tdms` in the sample dataset.
+To start the TrackerLab run script TrackerLab.py with: `python TrackerLab.py`
 
-![Screenshot](https://github.com/Molecular-Nanophotonics/Thermophoretic-Trap-for-Protein-Aggregation-Studies/blob/master/Resources/Screenshot.PNG)
+If all required packages are installed properly you should see something similar to:
+![Screenshot](https://github.com/Molecular-Nanophotonics/TrackerLab/blob/master/Resources/Screenshot.PNG)
 
-The `*video.tdms` files are TDMS files recored with LabVIEW containing the image series and metadata such as the binning and the exposure time. For more information about the TDMS file format see [The NI TDM File Format](http://www.ni.com/white-paper/3727/en/).  
-Beside these TDMS files the software also supports stacked TIFF files for general use.  
+To get started, click `Select...` and select a set of `*_movie.tdms` files. The TrackerLab support TDMS files and stacked TIFF files.  
+
   
 In the pre-processing panel a media filter and a circular mask can be applied to the image.
 In the tracking tab the tracking method and parameters can be adjusted.
@@ -54,5 +56,8 @@ To run the tracking algorithm for all selected files click `Start`. The tracking
 
 ## Jupyter Notebooks
 
-[Step_Size_Analysis.ipynb](https://github.com/Molecular-Nanophotonics/TrackerLab/blob/master/Jupyter-Notebooks/HDF5FileLoader.ipynb) demonstate how to load the HDF5 features files. 
+[HDF5FileLoader.ipynb](https://github.com/Molecular-Nanophotonics/TrackerLab/blob/master/Jupyter-Notebooks/HDF5FileLoader.ipynb) demonstate how to load the HDF5 features files. 
+
+## Writing your Own Module
+
 
