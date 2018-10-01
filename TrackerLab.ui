@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1086</width>
-    <height>909</height>
+    <width>1209</width>
+    <height>992</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -115,9 +115,9 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>570</x>
+         <x>560</x>
          <y>40</y>
-         <width>491</width>
+         <width>431</width>
          <height>211</height>
         </rect>
        </property>
@@ -385,39 +385,23 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>870</x>
-         <y>10</y>
+         <x>560</x>
+         <y>270</y>
          <width>91</width>
          <height>23</height>
         </rect>
        </property>
        <property name="text">
-        <string>Batch</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="abortButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="geometry">
-        <rect>
-         <x>970</x>
-         <y>10</y>
-         <width>91</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Cancel</string>
+        <string>Start</string>
        </property>
       </widget>
       <widget class="QLabel" name="numberOfSpots">
        <property name="geometry">
         <rect>
-         <x>650</x>
-         <y>280</y>
+         <x>770</x>
+         <y>270</y>
          <width>61</width>
-         <height>20</height>
+         <height>21</height>
         </rect>
        </property>
        <property name="frameShape">
@@ -433,8 +417,8 @@
       <widget class="QLabel" name="numberOfSpotsLabel">
        <property name="geometry">
         <rect>
-         <x>570</x>
-         <y>279</y>
+         <x>690</x>
+         <y>269</y>
          <width>81</width>
          <height>20</height>
         </rect>
@@ -449,7 +433,7 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>370</x>
+         <x>360</x>
          <y>40</y>
          <width>181</width>
          <height>211</height>
@@ -633,7 +617,7 @@
       <widget class="QLabel" name="preprocessingFrameLabel">
        <property name="geometry">
         <rect>
-         <x>370</x>
+         <x>360</x>
          <y>13</y>
          <width>161</width>
          <height>16</height>
@@ -646,7 +630,7 @@
       <widget class="QLabel" name="propertiesLabel">
        <property name="geometry">
         <rect>
-         <x>370</x>
+         <x>360</x>
          <y>260</y>
          <width>181</width>
          <height>51</height>
@@ -662,7 +646,7 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>570</x>
+         <x>560</x>
          <y>12</y>
          <width>121</width>
          <height>17</height>
@@ -885,6 +869,222 @@
         <string>Remove</string>
        </property>
       </widget>
+      <widget class="QFrame" name="exportFrame">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>1010</x>
+         <y>40</y>
+         <width>181</width>
+         <height>211</height>
+        </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <widget class="QSpinBox" name="startFrameSpinBox">
+        <property name="geometry">
+         <rect>
+          <x>80</x>
+          <y>60</y>
+          <width>61</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QSpinBox" name="endFrameSpinBox">
+        <property name="geometry">
+         <rect>
+          <x>80</x>
+          <y>90</y>
+          <width>61</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>63</y>
+          <width>61</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Frames:</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="exportTypeComboBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>131</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="currentText">
+         <string>Selected File</string>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Selected File</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Concatenate Files</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QComboBox" name="exportViewComboBox">
+        <property name="geometry">
+         <rect>
+          <x>80</x>
+          <y>130</y>
+          <width>81</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="currentText">
+         <string>Left</string>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Left</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Right</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QLabel" name="label_2">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>61</y>
+          <width>21</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>To</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_3">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>170</y>
+          <width>81</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Frame Rate:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_4">
+        <property name="geometry">
+         <rect>
+          <x>145</x>
+          <y>169</y>
+          <width>71</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>1/s</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="framerateSpinBox">
+        <property name="geometry">
+         <rect>
+          <x>77</x>
+          <y>169</y>
+          <width>62</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
+        </property>
+        <property name="frame">
+         <bool>true</bool>
+        </property>
+        <property name="keyboardTracking">
+         <bool>false</bool>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <double>1000.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>50.000000000000000</double>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_5">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>130</y>
+          <width>61</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>View:</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QLabel" name="preprocessingFrameLabel_2">
+       <property name="geometry">
+        <rect>
+         <x>1010</x>
+         <y>13</y>
+         <width>161</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Video Export </string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="exportButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>1010</x>
+         <y>270</y>
+         <width>75</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Export</string>
+       </property>
+      </widget>
      </widget>
     </item>
     <item>
@@ -933,7 +1133,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1086</width>
+     <width>1209</width>
      <height>21</height>
     </rect>
    </property>
