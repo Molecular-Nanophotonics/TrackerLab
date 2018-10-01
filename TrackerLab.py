@@ -33,9 +33,14 @@ import os, fnmatch, glob
 
 from nptdms import TdmsFile
 
+<<<<<<< HEAD
 import subprocess as sp # for calling ffmpeg
 
 import Modules
+=======
+import Modules
+import platform
+>>>>>>> 377b0c5305fc0eafbe052e5106092dbfd67bfbd8
 
 class SettingsWindow(QDialog):
     def __init__(self):
@@ -380,7 +385,10 @@ class Window(QMainWindow):
 
 
     def selectFilesDialog(self):
-        self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Select Files...', self.dir, 'TDMS Files (*.tdms);;TIFF Files (*.tif)') # 'All Files (*)'
+        if platform.system() == 'Darwin': #Mac   - the native file browser sometimes crashes - use an alternative
+            self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Select Files...', self.dir, 'TDMS Files (*.tdms);;TIFF Files (*.tif)',options=QtWidgets.QFileDialog.DontUseNativeDialog) # 'All Files (*)'
+        else:
+            self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Select Files...', self.dir, 'TDMS Files (*.tdms);;TIFF Files (*.tif)') # 'All Files (*)'
         if self.files:
             self.fileList = []
             self.fileListWidget.clear()
@@ -416,8 +424,11 @@ class Window(QMainWindow):
     def addFilesDialog(self):
         if not self.fileList:
             self.selectFilesDialog()
-        else:     
-            self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Select Files...', self.dir, 'TDMS Files (*.tdms);;TIFF Files (*.tif)') # 'All Files (*)'
+        else:
+            if platform.system() == 'Darwin': #Mac   - the native file browser sometimes crashes - use an alternative
+                self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Select Files...', self.dir, 'TDMS Files (*.tdms);;TIFF Files (*.tif)',options=QtWidgets.QFileDialog.DontUseNativeDialog) # 'All Files (*)'
+            else:
+                self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Select Files...', self.dir, 'TDMS Files (*.tdms);;TIFF Files (*.tif)') # 'All Files (*)'
             if self.files:
                 for file in self.files:
                     if fnmatch.fnmatch(file, '*_movie.tdms') or fnmatch.fnmatch(file, '*.tif'):
