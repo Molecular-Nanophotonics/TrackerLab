@@ -38,15 +38,13 @@ To start the TrackerLab run script TrackerLab.py with: `python TrackerLab.py`
 If all required packages are installed properly you should see something similar to:
 ![Screenshot](https://github.com/Molecular-Nanophotonics/TrackerLab/blob/master/Resources/Screenshot.PNG)
 
-To get started, click `Select...` or `Add...` to select a set of `*_movie.tdms` files. At present, the software supports our custom TDMS files (`*_movie.tdms`) and stacked TIFF files for general use. Use `Add...` and `Remove` add and remove files from the file list. The file dialog as well as the file list supports multiple file selection. The displayed file is marked with black dot and can be selected via double-click.
+To get started, click `Select...` to select a set of `*_movie.tdms` files. At present, the software supports our custom TDMS files (`*_movie.tdms`) and stacked TIFF files for general use. Use `Add...` and `Remove` to add and remove files from the file list. The file dialog as well as the file list supports multiple file selection. The displayed file is marked with black dot and can be selected by double-clicking. The left graph shows the raw image and the right graph the process image with the overlay.
 
-In the pre-processing panel a media filter and a circular mask can be applied to the images. 
+In the pre-processing panel a media filter and a circular mask can be applied to the image.  
 
 In the tracking tab the tracking method and the parameters can be selected. 
 
-
-To pcoess all files in the `Start` tp process . 
-Depending on the selected Setting the tracking data will be stored as DataFrame in a `*_features.h5` HDF5 file along with some metadata. 
+To process all files in the file list click `Start`. Depending on the `Settings` the tracking data will be stored as `*_features.h5` HDF5 file or as `*_features.csv` CSV file.
 
 ## Jupyter Notebooks
 
