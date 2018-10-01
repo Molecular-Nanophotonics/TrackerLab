@@ -38,8 +38,14 @@ To start the TrackerLab run script TrackerLab.py with: `python TrackerLab.py`
 If all required packages are installed properly you should see something similar to:
 ![Screenshot](https://github.com/Molecular-Nanophotonics/TrackerLab/blob/master/Resources/Screenshot.PNG)
 
-To get started, click `Select...` and select a set of `*_movie.tdms` files. The software suports a specific TDMS files and stacked TIFF files for general use. In the pre-processing panel a media filter and a circular mask can be applied to the images. In the tracking tab the tracking method and parameters can be selected. 
-Click `Start` tp process . 
+To get started, click `Select...` and select a set of `*_movie.tdms` files. At present, the software suports our custom TDMS files and stacked TIFF files for general use. The ´Add...´ and ´Remove´ buttons can be used to add and remove file from the file list. The file dialog as well as the file list supports multiple file selection. The displayed file is marked with black dot and can be selected via double-click.
+
+In the pre-processing panel a media filter and a circular mask can be applied to the images. 
+
+In the tracking tab the tracking method and the parameters can be selected. 
+
+
+To pcoess all files in the `Start` tp process . 
 Depending on the selected Setting the tracking data will be stored as DataFrame in a `*_features.h5` HDF5 file along with some metadata. 
 
 ## Jupyter Notebooks
