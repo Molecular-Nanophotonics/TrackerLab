@@ -793,7 +793,7 @@
       <widget class="QLabel" name="numberOfSpots">
        <property name="geometry">
         <rect>
-         <x>770</x>
+         <x>780</x>
          <y>270</y>
          <width>61</width>
          <height>21</height>
@@ -819,7 +819,7 @@
         </rect>
        </property>
        <property name="text">
-        <string> # of Spots:</string>
+        <string> # of Features:</string>
        </property>
       </widget>
       <widget class="QFrame" name="preprocessingFrame">
@@ -1231,6 +1231,9 @@
          <height>111</height>
         </rect>
        </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::DragDrop</enum>
+       </property>
        <property name="selectionMode">
         <enum>QAbstractItemView::ContiguousSelection</enum>
        </property>
@@ -1285,7 +1288,7 @@
        <widget class="QSpinBox" name="startFrameSpinBox">
         <property name="geometry">
          <rect>
-          <x>80</x>
+          <x>88</x>
           <y>60</y>
           <width>61</width>
           <height>22</height>
@@ -1295,7 +1298,7 @@
        <widget class="QSpinBox" name="endFrameSpinBox">
         <property name="geometry">
          <rect>
-          <x>80</x>
+          <x>88</x>
           <y>90</y>
           <width>61</width>
           <height>22</height>
@@ -1344,7 +1347,7 @@
        <widget class="QComboBox" name="exportViewComboBox">
         <property name="geometry">
          <rect>
-          <x>80</x>
+          <x>88</x>
           <y>130</y>
           <width>81</width>
           <height>22</height>
@@ -1370,7 +1373,7 @@
        <widget class="QLabel" name="label_2">
         <property name="geometry">
          <rect>
-          <x>150</x>
+          <x>158</x>
           <y>61</y>
           <width>21</width>
           <height>16</height>
@@ -1396,9 +1399,9 @@
        <widget class="QLabel" name="label_4">
         <property name="geometry">
          <rect>
-          <x>145</x>
+          <x>155</x>
           <y>169</y>
-          <width>71</width>
+          <width>61</width>
           <height>20</height>
          </rect>
         </property>
@@ -1409,7 +1412,7 @@
        <widget class="QDoubleSpinBox" name="framerateSpinBox">
         <property name="geometry">
          <rect>
-          <x>77</x>
+          <x>85</x>
           <y>169</y>
           <width>62</width>
           <height>22</height>

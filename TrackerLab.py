@@ -552,7 +552,7 @@ class Window(QMainWindow):
             if self.hdf5:
                 store = pd.HDFStore(os.path.splitext(file)[0].replace('_movie', '') + '_features.h5', 'w')
 
-                store.put('spots', self.spots)
+                store.put('features', self.spots)
                 
                 # save metadata as data frame
                 metadata = pd.DataFrame([{'dimx': self.dimx,
@@ -582,10 +582,10 @@ class Window(QMainWindow):
                 
                 
             if self.csv: # save as csv file
-                file = os.path.splitext(file)[0].replace('_movie', '') + '_spots.csv'
+                file = os.path.splitext(file)[0].replace('_movie', '') + '_features.csv'
                 with open(file, 'w') as f:
-                    f.write('# dimx,dimy,frames,binning\n')
-                    f.write('# %d,%d,%d,%d\n' % (self.dimx, self.dimy, self.frames, self.binning))
+                    f.write('dimx,dimy,frames,binning\n')
+                    f.write('%d,%d,%d,%d\n' % (self.dimx, self.dimy, self.frames, self.binning))
 
                 self.spots.to_csv(file, mode='a')
             
