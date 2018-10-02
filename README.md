@@ -49,25 +49,25 @@ To process all files in the file list click `Start`. Depending on the `Settings`
 
 [FeaturesFileReader.ipynb](https://github.com/Molecular-Nanophotonics/TrackerLab/blob/master/Jupyter-Notebooks/FeaturesFileReader.ipynb) demonstates how to read the exported  HDF5 and CSV feature files.
 
-## Adding New Modules
+## Adding New Feature Detection Tabs
 
-The software is designed modular making it easy to add custom feature detection tabs. To add a new tab open the `TrackerLab.ui` file with the *Qt Designer* contained in your Anacoda installation. Rightclick the tab widget to add a new tab and insert the required input widgets and labels. The object names of your widgets will 
+The software is designed modular making it easy to add custom feature detection tabs. To add a new tab open the `TrackerLab.ui` file with the *Qt Designer* contained in your Anacoda installation. Then, right-click the tab widget, add a new tab and insert the required input widgets and labels. Later, the values of your input widgets will be accessed by their object name. To implement your detection method open the file `Modules.py` and add a new function with the follwing structure:
 ```
-def MyFeatureDetection(i, image, lp1, lp2, **args):
+def MyDetection(i, image, lp1, lp2, **args):
 
-    threshold = args['tab1ThresholdSpinBox']
-    min_area = args['tab1MinAreaSpinBox']
+    value1 = args['value1SpinBox']
+    value2 = args['value2SpinBox']
     
     # Detect Features
-    features = pd.DataFrame()
-    for region in regions:
-    features = features.append([{'y': region.centroid[0], 
-        								         'x': region.centroid[1],
-    									           'frame': i,}])
-                                 
+    features = pd.DataFrame() # The first return value has to be a data frame
+                        
     # Draw the Overlay
+    # ...
     
 return features, image
+
+The name of the function has to match the tab name in the TrackerLab.ui and the values of the input widgets are accessed via there object names.
+
 
 
 
