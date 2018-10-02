@@ -57,17 +57,18 @@ def MyDetection(i, image, lp1, lp2, **args):
 
     value1 = args['value1SpinBox']
     value2 = args['value2SpinBox']
+    ...
     
     # Detect Features
     features = pd.DataFrame() # The first return value has to be a data frame
-                        
+    ...
+    
     # Draw the Overlay
-    # ...
+    ...
     
 return features, image
-
-The name of the function has to match the tab name in the TrackerLab.ui and the values of the input widgets are accessed via there object names.
-
+```
+The name of your function has to match the tab name in `TrackerLab.ui`. The default arguments of the function are the frame number `i`, a 2D array `image` containing the image and two line plot items `lp1` and `lp2` for the overlay. The argument `args` contains the values of your input widgets defined by their object name.
 
 
 
