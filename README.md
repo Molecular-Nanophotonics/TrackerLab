@@ -15,7 +15,7 @@ This is the repository for the Molecular Nanophotonics TrackerLab. It is a modul
 
 ## Sample Data
 
-A sample dataset for testing is available at: .`72/Data/Sample Data`
+A sample dataset for testing is available at: .`71/Data/Sample Data`
 
 ## Installation Guide
 
