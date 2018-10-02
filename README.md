@@ -50,6 +50,8 @@ Click `Start` to process all files in the file list. Depending on the settings (
 
 [FeaturesFileReader.ipynb](https://github.com/Molecular-Nanophotonics/TrackerLab/blob/master/Jupyter-Notebooks/FeaturesFileReader.ipynb) demonstates how to read the exported  HDF5 and CSV feature files.
 
+For further information and a general introduction to the file formats and data analysis see: [Getting_Started.ipynb](https://github.com/Molecular-Nanophotonics/Jupyter-Notebooks/blob/master/Getting_Started.ipynb)
+
 ## Adding New Feature Detection Tabs
 
 The software is designed in a modular manner making it easy to add custom feature detection tabs. To add a new tab open the `TrackerLab.ui` file with *Qt Designer* contained in your Anacoda installation. Then, right-click the tab widget, add a new tab and insert the desired input widgets and labels. Later, the values of your input widgets will be accessed by their `objectName`. To implement your detection method open the file `Modules.py` and add a new function with the follwing structure:
