@@ -69,6 +69,8 @@ def MyDetection(i, image, lp1, lp2, **args):
     
 return features, image
 ```
-The name of your function has to match the `tabName` in `TrackerLab.ui`. The required arguments of the function are the frame `i`, a 2D array `image` containing the image and two line plot items `lp1` and `lp2` for the overlay. The argument `args` contains the values of your input widgets that can be accessed by their `objectName`. The return value `features` has to be a pandas data frame with at least three columns `x`, `y`and `frame`. See the examples and comments in `Modules.py` for details. <br>
+The name of your function has to match the `tabName` in `TrackerLab.ui`. The required arguments of the function are the frame `i`, a 2D array `image` containing the image and two line plot items `lp1` and `lp2` for the overlay. The argument `args` contains the values of your input widgets that can be accessed by their `objectName`. The returned `features` has to be a data frame with at least three columns `x`, `y`and `frame`. 
 
 That's all.
+
+See the examples in `Modules.py` for details.
