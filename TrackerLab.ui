@@ -125,7 +125,7 @@
         <bool>false</bool>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="ConnectedComponent">
         <attribute name="title">
@@ -1048,7 +1048,7 @@
         </rect>
        </property>
        <property name="text">
-        <string> Tracking</string>
+        <string> Detect Features</string>
        </property>
        <property name="checked">
         <bool>true</bool>

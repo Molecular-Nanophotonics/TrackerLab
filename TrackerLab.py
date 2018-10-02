@@ -539,7 +539,7 @@ class Window(QMainWindow):
                 pass
             else:
                 self.fileDoubleClicked(self.fileListWidget.item(f))
-            self.statusBar.showMessage('Tracking... Progress: ' + os.path.basename(file))
+            self.statusBar.showMessage('Feature Detection... Progress: ' + os.path.basename(file))
             for j in range(self.images.shape[0]):
                 self.frameSlider.setValue(j)
                 processedFrames += 1
@@ -645,7 +645,7 @@ class Window(QMainWindow):
                     totalFrames = self.endFrameSpinBox.value() - self.startFrameSpinBox.value() + 1
             else:
                 self.fileDoubleClicked(self.fileListWidget.item(f))
-            self.statusBar.showMessage('Export MP4 File... Progress: ' + os.path.basename(file))
+            self.statusBar.showMessage('Video Export... Progress: ' + os.path.basename(file))
             for i in range(self.startFrameSpinBox.value(), self.endFrameSpinBox.value()):
                 self.frameSlider.setValue(i)
                 if self.exportViewComboBox.currentIndex() == 0: 

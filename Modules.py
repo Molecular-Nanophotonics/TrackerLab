@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Discription:
-Author: Martin Fränzl
-Data: 21/06/18
+Author(s): Molecular Nanophotonics Group
 """
 
 import numpy as np
@@ -11,6 +10,11 @@ import skimage
 from skimage.feature import blob_log, blob_dog
 
 
+###############################################################################
+# Method: Connected-Component Labeling
+# Discription:
+# 
+###############################################################################
 def ConnectedComponent(i, image, lp1, lp2, **args):
     
     threshold = args['tab1ThresholdSpinBox']
@@ -19,6 +23,7 @@ def ConnectedComponent(i, image, lp1, lp2, **args):
     invert = args['tab1InvertCheckBox']
     max_features = args['tab1MaxFeaturesSpinBox']
     
+    # detect features
     features = pd.DataFrame()
     intensityImage = image
     image = (image > threshold).astype(int) # threshold image
@@ -34,15 +39,16 @@ def ConnectedComponent(i, image, lp1, lp2, **args):
         if j >= max_features: # do not add feature
             continue 
         features = features.append([{'y': region.centroid[0], 
-									 'x': region.centroid[1],
-									 'orientation': region.orientation,
-									 'minor_axis_length': region.minor_axis_length,
-									 'major_axis_length': region.major_axis_length,
-									 'area': region.area,
-									 'max_intensity': region.max_intensity,
-									 'frame': i,}])
+        								   'x': region.centroid[1],
+    									   'orientation': region.orientation,
+    									   'minor_axis_length': region.minor_axis_length,
+    									   'major_axis_length': region.major_axis_length,
+    									   'area': region.area,
+    									   'max_intensity': region.max_intensity,
+    									   'frame': i,}])
         j += 1 # feature added 		
-     
+    
+    # draw the overlay
     if features.size > 0:            
         axesX = []
         axesY = []
@@ -76,9 +82,11 @@ def ConnectedComponent(i, image, lp1, lp2, **args):
     return features, image
  
     
-
-
-
+###############################################################################
+# Method: Difference of Gaussians
+# Discription:
+# 
+###############################################################################
 def DifferenceOfGaussians(i, image, lp1, lp2, **args):
     
     threshold = args['tab2ThresholdSpinBox']
