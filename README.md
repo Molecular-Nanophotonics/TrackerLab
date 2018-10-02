@@ -48,7 +48,7 @@ Click `Start` to process all files in the file list. Depending on the settings (
 
 ## Jupyter Notebooks
 
-[FeaturesFileReader.ipynb](https://github.com/Molecular-Nanophotonics/TrackerLab/blob/master/Jupyter-Notebooks/FeaturesFileReader.ipynb) demonstates how to read the exported  HDF5 and CSV feature files.
+[Read_Features_Files.ipynb](https://github.com/Molecular-Nanophotonics/TrackerLab/blob/master/Jupyter-Notebooks/Read_Features_Files.ipynb) demonstates how to read the exported  HDF5 and CSV feature files.
 
 For more information on how to work with HDF5 files and data frames see: [Getting Started with Python in the Molecular Nanophotonics Group](https://github.com/Molecular-Nanophotonics/Jupyter-Notebooks/blob/master/Getting_Started.ipynb)
 
