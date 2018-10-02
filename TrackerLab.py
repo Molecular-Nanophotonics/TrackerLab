@@ -228,7 +228,7 @@ class Window(QMainWindow):
         except OSError as e:
             if e.errno == os.errno.ENOENT:
                 self.ffmpeg = False # FFmpeg is not installed
-                print('FFmpeg is Not Installed. Video Export Disabled.')
+                print('FFmpeg is Not Installed. Video Export is Disabled.')
                 
         
     def mouseMoved(self, e):
@@ -532,6 +532,7 @@ class Window(QMainWindow):
         self.cancelButton.setEnabled(True)
         processedFrames = 0
         totalFrames = self.images.shape[0]*len(self.fileList) # estimate the total number of frames from the first file
+       
         for f, file in enumerate(self.fileList):
             self.spots = pd.DataFrame()
             if self.fileListWidget.row(self.displayedItem) == 0 and f == 0:
@@ -548,45 +549,43 @@ class Window(QMainWindow):
                     self.progressBar.setValue(0)
                     self.statusBar.showMessage('Ready')
                     break
-                
+            
+            
+            # save metadata as data frame
+            metadata = pd.DataFrame([{'dimx': self.dimx,
+                                      'dimy': self.dimx,
+                                      'frames': self.frames}])
+
+            if os.path.splitext(file)[1] == '.tdms':
+                metadata['binning'] =  self.binning
+                metadata['exposure'] =  self.exposure
+            
+            if self.medianCheckBox.checkState():
+                metadata['median'] = self.medianSpinBox.value()
+            if self.maskCheckBox.checkState():
+                metadata['maskX'] = self.maskXSpinBox.value()
+                metadata['maskY'] = self.maskYSpinBox.value()
+                metadata['maskR'] = self.maskRadiusSpinBox.value()
+            
+            metadata['method'] = self.tabWidget.tabText(self.tabIndex)
+            for obj in self.tabWidget.currentWidget().findChildren(QtGui.QWidget):
+                if obj.metaObject().className() == 'QSpinBox':
+                    metadata[obj.objectName()] = obj.value();   
+                if obj.metaObject().className() == 'QCheckBox':
+                    metadata[obj.objectName()] = obj.checkState();
+                     
+                    
+            # Save features and metadata in HDF5 file
             if self.hdf5:
                 store = pd.HDFStore(os.path.splitext(file)[0].replace('_movie', '') + '_features.h5', 'w')
-
                 store.put('features', self.spots)
-                
-                # save metadata as data frame
-                metadata = pd.DataFrame([{'dimx': self.dimx,
-                                          'dimy': self.dimx,
-                                          'frames': self.frames}])
-    
-                if os.path.splitext(file)[1] == '.tdms':
-                    metadata['binning'] =  self.binning
-                    metadata['exposure'] =  self.exposure
-                
-                if self.medianCheckBox.checkState():
-                    metadata['median'] = self.medianSpinBox.value()
-                if self.maskCheckBox.checkState():
-                    metadata['maskX'] = self.maskXSpinBox.value()
-                    metadata['maskY'] = self.maskYSpinBox.value()
-                    metadata['maskR'] = self.maskRadiusSpinBox.value()
-                
-                # save all 
-                metadata['method'] = self.tabWidget.tabText(self.tabIndex)
-                for obj in self.tabWidget.currentWidget().findChildren(QtGui.QWidget):
-                    if obj.metaObject().className() == 'QSpinBox':
-                        metadata[obj.objectName()] = obj.value();   
-                    if obj.metaObject().className() == 'QCheckBox':
-                        metadata[obj.objectName()] = obj.checkState();                        
                 store.put('metadata', metadata)
                 store.close()
                 
-                
-            if self.csv: # save as csv file
+            # Save metadata and features as CSV file
+            if self.csv:
                 file = os.path.splitext(file)[0].replace('_movie', '') + '_features.csv'
-                with open(file, 'w') as f:
-                    f.write('dimx,dimy,frames,binning\n')
-                    f.write('%d,%d,%d,%d\n' % (self.dimx, self.dimy, self.frames, self.binning))
-
+                metadata.to_csv(file, mode='w')   
                 self.spots.to_csv(file, mode='a')
             
             if self.canceled:
