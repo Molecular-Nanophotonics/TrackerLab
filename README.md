@@ -35,6 +35,7 @@ To use the Video Export function FFmpeg needs to be installed.
 To start the TrackerLab run `TrackerLab.py`
 
 If all required packages are installed properly you should see something similar to: <br>
+
 ![Screenshot](https://github.com/Molecular-Nanophotonics/TrackerLab/blob/master/Resources/Screenshot.PNG)
 
 To get started click `Select...` and select a set of `*_movie.tdms` files for investigation. Currently, the software supports our custom TDMS files (`*_movie.tdms`) and stacked TIFF files for more general use. `Add...` and `Remove` can be used to add and remove files from the file list. The file dialog as well as the file list supports multiple file selection. Sorting in the file list via drag and drop is currently not supported (Will be added in the future). The displayed file is marked with black dot and can be selected by double-clicking in the file list. The left graph shows the raw image and the right graph the process image and the overlay.
