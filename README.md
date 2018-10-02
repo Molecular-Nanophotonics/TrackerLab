@@ -51,5 +51,23 @@ To process all files in the file list click `Start`. Depending on the `Settings`
 
 ## Adding New Modules
 
-...
+The software is designed modular making it easy to add custom feature detection tabs. To add a new tab open the `TrackerLab.ui` file with the *Qt Designer* contained in your Anacoda installation. Rightclick the tab widget to add a new tab and insert the required input widgets and labels. The object names of your widgets will 
+```
+def MyFeatureDetection(i, image, lp1, lp2, **args):
+
+    threshold = args['tab1ThresholdSpinBox']
+    min_area = args['tab1MinAreaSpinBox']
+    
+    # Detect Features
+    features = pd.DataFrame()
+    for region in regions:
+    features = features.append([{'y': region.centroid[0], 
+        								         'x': region.centroid[1],
+    									           'frame': i,}])
+                                 
+    # Draw the Overlay
+    
+return features, image
+
+
 
