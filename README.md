@@ -1,4 +1,4 @@
-# TrackerLab V1.3
+# TrackerLab
 
 ## Contents
 
