@@ -3,7 +3,7 @@
 ## Contents
 
 - [Discription](#discription)
-- [Sample Data](#data-availability)
+- [Sample Data](#sample-data)
 - [Installation Guide](#installation-guide)
 - [Instructions for Use](#instructions-for-use)
 - [Jupyter-Notebooks](#jupyter-notebooks)
