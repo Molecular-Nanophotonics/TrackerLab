@@ -23,20 +23,20 @@ def ConnectedComponent(i, image, lp1, lp2, **args):
     invert = args['tab1InvertCheckBox']
     max_features = args['tab1MaxFeaturesSpinBox']
     
-    # detect features
+    # Detect features
     features = pd.DataFrame()
     intensityImage = image
-    image = (image > threshold).astype(int) # threshold image
+    image = (image > threshold).astype(int) # Threshold image
     if invert:
         image = 1 - image
     labelImage = skimage.measure.label(image)
     regions = skimage.measure.regionprops(label_image = labelImage, intensity_image = intensityImage) # http://scikit-image.org/docs/dev/api/skimage.measure.html
     j = 0
     for region in regions:
-        # area filter first 
-        if region.area < min_area or region.area > max_area:  # do not add feature
+        # Area filter first 
+        if region.area < min_area or region.area > max_area:  # Do not add feature
             continue
-        if j >= max_features: # do not add feature
+        if j >= max_features: # Do not add feature
             continue 
         features = features.append([{'y': region.centroid[0], 
         								   'x': region.centroid[1],
@@ -48,7 +48,7 @@ def ConnectedComponent(i, image, lp1, lp2, **args):
     									   'frame': i,}])
         j += 1 # feature added 		
     
-    # draw the overlay
+    # Draw the overlay: Ellipses with minor and major axis. There is no build-in function for ellipses in PyQtGraph, so we draw them using the plotCurveItems lp2.
     if features.size > 0:            
         axesX = []
         axesY = []
@@ -64,7 +64,7 @@ def ConnectedComponent(i, image, lp1, lp2, **args):
             ellipsesX.extend(f.x +  x*np.sin(f.orientation) - y*np.cos(f.orientation))
             ellipsesY.extend(f.y +  x*np.cos(f.orientation) + y*np.sin(f.orientation))
             connect = np.ones(phi.size)
-            connect[-1] = 0 # replace last element with 0
+            connect[-1] = 0 # Replace last element with 0
             ellipsesConnect.extend(connect)
             # Axes
             x1 = np.cos(f.orientation)*0.5*f.major_axis_length
@@ -77,11 +77,11 @@ def ConnectedComponent(i, image, lp1, lp2, **args):
             
         lp1.setData(x=axesX, y=axesY, connect=np.array(axesConnect)) 
         lp2.setData(x=ellipsesX, y=ellipsesY, connect=np.array(ellipsesConnect))
-
         
     return features, image
  
     
+
 ###############################################################################
 # Method: Difference of Gaussians
 # Discription:

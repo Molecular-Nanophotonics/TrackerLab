@@ -381,7 +381,6 @@ class Window(QMainWindow):
         self.lmaxSlider.setValue(value)
         
 
-
     def selectFilesDialog(self):
         if platform.system() == 'Darwin': # On MacOS the native file browser sometimes crashes
             options = QtWidgets.QFileDialog.DontUseNativeDialog
@@ -508,7 +507,7 @@ class Window(QMainWindow):
         self.frames = int(p['dimz'])
         self.exposure = float(p['exposure'].replace(',', '.'))
         images = tdms_file.channel_data('Image', 'Image')
-        return images.reshape(self.frames, self.dimx, self.dimy)
+        return images.reshape(self.frames, self.dimy, self.dimx)
         
         
     def loadTIFFStack(self, file):
