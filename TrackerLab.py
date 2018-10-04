@@ -218,8 +218,8 @@ class Window(QMainWindow):
         #pg.SignalProxy(self.p2.scene().sigMouseMoved, rateLimit=60, slot=self.mouseMoved)
         
         self.settingsWindow = SettingsWindow() 
-        self.settingsWindow.checkBoxHDF5.setChecked(self.hdf5)
-        self.settingsWindow.checkBoxCSV.setChecked(self.csv)
+        self.settingsWindow.radioButtonHDF5.setChecked(self.hdf5)
+        self.settingsWindow.radioButtonCSV.setChecked(self.csv)
         
         # check if FFmpeg is available
         self.ffmpeg = True
@@ -761,7 +761,7 @@ class Window(QMainWindow):
         self.maskXSpinBox.setValue(int(self.settings.value('Pre-Processing/MaskX', '100')))  
         self.maskYSpinBox.setValue(int(self.settings.value('Pre-Processing/MaskY', '100')))  
         self.maskRadiusSpinBox.setValue(int(self.settings.value('Pre-Processing/MaskRadius', '100')))  
-        self.hdf5 = int(self.settings.value('Settings/HDF5', '2'))
+        self.hdf5 = int(self.settings.value('Settings/HDF5', '1'))
         self.csv = int(self.settings.value('Settings/CSV', '0'))
         
         self.exportTypeComboBox.setCurrentIndex(int(self.settings.value('Video/exportTypeComboBox', '0')))
@@ -802,11 +802,11 @@ class Window(QMainWindow):
       
     def showSettingsWindow(self):
         if self.settingsWindow.exec_() == QtGui.QDialog.Accepted:
-            self.hdf5 = self.settingsWindow.checkBoxHDF5.checkState()
-            self.csv = self.settingsWindow.checkBoxCSV.checkState()
+            self.hdf5 = self.settingsWindow.radioButtonHDF5.isChecked()
+            self.csv = self.settingsWindow.radioButtonCSV.isChecked()
         else: # Rejected 
-            self.settingsWindow.checkBoxHDF5.setChecked(self.hdf5)
-            self.settingsWindow.checkBoxCSV.setChecked(self.csv)
+            self.settingsWindow.radioButtonHDF5.setChecked(self.hdf5)
+            self.settingsWindow.radioButtonCSV.setChecked(self.csv)
             
 
        
