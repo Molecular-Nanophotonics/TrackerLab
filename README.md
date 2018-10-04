@@ -23,7 +23,7 @@ The TrackerLab supports Windows, Mac OS and Linux and requires the [Anaconda](ht
 
 ### Required Packages:
 
-In addition the following Python packages are required:
+The following extra packages are required:
 
 1. nptdms
 2. pyqtgraph
