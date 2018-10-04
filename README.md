@@ -45,7 +45,7 @@ In the pre-processing panel a media filter and a circular mask can be applied to
 
 In the feature detection tab the detection method and the parameters can be selected. 
 
-Click `Start` to process all files in the file list. Depending on the settings (`Edit > Settings`) the feature detection data will be stored as `*_features.h5` HDF5 file or as `*_features.csv` CSV file. See the [Jupyter-Notebooks](#Jupyter-Notebooks) section for more information on how to read the files in Jupyter-Notebooks. 
+Click `Start` to process all files in the file list. Depending on the settings (`Edit > Settings`) the feature detection data will be stored as `*_features.h5` HDF5 file or as `*_features.csv` CSV file. See the [Jupyter-Notebooks](#jupyter-notebooks) section for more information on how to read the files in Jupyter-Notebooks. 
 
 ## Jupyter Notebooks
 
