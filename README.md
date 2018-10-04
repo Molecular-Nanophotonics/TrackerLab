@@ -6,8 +6,8 @@
 - [Sample Data](#data-availability)
 - [Installation Guide](#installation-guide)
 - [Instructions for Use](#instructions-for-use)
-- [Jupyter-Notebooks](#Jupyter-Notebooks)
-- [Adding New Feature Detection Tabs](#Adding-New-Feature-Detection-Tabs)
+- [Jupyter-Notebooks](#jupyter-notebooks)
+- [Adding New Feature Detection Tabs](#adding-new-feature-detection-tabs)
 
 
 ## Discription
