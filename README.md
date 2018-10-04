@@ -6,7 +6,8 @@
 - [Sample Data](#data-availability)
 - [Installation Guide](#installation-guide)
 - [Instructions for Use](#instructions-for-use)
-- [Notebooks](#Notebooks)
+- [Jupyter-Notebooks](#Jupyter-Notebooks)
+- [Adding New Feature Detection Tabs](#Adding-New-Feature-Detection-Tabs)
 
 
 ## Discription
@@ -38,13 +39,13 @@ If all required packages are installed properly you should see something similar
 
 ![Screenshot](https://github.com/Molecular-Nanophotonics/TrackerLab/blob/master/Resources/Screenshot.PNG)
 
-To get started click `Select...` and select a set of `*_movie.tdms` files for investigation. Currently, the software supports our custom TDMS files (`*_movie.tdms`) and stacked TIFF files for more general use. `Add...` and `Remove` can be used to add and remove files from the file list. The file dialog as well as the file list supports multiple file selection. Sorting in the file list via drag and drop is currently not supported (Will be added in the future). The displayed file is marked with black dot and can be selected by double-clicking in the file list. The left graph shows the raw image and the right graph the process image and the overlay.
+To get started click `Select...` and select a set of `*_movie.tdms` files for investigation. Currently, the software supports our custom TDMS files (`*_movie.tdms`) and stacked TIFF files for more general use. `Add...` and `Remove` can be used to add and remove files from the file list. The file dialog as well as the file list supports multiple file selection. Sorting in the file list via drag and drop is currently not supported. The displayed file is marked with black dot and can be changed by double-clicking. The left graph shows the raw image and the right graph the process image with the overlay.
 
 In the pre-processing panel a media filter and a circular mask can be applied to the image.  
 
 In the feature detection tab the detection method and the parameters can be selected. 
 
-Click `Start` to process all files in the file list. Depending on the settings (`Edit > Settings`) the feature detection data will be stored as `*_features.h5` HDF5 file or as `*_features.csv` CSV file.
+Click `Start` to process all files in the file list. Depending on the settings (`Edit > Settings`) the feature detection data will be stored as `*_features.h5` HDF5 file or as `*_features.csv` CSV file. See the [Jupyter-Notebooks](#Notebooks)
 
 ## Jupyter Notebooks
 
