@@ -93,12 +93,19 @@ def DifferenceOfGaussians(i, image, lp1, lp2, **args):
     max_sigma = args['tab2MaxSigmaSpinBox']
     
     mlist = blob_dog(image/image.max(), max_sigma=max_sigma, threshold=threshold/100)
+    radii = mlist[:, 2]*np.sqrt(2)
     
     features = pd.DataFrame()
+    X,Y = np.meshgrid(np.arange(0, image.shape[0], 1), np.arange(0, image.shape[1], 1))
     if mlist.size > 0:
-        radii = mlist[:, 2]*np.sqrt(2)
-        mlist[:, 2] = np.pi*(radii)**2 # area
-        features = pd.DataFrame(np.transpose([mlist[:,1], mlist[:,0], mlist[:,2], i*np.ones(mlist.shape[0])]), columns=['x', 'y', 'area', 'frame'])
+        for j in range(mlist.shape[0]):
+            mask = (((X - mlist[j, 1])**2 + (Y - mlist[j, 0])**2) < (mlist[j, 2]*np.sqrt(2))**2).astype(int)
+            features = features.append([{'y': mlist[j, 0], 
+    								     'x': mlist[j, 1],
+                                         'max_intensity': image[mask==1].max(),
+									     'area': 2*np.pi*mlist[j, 2]**2,
+									     'frame': i,}])    
+
     
     if features.size > 0:            
         circlesX = []

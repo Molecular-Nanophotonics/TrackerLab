@@ -486,14 +486,15 @@ class Window(QMainWindow):
         self.p1.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy])
         #self.p2.setLimits(xMax=self.dimx, yMax=self.dimy)
         self.p2.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy])
-        
+    
         lmaxmax = np.max(self.images) 
         self.lminSlider.setMaximum(lmaxmax)
         self.lminSpinBox.setMaximum(lmaxmax)
         self.lmaxSlider.setMaximum(lmaxmax)
         self.lmaxSpinBox.setMaximum(lmaxmax)
-        self.lminSlider.setValue(0)
-        self.lmaxSlider.setValue(lmaxmax)
+        
+        #self.lminSlider.setValue(0)
+        #self.lmaxSlider.setValue(lmaxmax)
 
         self.statusBar.showMessage('Ready')
         
@@ -643,7 +644,7 @@ class Window(QMainWindow):
                 if self.exportTypeComboBox.currentIndex() == 0:
                     totalFrames = self.endFrameSpinBox.value() - self.startFrameSpinBox.value() + 1
             else:
-                self.fileDoubleClicked(self.fileListWidget.item(f))
+                self.fileDoubleClicked(self.fileListWidget.item(f)) 
             self.statusBar.showMessage('Video Export... Progress: ' + os.path.basename(file))
             for i in range(self.startFrameSpinBox.value(), self.endFrameSpinBox.value()):
                 self.frameSlider.setValue(i)
