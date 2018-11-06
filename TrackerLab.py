@@ -482,9 +482,7 @@ class Window(QMainWindow):
         self.endFrameSpinBox.setMaximum(self.frames-1)
         self.endFrameSpinBox.setValue(self.frames-1)
         
-        #self.p.setLimits(xMax=self.dimx, yMax=self.dimy)
         self.p1.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy])
-        #self.p2.setLimits(xMax=self.dimx, yMax=self.dimy)
         self.p2.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy])
     
         lmaxmax = np.max(self.images) 
