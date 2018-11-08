@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Discription:
-Author(s): Molecular Nanophotonics Group
+Discription: Tracking Module of the Molecular Nanophotonics TrackLab.
+Author(s): M. Fränzl, N. Söker
+Data: 08/11/18
 """
 
 import numpy as np

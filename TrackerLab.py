@@ -224,7 +224,7 @@ class Window(QMainWindow):
         # check if FFmpeg is available
         self.ffmpeg = True
         try:
-            sp.call(['ffmpeg'])
+            sp.call(['FFmpeg/ffmpeg'])
         except OSError as e:
             if e.errno == os.errno.ENOENT:
                 self.ffmpeg = False # FFmpeg is not installed
@@ -620,7 +620,7 @@ class Window(QMainWindow):
         if os.path.splitext(self.fileList[0])[1] == '.tif':
             filename = os.path.splitext(self.fileList[0])[0] + '.mp4'
         
-        commands = ['ffmpeg',
+        commands = ['FFmpeg/ffmpeg',
                     '-loglevel', 'quiet',
                     '-y',  # (optional) overwrite output file if it exists
                     '-f', 'image2pipe',
@@ -807,8 +807,6 @@ class Window(QMainWindow):
             self.settingsWindow.radioButtonHDF5.setChecked(self.hdf5)
             self.settingsWindow.radioButtonCSV.setChecked(self.csv)
             
-
-       
     def aboutClicked(self):
        about = QMessageBox()
        about.setWindowTitle("About")
