@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1240</width>
-    <height>992</height>
+    <height>962</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -844,7 +844,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>10</y>
+          <y>30</y>
           <width>70</width>
           <height>21</height>
          </rect>
@@ -857,7 +857,7 @@
         <property name="geometry">
          <rect>
           <x>100</x>
-          <y>10</y>
+          <y>30</y>
           <width>51</width>
           <height>22</height>
          </rect>
@@ -999,6 +999,19 @@
          <string>Y:</string>
         </property>
        </widget>
+       <widget class="QCheckBox" name="subtractMeanCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>161</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>substract series mean</string>
+        </property>
+       </widget>
        <zorder>medianCheckBox</zorder>
        <zorder>medianSpinBox</zorder>
        <zorder>maskCheckBox</zorder>
@@ -1008,6 +1021,7 @@
        <zorder>maskYSpinBox</zorder>
        <zorder>maskXSpinBox</zorder>
        <zorder>maskRadiusSpinBox</zorder>
+       <zorder>subtractMeanCheckBox</zorder>
       </widget>
       <widget class="QLabel" name="preprocessingFrameLabel">
        <property name="geometry">
@@ -1532,7 +1546,7 @@
      <x>0</x>
      <y>0</y>
      <width>1240</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

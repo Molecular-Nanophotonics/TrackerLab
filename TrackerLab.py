@@ -91,6 +91,7 @@ class Window(QMainWindow):
         self.batchButton.clicked.connect(self.batchButtonClicked)
  
         self.medianCheckBox.stateChanged.connect(self.update)  
+        self.subtractMeanCheckBox.stateChanged.connect(self.update)  
         self.medianSpinBox.valueChanged.connect(self.update)
         self.maskCheckBox.stateChanged.connect(self.update)
         self.maskXSpinBox.valueChanged.connect(self.maskChanged)
@@ -274,9 +275,12 @@ class Window(QMainWindow):
         self.processedImage = self.images[self.frameSlider.value()]
         
         # Image Pre-Processing 
+        if self.subtractMeanCheckBox.checkState():
+            self.processedImage = self.processedImage -np.mean(self.images,axis=(0))
+        
         if self.medianCheckBox.checkState():
             self.processedImage = ndimage.median_filter(self.processedImage, self.medianSpinBox.value())
-            
+        
         if self.maskCheckBox.checkState():
             if not self.mask.shape[0] == self.dimx or not self.mask.shape[1] == self.dimy:
                 self.maskChanged()
@@ -560,6 +564,8 @@ class Window(QMainWindow):
             
             if self.medianCheckBox.checkState():
                 metadata['median'] = self.medianSpinBox.value()
+            if self.subtractMeanCheckBox.checkState():
+                metadata['subtract_mean'] = self.subtractMeanCheckBox.value()
             if self.maskCheckBox.checkState():
                 metadata['maskX'] = self.maskXSpinBox.value()
                 metadata['maskY'] = self.maskYSpinBox.value()
@@ -719,6 +725,7 @@ class Window(QMainWindow):
         self.settings.setValue('TabIndex', self.tabWidget.currentIndex())
         self.settings.setValue('TrackingState', self.trackingCheckBox.checkState())
         self.settings.setValue('Pre-Processing/medianState', self.medianCheckBox.checkState())
+        self.settings.setValue('Pre-Processing/subtractMeanState', self.subtractMeanCheckBox.checkState())
         self.settings.setValue('Pre-Processing/medianSize', self.medianSpinBox.value())
         self.settings.setValue('Pre-Processing/maskState', self.maskCheckBox.checkState())
         self.settings.setValue('Pre-Processing/maskX', self.maskXSpinBox.value())
@@ -753,13 +760,14 @@ class Window(QMainWindow):
 
         self.dir = self.settings.value('Dir', '.')
         self.trackingCheckBox.setCheckState(int(self.settings.value('TrackingState', '2')))
-        self.tabWidget.setCurrentIndex(int(self.settings.value('tabIndex', '0'))) 
-        self.medianCheckBox.setCheckState(int(self.settings.value('Pre-Processing/MedianState', '0')))
-        self.medianSpinBox.setValue(int(self.settings.value('Pre-Processing/MedianValue', '2'))) 
-        self.maskCheckBox.setCheckState(int(self.settings.value('Pre-Processing/MaskState', '0')))
-        self.maskXSpinBox.setValue(int(self.settings.value('Pre-Processing/MaskX', '100')))  
-        self.maskYSpinBox.setValue(int(self.settings.value('Pre-Processing/MaskY', '100')))  
-        self.maskRadiusSpinBox.setValue(int(self.settings.value('Pre-Processing/MaskRadius', '100')))  
+        self.tabWidget.setCurrentIndex(int(self.settings.value('TabIndex', '0'))) 
+        self.medianCheckBox.setCheckState(int(self.settings.value('Pre-Processing/medianState', '0')))
+        self.medianCheckBox.setCheckState(int(self.settings.value('Pre-Processing/subtractMeanState', '0')))
+        self.medianSpinBox.setValue(int(self.settings.value('Pre-Processing/medianValue', '2'))) 
+        self.maskCheckBox.setCheckState(int(self.settings.value('Pre-Processing/maskState', '0')))
+        self.maskXSpinBox.setValue(int(self.settings.value('Pre-Processing/maskX', '100')))  
+        self.maskYSpinBox.setValue(int(self.settings.value('Pre-Processing/maskY', '100')))  
+        self.maskRadiusSpinBox.setValue(int(self.settings.value('Pre-Processing/maskRadius', '100')))  
         self.hdf5 = int(self.settings.value('Settings/HDF5', '1'))
         self.csv = int(self.settings.value('Settings/CSV', '0'))
         
