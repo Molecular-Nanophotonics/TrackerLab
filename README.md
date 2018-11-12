@@ -29,7 +29,8 @@ The following extra packages are required:
 1. nptdms
 2. pyqtgraph
 
-To use the Video Export function FFmpeg needs to be installed.
+The FFmpeg binaries are included in this repository (>50MB!). On Ma OS the acces permission might has to be changed by exicuting > chmod 777 ffmpeg < in the terminal.
+(To use the Video Export function FFmpeg needs to be installed.)
 
 ## Instructions for Use
 
