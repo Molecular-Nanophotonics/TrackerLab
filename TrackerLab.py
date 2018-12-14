@@ -282,7 +282,7 @@ class Window(QMainWindow):
             self.processedImage = ndimage.median_filter(self.processedImage, self.medianSpinBox.value())
         
         if self.maskCheckBox.checkState():
-            if not self.mask.shape[0] == self.dimx or not self.mask.shape[1] == self.dimy:
+            if not self.mask.shape[0] == self.dimy or not self.mask.shape[1] == self.dimx:
                 self.maskChanged()
             self.processedImage = self.mask*self.processedImage
         
@@ -338,7 +338,7 @@ class Window(QMainWindow):
         x0 = self.maskXSpinBox.value() #int(self.dimx/2)
         y0 = self.maskYSpinBox.value() #int(self.dimy/2)
         diameter = 2*self.maskRadiusSpinBox.value()
-        xx, yy= np.meshgrid(np.arange(0, self.dimx, 1), np.arange(0, self.dimy, 1))
+        xx, yy= np.meshgrid(np.arange(0, self.dimy, 1), np.arange(0, self.dimx, 1))
         self.mask = (((xx - x0)**2 + (yy - y0)**2) < (diameter/2)**2).astype(int)
         self.update()
         
