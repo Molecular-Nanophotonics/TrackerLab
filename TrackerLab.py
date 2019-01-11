@@ -97,6 +97,7 @@ class Window(QMainWindow):
         self.maskXSpinBox.valueChanged.connect(self.maskChanged)
         self.maskYSpinBox.valueChanged.connect(self.maskChanged)
         self.maskRadiusSpinBox.valueChanged.connect(self.maskChanged)
+        self.maskComboBox.currentIndexChanged.connect(self.maskChanged) 
         self.mask = np.array([])
         
         self.trackingCheckBox.stateChanged.connect(self.trackingCheckBoxChanged)
@@ -277,14 +278,18 @@ class Window(QMainWindow):
         # Image Pre-Processing 
         if self.subtractMeanCheckBox.checkState():
             self.processedImage = self.processedImage -np.mean(self.images,axis=(0))
+            self.processedImage[self.processedImage<0] = 0
         
         if self.medianCheckBox.checkState():
             self.processedImage = ndimage.median_filter(self.processedImage, self.medianSpinBox.value())
-        
+            
         if self.maskCheckBox.checkState():
-            if not self.mask.shape[0] == self.dimy or not self.mask.shape[1] == self.dimx:
+            if (self.mask.shape[0] != self.dimy or self.mask.shape[1] != self.dimx):
                 self.maskChanged()
             self.processedImage = self.mask*self.processedImage
+            
+
+        skimage.io.imsave('image.tif',self.processedImage)
         
         # Tracking
         spots = pd.DataFrame()
@@ -338,8 +343,12 @@ class Window(QMainWindow):
         x0 = self.maskXSpinBox.value() #int(self.dimx/2)
         y0 = self.maskYSpinBox.value() #int(self.dimy/2)
         diameter = 2*self.maskRadiusSpinBox.value()
-        xx, yy= np.meshgrid(np.arange(0, self.dimy, 1), np.arange(0, self.dimx, 1))
-        self.mask = (((xx - x0)**2 + (yy - y0)**2) < (diameter/2)**2).astype(int)
+        a = self.maskRadiusSpinBox.value()
+        xx, yy= np.meshgrid(np.arange(0, self.dimx, 1), np.arange(0, self.dimy, 1))
+        if self.maskComboBox.currentIndex() == 0:
+            self.mask = (((xx - x0)**2 + (yy - y0)**2) < (diameter/2)**2).astype(int)
+        else:
+            self.mask = ((np.abs(xx - x0) < a) & (np.abs(yy - y0) < a)).astype(int)
         self.update()
         
        
@@ -532,6 +541,7 @@ class Window(QMainWindow):
         self.addFilesButton.setEnabled(False)
         self.removeFilesButton.setEnabled(False)
         self.cancelButton.setEnabled(True)
+        self.prefixH5 = self.prefixlineEdit.text()
         processedFrames = 0
         totalFrames = self.images.shape[0]*len(self.fileList) # estimate the total number of frames from the first file
        
@@ -555,7 +565,7 @@ class Window(QMainWindow):
             
             # save metadata as data frame
             metadata = pd.DataFrame([{'dimx': self.dimx,
-                                      'dimy': self.dimx,
+                                      'dimy': self.dimy,
                                       'frames': self.frames}])
 
             if os.path.splitext(file)[1] == '.tdms':
@@ -565,7 +575,7 @@ class Window(QMainWindow):
             if self.medianCheckBox.checkState():
                 metadata['median'] = self.medianSpinBox.value()
             if self.subtractMeanCheckBox.checkState():
-                metadata['subtract_mean'] = self.subtractMeanCheckBox.value()
+                metadata['subtract_mean'] = self.subtractMeanCheckBox.checkState()
             if self.maskCheckBox.checkState():
                 metadata['maskX'] = self.maskXSpinBox.value()
                 metadata['maskY'] = self.maskYSpinBox.value()
@@ -581,14 +591,14 @@ class Window(QMainWindow):
                     
             # Save features and metadata in HDF5 file
             if self.hdf5:
-                store = pd.HDFStore(os.path.splitext(file)[0].replace('_movie', '') + '_features.h5', 'w')
+                store = pd.HDFStore(os.path.splitext(file)[0].replace('_movie', '') + self.prefixH5 + '_features.h5', 'w')
                 store.put('features', self.spots)
                 store.put('metadata', metadata)
                 store.close()
                 
             # Save metadata and features as CSV file
             if self.csv:
-                file = os.path.splitext(file)[0].replace('_movie', '') + '_features.csv'
+                file = os.path.splitext(file)[0].replace('_movie', '') + self.prefixH5 + '_features.csv'
                 metadata.to_csv(file, mode='w')   
                 self.spots.to_csv(file, mode='a')
             
@@ -787,6 +797,7 @@ class Window(QMainWindow):
         self.frameSpinBox.setEnabled(state)
         self.colormapComboBox.setEnabled(state)
         self.scalingComboBox.setEnabled(state)
+        self.maskComboBox.setEnabled(state)
         self.enableLevels(state) 
         self.batchButton.setEnabled(state)
         self.preprocessingFrame.setEnabled(state)
