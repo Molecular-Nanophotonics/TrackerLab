@@ -125,7 +125,7 @@
         <bool>false</bool>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="ConnectedComponent">
         <attribute name="title">
@@ -150,7 +150,7 @@
           <number>1</number>
          </property>
          <property name="maximum">
-          <number>10000</number>
+          <number>65000</number>
          </property>
          <property name="singleStep">
           <number>10</number>
@@ -781,7 +781,7 @@
        <property name="geometry">
         <rect>
          <x>560</x>
-         <y>270</y>
+         <y>250</y>
          <width>91</width>
          <height>23</height>
         </rect>
@@ -1012,6 +1012,32 @@
          <string>substract series mean</string>
         </property>
        </widget>
+       <widget class="QComboBox" name="maskComboBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>80</x>
+          <y>120</y>
+          <width>91</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="currentText">
+         <string>circle</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>circle</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>square</string>
+         </property>
+        </item>
+       </widget>
        <zorder>medianCheckBox</zorder>
        <zorder>medianSpinBox</zorder>
        <zorder>maskCheckBox</zorder>
@@ -1022,6 +1048,7 @@
        <zorder>maskXSpinBox</zorder>
        <zorder>maskRadiusSpinBox</zorder>
        <zorder>subtractMeanCheckBox</zorder>
+       <zorder>maskComboBox</zorder>
       </widget>
       <widget class="QLabel" name="preprocessingFrameLabel">
        <property name="geometry">
@@ -1495,6 +1522,29 @@
        </property>
        <property name="text">
         <string>Export</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="prefixlineEdit">
+       <property name="geometry">
+        <rect>
+         <x>570</x>
+         <y>300</y>
+         <width>113</width>
+         <height>21</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="numberOfSpotsLabel_2">
+       <property name="geometry">
+        <rect>
+         <x>570</x>
+         <y>280</y>
+         <width>81</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>prefix h5</string>
        </property>
       </widget>
      </widget>
