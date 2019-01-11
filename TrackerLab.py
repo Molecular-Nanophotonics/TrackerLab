@@ -287,10 +287,7 @@ class Window(QMainWindow):
             if (self.mask.shape[0] != self.dimy or self.mask.shape[1] != self.dimx):
                 self.maskChanged()
             self.processedImage = self.mask*self.processedImage
-            
 
-        skimage.io.imsave('image.tif',self.processedImage)
-        
         # Tracking
         spots = pd.DataFrame()
         if self.trackingCheckBox.checkState():
