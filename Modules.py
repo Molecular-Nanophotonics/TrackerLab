@@ -12,8 +12,9 @@ from skimage.feature import blob_log, blob_dog
 
 
 ###############################################################################
-# Method: Connected-Component Labeling
-# Discription:
+# Method:       Connected-Component Labeling
+# Discription:  Simple feature detection algorithm similar to the one
+#               used in LabVIEW
 # 
 ###############################################################################
 def ConnectedComponent(i, image, lp1, lp2, **args):
@@ -39,22 +40,22 @@ def ConnectedComponent(i, image, lp1, lp2, **args):
             continue
         if j >= max_features: # Do not add feature
             continue 
-        features = features.append([{'y_binaryIm': region.centroid[0], 
-        								   'x_binaryIm': region.centroid[1],
-                                            'y': region.weighted_centroid[0],
-                                            'x': region.weighted_centroid[1],
+        features = features.append([{'y': region.centroid[0], 
+        								   'x': region.centroid[1],
+                                     'y_weighted': region.weighted_centroid[0],
+                                     'x_weighted': region.weighted_centroid[1],
     									   'orientation': region.orientation,
     									   'minor_axis_length': region.minor_axis_length,
     									   'major_axis_length': region.major_axis_length,
     									   'area': region.area,
-                                            'diameter': region.equivalent_diameter,
-                                            'filled_area': region.filled_area,
+                                     'equivalent_diameter': region.equivalent_diameter,
+                                     'filled_area': region.filled_area,
     									   'max_intensity': region.max_intensity,
-                                            'summed_intensity': region.mean_intensity*region.area,
-                                            'bbox_area': region.bbox,
-                                            'eccentricity':region.eccentricity,
-                                            'weighted_moments_central': region.weighted_moments_central,
-                                            'inertia_tensor': region.inertia_tensor,
+                                     'mean_intensity': region.mean_intensity,
+                                     'bbox': region.bbox,
+                                     'eccentricity':region.eccentricity,
+                                     'weighted_moments_central': region.weighted_moments_central,
+                                     'inertia_tensor': region.inertia_tensor,
     									   'frame': i,}])
         j += 1 # feature added
     features.reset_index(drop=True,inplace = True)
@@ -72,8 +73,8 @@ def ConnectedComponent(i, image, lp1, lp2, **args):
             # Ellipse
             x = 0.5*f.minor_axis_length*np.cos(phi)
             y = 0.5*f.major_axis_length*np.sin(phi)
-            ellipsesX.extend(f.x_binaryIm +  x*np.sin(f.orientation) - y*np.cos(f.orientation))
-            ellipsesY.extend(f.y_binaryIm +  x*np.cos(f.orientation) + y*np.sin(f.orientation))
+            ellipsesX.extend(f.x +  x*np.sin(f.orientation) - y*np.cos(f.orientation))
+            ellipsesY.extend(f.y +  x*np.cos(f.orientation) + y*np.sin(f.orientation))
             connect = np.ones(phi.size)
             connect[-1] = 0 # Replace last element with 0
             ellipsesConnect.extend(connect)
@@ -82,8 +83,8 @@ def ConnectedComponent(i, image, lp1, lp2, **args):
             y1 = np.sin(f.orientation)*0.5*f.major_axis_length
             x2 = -np.sin(f.orientation)*0.5*f.minor_axis_length
             y2 = np.cos(f.orientation)*0.5*f.minor_axis_length
-            axesX.extend([f.x_binaryIm, f.x_binaryIm + x1, f.x_binaryIm + x2, f.x_binaryIm])
-            axesY.extend([f.y_binaryIm, f.y_binaryIm - y1, f.y_binaryIm - y2, f.y_binaryIm])
+            axesX.extend([f.x, f.x + x1, f.x + x2, f.x])
+            axesY.extend([f.y, f.y - y1, f.y - y2, f.y])
             axesConnect.extend([1, 0, 1, 0])
             
         lp1.setData(x=axesX, y=axesY, connect=np.array(axesConnect)) 
@@ -117,7 +118,6 @@ def DifferenceOfGaussians(i, image, lp1, lp2, **args):
 									     'area': 2*np.pi*mlist[j, 2]**2,
 									     'frame': i,}])    
 
-    
     if features.size > 0:            
         circlesX = []
         circlesY = []

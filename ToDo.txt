@@ -1,0 +1,2 @@
+- Fix color scalebBug on start up
+- Check background substraction
