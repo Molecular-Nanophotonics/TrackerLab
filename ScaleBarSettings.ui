@@ -89,6 +89,9 @@
    <property name="decimals">
     <number>3</number>
    </property>
+   <property name="maximum">
+    <double>100.000000000000000</double>
+   </property>
    <property name="singleStep">
     <double>0.001000000000000</double>
    </property>
@@ -139,6 +142,12 @@
      <width>61</width>
      <height>22</height>
     </rect>
+   </property>
+   <property name="minimum">
+    <double>-1.000000000000000</double>
+   </property>
+   <property name="maximum">
+    <double>1.000000000000000</double>
    </property>
    <property name="singleStep">
     <double>0.010000000000000</double>

@@ -818,13 +818,13 @@ class Window(QMainWindow):
             self.sb2.setBrush(self.sbColor)
             
             # Scale Bar Label
-            self.sb1Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " µm")
+            self.sb1Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " \u03bcm")
             self.sb1Label.setFont(QtGui.QFont("Helvetica", 20))
             self.sb1Label.setBrush(self.sbColor)
             bRect = self.sb1Label.boundingRect()
             self.sb1Label.setPos(sbX - bRect.width()/2, sbY - bRect.height()/2 - sbLabelYOffset)
             
-            self.sb2Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " µm")
+            self.sb2Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " \u03bcm")
             self.sb2Label.setFont(QtGui.QFont("Helvetica", 20))
             self.sb2Label.setBrush(self.sbColor)
             bRect = self.sb2Label.boundingRect()
@@ -838,10 +838,14 @@ class Window(QMainWindow):
 
     def autoScaleBar(self):
         if (self.scaleBarCheckBox.checkState()):
+            
+            
+            
             #self.scaleBarSettings.sbLengthSpinBox.setValue(...)
             #self.scaleBarSettings.sbXSpinBox.setValue(...)
             #self.scaleBarSettings.sbYSpinBox.setValue(...)
             #self.scaleBarSettings.sbLabelYOffsetSpinBox.setValue(...)
+            
             self.scaleBarChanged()
 
     
