@@ -322,7 +322,7 @@ class Window(QMainWindow):
         
         # Image Pre-Processing 
         if self.subtractMeanCheckBox.checkState():
-            self.processedImage = self.processedImage -np.mean(self.images,axis=(0))
+            self.processedImage = self.processedImage - self.meanSeriesImage
             self.processedImage[self.processedImage<0] = 0
         
         if self.medianCheckBox.checkState():
@@ -500,8 +500,7 @@ class Window(QMainWindow):
                 self.infoLabel.setOpenExternalLinks(True)
             else:
                 self.infoLabel.setText(self.infoLabel.text() + '<br><br>'  + '<span style=\"color:#ff0000;\">No Protocol File Found</span>')
-            
-            
+        
             
             
     def addFilesDialog(self):
@@ -559,6 +558,7 @@ class Window(QMainWindow):
         if extension == '.tif':
             self.images = self.loadTIFFStack(file)
             self.infoLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames))
+        self.meanSeriesImage = np.mean(self.images,axis=(0)) # calc the mean image for background subtraction
         
         cmaxmax = np.max(self.images) 
         self.cminSlider.setMaximum(cmaxmax)
