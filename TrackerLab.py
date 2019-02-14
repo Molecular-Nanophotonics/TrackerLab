@@ -201,8 +201,9 @@ class Window(QMainWindow):
                 
          # SCALE BAR
          
-        self.scaleBarSettings.scaleSpinBox.valueChanged.connect(self.scaleBarChanged)
+        self.scaleBarSettings.sbscaleSpinBox.valueChanged.connect(self.scaleBarChanged)
         self.scaleBarSettings.sbLengthSpinBox.valueChanged.connect(self.scaleBarChanged)
+        self.scaleBarSettings.sbHeightSpinBox.valueChanged.connect(self.scaleBarChanged)
         self.scaleBarSettings.sbXSpinBox.valueChanged.connect(self.scaleBarChanged)
         self.scaleBarSettings.sbYSpinBox.valueChanged.connect(self.scaleBarChanged)
         self.scaleBarSettings.sbLabelYOffsetSpinBox.valueChanged.connect(self.scaleBarChanged)
@@ -316,7 +317,7 @@ class Window(QMainWindow):
         
         # Image Pre-Processing 
         if self.subtractMeanCheckBox.checkState():
-            self.processedImage = self.processedImage -np.mean(self.images,axis=(0))
+            self.processedImage = self.processedImage - self.meanSeriesImage
             self.processedImage[self.processedImage<0] = 0
         
         if self.medianCheckBox.checkState():
@@ -494,8 +495,7 @@ class Window(QMainWindow):
                 self.infoLabel.setOpenExternalLinks(True)
             else:
                 self.infoLabel.setText(self.infoLabel.text() + '<br><br>'  + '<span style=\"color:#ff0000;\">No Protocol File Found</span>')
-            
-            
+        
             
             
     def addFilesDialog(self):
@@ -553,6 +553,7 @@ class Window(QMainWindow):
         if extension == '.tif':
             self.images = self.loadTIFFStack(file)
             self.infoLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames))
+        self.meanSeriesImage = np.mean(self.images,axis=(0)) # calc the mean image for background subtraction
         
         cmaxmax = np.max(self.images) 
         self.cminSlider.setMaximum(cmaxmax)
@@ -810,35 +811,57 @@ class Window(QMainWindow):
     def scaleBarChanged(self):
         if (self.scaleBarCheckBox.checkState()):
             
-            scale = self.scaleBarSettings.scaleSpinBox.value()
+            scale = self.scaleBarSettings.sbscaleSpinBox.value()
             sbX = self.scaleBarSettings.sbXSpinBox.value()*self.dimx
             sbY = self.scaleBarSettings.sbYSpinBox.value()*self.dimy
             sbLabelYOffset = self.scaleBarSettings.sbLabelYOffsetSpinBox.value()*self.dimy
+<<<<<<< HEAD
             sbWidth = int(np.round(self.scaleBarSettings.sbLengthSpinBox.value()/scale))
 
+=======
+            sbWidth = int(np.round(self.scaleBarSettings.sbLengthSpinBox.value()/(scale)))
+            sbHeight = self.scaleBarSettings.sbHeightSpinBox.value()
+            
+>>>>>>> f17f890eb43c893d6d794829a67ad13cccd30a08
             self.sb1.setVisible(True)
             self.sb2.setVisible(True)
             self.sb1Label.setVisible(True)
             self.sb2Label.setVisible(True)
             
             # Scale Bars 
+<<<<<<< HEAD
             self.sb1.setRect(sbX - sbWidth/2, sbY, sbWidth, 0.02*self.dimy)
             self.sb1.setPen(pg.mkPen(None))
             self.sb1.setBrush(self.sbColor)
             
             self.sb2.setRect(sbX - sbWidth/2, sbY, sbWidth, 0.02*self.dimy)
+=======
+            self.sb1.setRect(sbX - sbWidth/2, sbY, sbWidth, sbHeight)
+            self.sb1.setPen(pg.mkPen(None))
+            self.sb1.setBrush(self.sbColor)
+            
+            self.sb2.setRect(sbX - sbWidth/2, sbY, sbWidth, sbHeight)
+>>>>>>> f17f890eb43c893d6d794829a67ad13cccd30a08
             self.sb2.setPen(pg.mkPen(None))
             self.sb2.setBrush(self.sbColor)
             
             # Scale Bar Label
             self.sb1Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " \u03bcm")
+<<<<<<< HEAD
             self.sb1Label.setFont(QtGui.QFont("Helvetica", 0.04*self.dimy))
+=======
+            self.sb1Label.setFont(QtGui.QFont("Helvetica", 2*sbHeight))
+>>>>>>> f17f890eb43c893d6d794829a67ad13cccd30a08
             self.sb1Label.setBrush(self.sbColor)
             bRect = self.sb1Label.boundingRect()
             self.sb1Label.setPos(sbX - bRect.width()/2, sbY - bRect.height()/2 - sbLabelYOffset)
             
             self.sb2Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " \u03bcm")
+<<<<<<< HEAD
             self.sb2Label.setFont(QtGui.QFont("Helvetica", 0.04*self.dimy))
+=======
+            self.sb2Label.setFont(QtGui.QFont("Helvetica", 2*sbHeight))
+>>>>>>> f17f890eb43c893d6d794829a67ad13cccd30a08
             self.sb2Label.setBrush(self.sbColor)
             bRect = self.sb2Label.boundingRect()
             self.sb2Label.setPos(sbX - bRect.width()/2, sbY - bRect.height()/2 - sbLabelYOffset)
@@ -851,11 +874,43 @@ class Window(QMainWindow):
 
     def autoScaleBar(self):
         if (self.scaleBarCheckBox.checkState()):
+            unit = 'µm'# is written in the plot
+            scale = self.scaleBarSettings.sbscaleSpinBox.value()
+            # put image dims here
+            W_i = self.dimx #xdim  # width of the image in pxl
+            H_i = self.dimy #ydim  # Height of the image in pxl
             
+<<<<<<< HEAD
             #self.scaleBarSettings.sbLengthSpinBox.setValue(...)
             #self.scaleBarSettings.sbXSpinBox.setValue(...)
             #self.scaleBarSettings.sbYSpinBox.setValue(...)
             #self.scaleBarSettings.sbLabelYOffsetSpinBox.setValue(...)
+=======
+            W_m = W_i * scale
+            suggested_relative_scalebar_width = 0.2
+            sb_height_k = 0.03
+            sb_right_edge_k = 0.94
+            sb_bot_pos_k = 0.93 # 0.07 
+            allowed_first_digit = np.array([1,2,5,10]) # the 10 in here is important (the numbersystem fliping point or whaterver its called)
+            suggested_sblength_m = ( 10**int('{:.0e}'.format(W_m * suggested_relative_scalebar_width)[2:]) 
+                                 * allowed_first_digit[
+                                     np.abs(int('{:.0e}'.format(W_m * suggested_relative_scalebar_width)[0])-allowed_first_digit).min()
+                                     == np.abs(int('{:.0e}'.format(W_m * suggested_relative_scalebar_width)[0])-allowed_first_digit)
+                                 ][0]
+                                )
+            
+            sblength_i = suggested_sblength_m/scale
+            sblength_k = sblength_i/W_i
+            sb_height_i = H_i * sb_height_k
+            sb_x_center_i = (sb_right_edge_k - sblength_k/2) * W_i
+            sb_x_center_k = sb_x_center_i / W_i
+            sb_y_center_k = sb_bot_pos_k - sb_height_k/2
+            self.scaleBarSettings.sbLengthSpinBox.setValue(suggested_sblength_m)
+            self.scaleBarSettings.sbHeightSpinBox.setValue(sb_height_i)
+            self.scaleBarSettings.sbXSpinBox.setValue(sb_x_center_k)
+            self.scaleBarSettings.sbYSpinBox.setValue(sb_y_center_k)
+            self.scaleBarSettings.sbLabelYOffsetSpinBox.setValue(sb_height_k*1.3)
+>>>>>>> f17f890eb43c893d6d794829a67ad13cccd30a08
             
             self.scaleBarChanged()
 

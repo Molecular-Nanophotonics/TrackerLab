@@ -1727,8 +1727,13 @@
     <rect>
      <x>0</x>
      <y>0</y>
+<<<<<<< HEAD
      <width>1250</width>
      <height>21</height>
+=======
+     <width>1253</width>
+     <height>22</height>
+>>>>>>> f17f890eb43c893d6d794829a67ad13cccd30a08
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
