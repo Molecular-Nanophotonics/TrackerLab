@@ -52,10 +52,10 @@ def ConnectedComponent(i, image, lp1, lp2, **args):
                                      'filled_area': region.filled_area,
     									   'max_intensity': region.max_intensity,
                                      'mean_intensity': region.mean_intensity,
-                                     'bbox': region.bbox,
-                                     'eccentricity':region.eccentricity,
-                                     'weighted_moments_central': region.weighted_moments_central,
-                                     'inertia_tensor': region.inertia_tensor,
+                                     #'bbox': region.bbox,
+                                     'eccentricity': region.eccentricity,
+                                     #'weighted_moments_central': region.weighted_moments_central,
+                                     #'inertia_tensor': region.inertia_tensor,
     									   'frame': i,}])
         j += 1 # feature added
     features.reset_index(drop=True,inplace = True)

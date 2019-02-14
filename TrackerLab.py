@@ -66,8 +66,6 @@ class Window(QMainWindow):
         self.preferences = Preferences()
         self.scaleBarSettings = ScaleBarSettings()
     
-
-        
         self.displayedIcon = QtGui.QIcon(QtGui.QPixmap("Resources/Circle.png")) 
         ## draw the icon  
         #pixmap = QtGui.QPixmap(32, 32)
@@ -188,8 +186,9 @@ class Window(QMainWindow):
         self.p2.setXLink(self.p1.vb)
         self.p2.setYLink(self.p1.vb)
 
-        self.exportButton.clicked.connect(self.exportButtonClicked)
-
+        self.exportVideoButton.clicked.connect(self.exportVideoButtonClicked)
+        self.exportImageButton.clicked.connect(self.exportImageButtonClicked)
+ 
         # items for overlay
         #self.sp1 = pg.ScatterPlotItem(pen=pg.mkPen('r', width=3), brush=pg.mkBrush(None), pxMode=False)
         #self.p2.addItem(self.sp1)
@@ -220,10 +219,6 @@ class Window(QMainWindow):
         self.sb2Label = QtGui.QGraphicsSimpleTextItem()
         self.p1.addItem(self.sb1Label)
         self.p2.addItem(self.sb2Label)
-
-        
-        self.sbColor = QtGui.QColor('#FFFFFF')
-        self.scaleBarSettings.sbColorPreview.setStyleSheet("QWidget { background-color: Red }")
          
         # mouse moved events                
         self.p1.scene().sigMouseMoved.connect(self.mouseMoved)   
@@ -699,9 +694,9 @@ class Window(QMainWindow):
             self.statusBar.showMessage('Ready')
         self.batch = False
         self.canceled = False
-  
+
     
-    def exportButtonClicked(self):
+    def exportVideoButtonClicked(self):
         self.exportVideo = True
         self.setEnabled(False)
         for item in self.fileListWidget.selectedItems():
@@ -713,7 +708,8 @@ class Window(QMainWindow):
         self.addFilesButton.setEnabled(False)
         self.removeFilesButton.setEnabled(False)
         self.batchButton.setEnabled(False)
-        self.exportButton.setEnabled(False)
+        self.exportImageButton.setEnabled(False)
+        self.exportVideoButton.setEnabled(False)
         
         if os.path.splitext(self.fileList[0])[1] == '.tdms':
             filename = os.path.splitext(self.fileList[0])[0].replace('_movie', '') + '.mp4'
@@ -777,7 +773,8 @@ class Window(QMainWindow):
         self.addFilesButton.setEnabled(True)
         self.removeFilesButton.setEnabled(True)
         self.batchButton.setEnabled(True)
-        self.exportButton.setEnabled(True)
+        self.exportImageButton.setEnabled(True)
+        self.exportVideoButton.setEnabled(True)
         self.cancelButton.setEnabled(False)
         
                 
@@ -793,6 +790,22 @@ class Window(QMainWindow):
             self.endFrameSpinBox.setValue(self.frames-1)
             self.endFrameSpinBox.setEnabled(False)
      
+    def exportImageButtonClicked(self):
+        if self.exportViewComboBox.currentIndex() == 0: 
+            exporter = pg.exporters.ImageExporter(self.im1)
+        else:
+            exporter = pg.exporters.ImageExporter(self.im2)    
+        
+        exporter.params.param('width').setValue(500, blockSignal=exporter.widthChanged)
+        exporter.params.param('height').setValue(int(500*self.dimy/self.dimx), blockSignal=exporter.heightChanged)
+        
+        if os.path.splitext(self.fileList[0])[1] == '.tdms':
+            filename = os.path.splitext(self.fileList[0])[0].replace('_movie', '') + '_Frame_' + str(self.frameSlider.value()) + '.png'
+        if os.path.splitext(self.fileList[0])[1] == '.tif':
+            filename = os.path.splitext(self.fileList[0])[0] + '_Frame_' + str(self.frameSlider.value()) + '.png'
+        
+        exporter.export(filename) 
+        
             
     def scaleBarChanged(self):
         if (self.scaleBarCheckBox.checkState()):
@@ -801,7 +814,7 @@ class Window(QMainWindow):
             sbX = self.scaleBarSettings.sbXSpinBox.value()*self.dimx
             sbY = self.scaleBarSettings.sbYSpinBox.value()*self.dimy
             sbLabelYOffset = self.scaleBarSettings.sbLabelYOffsetSpinBox.value()*self.dimy
-            sbWidth = int(np.round(self.scaleBarSettings.sbLengthSpinBox.value()/(scale*self.binning)))
+            sbWidth = int(np.round(self.scaleBarSettings.sbLengthSpinBox.value()/scale))
 
             self.sb1.setVisible(True)
             self.sb2.setVisible(True)
@@ -809,23 +822,23 @@ class Window(QMainWindow):
             self.sb2Label.setVisible(True)
             
             # Scale Bars 
-            self.sb1.setRect(sbX - sbWidth/2, sbY, sbWidth, 10)
+            self.sb1.setRect(sbX - sbWidth/2, sbY, sbWidth, 0.02*self.dimy)
             self.sb1.setPen(pg.mkPen(None))
             self.sb1.setBrush(self.sbColor)
             
-            self.sb2.setRect(sbX - sbWidth/2, sbY, sbWidth, 10)
+            self.sb2.setRect(sbX - sbWidth/2, sbY, sbWidth, 0.02*self.dimy)
             self.sb2.setPen(pg.mkPen(None))
             self.sb2.setBrush(self.sbColor)
             
             # Scale Bar Label
             self.sb1Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " \u03bcm")
-            self.sb1Label.setFont(QtGui.QFont("Helvetica", 20))
+            self.sb1Label.setFont(QtGui.QFont("Helvetica", 0.04*self.dimy))
             self.sb1Label.setBrush(self.sbColor)
             bRect = self.sb1Label.boundingRect()
             self.sb1Label.setPos(sbX - bRect.width()/2, sbY - bRect.height()/2 - sbLabelYOffset)
             
             self.sb2Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " \u03bcm")
-            self.sb2Label.setFont(QtGui.QFont("Helvetica", 20))
+            self.sb2Label.setFont(QtGui.QFont("Helvetica", 0.04*self.dimy))
             self.sb2Label.setBrush(self.sbColor)
             bRect = self.sb2Label.boundingRect()
             self.sb2Label.setPos(sbX - bRect.width()/2, sbY - bRect.height()/2 - sbLabelYOffset)
@@ -838,8 +851,6 @@ class Window(QMainWindow):
 
     def autoScaleBar(self):
         if (self.scaleBarCheckBox.checkState()):
-            
-            
             
             #self.scaleBarSettings.sbLengthSpinBox.setValue(...)
             #self.scaleBarSettings.sbXSpinBox.setValue(...)
@@ -894,6 +905,14 @@ class Window(QMainWindow):
         self.settings.setValue('Preferences/protocolFile', self.protocolFile)
         self.settings.setValue('Video/exportTypeComboBox', self.exportTypeComboBox.currentIndex())
         self.settings.setValue('Video/exportViewComboBox', self.exportViewComboBox.currentIndex())
+     
+        
+        self.settings.setValue('ScaleBar/Scale', self.scaleBarSettings.scaleSpinBox.value())
+        self.settings.setValue('ScaleBar/Length', self.scaleBarSettings.sbLengthSpinBox.value())
+        self.settings.setValue('ScaleBar/X', self.scaleBarSettings.sbXSpinBox.value())
+        self.settings.setValue('ScaleBar/Y', self.scaleBarSettings.sbYSpinBox.value())
+        self.settings.setValue('ScaleBar/LabelYOffset', self.scaleBarSettings.sbLabelYOffsetSpinBox.value())
+        self.settings.setValue('ScaleBar/Color', self.sbColor.name())
         
         for tabCount in range(self.tabWidget.count()):
             tab = self.tabWidget.widget(tabCount);
@@ -941,15 +960,27 @@ class Window(QMainWindow):
                 self.exportTypeComboBox.setCurrentIndex(int(self.settings.value('Video/exportTypeComboBox', '0')))
                 self.exportViewComboBox.setCurrentIndex(int(self.settings.value('Video/exportViewComboBox', '0')))
                 
+                self.scaleBarSettings.scaleSpinBox.setValue(float(self.settings.value('ScaleBar/Scale', '0.1')))
+                self.scaleBarSettings.sbLengthSpinBox.setValue(int(self.settings.value('ScaleBar/Length', '5')))
+                self.scaleBarSettings.sbXSpinBox.setValue(float(self.settings.value('ScaleBar/X', '0.80')))
+                self.scaleBarSettings.sbYSpinBox.setValue(float(self.settings.value('ScaleBar/Y', '0.90')))
+                self.scaleBarSettings.sbLabelYOffsetSpinBox.setValue(float(self.settings.value('ScaleBar/LabelYOffset', '0.05')))
+                
+                self.sbColor = QtGui.QColor(self.settings.value('ScaleBar/Color', '#ffffff'))
+                self.scaleBarSettings.sbColorPreview.setStyleSheet("background-color: %s" % self.sbColor.name())            
+     
+                
                 self.maskTypeChanged()
                 return 0
             
         except:
             self.settings.remove('') # Clear the Settings.ini file
             self.dir = '.'
-            self.hdf5 = 1
-            self.csv = 0
+            self.csv = 1
+            self.hdf5 = 0
             self.protocolFile = 'Protocol.txt'
+            self.sbColor = QtGui.QColor('#ffffff')
+            self.scaleBarSettings.sbColorPreview.setStyleSheet('background-color: #ffffff')
             return 1
             
         
@@ -970,9 +1001,10 @@ class Window(QMainWindow):
         self.enableLevels(state) 
         self.batchButton.setEnabled(state)
         self.preprocessingFrame.setEnabled(state)
+        self.exportImageButton.setEnabled(state)
         if self.ffmpeg:
             self.exportFrame.setEnabled(state)
-            self.exportButton.setEnabled(state)
+            self.exportVideoButton.setEnabled(state)
         if self.exportTypeComboBox.currentIndex() == 1:
             self.startFrameSpinBox.setEnabled(False)
             self.endFrameSpinBox.setEnabled(False)
