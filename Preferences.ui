@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
+    <width>350</width>
     <height>175</height>
    </rect>
   </property>
@@ -18,13 +18,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>300</width>
+    <width>350</width>
     <height>175</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>300</width>
+    <width>350</width>
     <height>175</height>
    </size>
   </property>
@@ -37,7 +37,7 @@
   <widget class="QPushButton" name="okButton">
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>180</x>
      <y>140</y>
      <width>75</width>
      <height>23</height>
@@ -50,7 +50,7 @@
   <widget class="QPushButton" name="cancelButton">
    <property name="geometry">
     <rect>
-     <x>210</x>
+     <x>260</x>
      <y>140</y>
      <width>75</width>
      <height>23</height>
@@ -65,7 +65,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>141</width>
+     <width>191</width>
      <height>111</height>
     </rect>
    </property>
@@ -98,11 +98,40 @@
      <string>CSV</string>
     </property>
    </widget>
+   <widget class="QLineEdit" name="suffixLineEdit">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>80</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="prefixLabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>61</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Suffix:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
   </widget>
   <widget class="QLineEdit" name="protocolFileLineEdit">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>220</x>
      <y>30</y>
      <width>111</width>
      <height>20</height>
@@ -115,7 +144,7 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>220</x>
      <y>10</y>
      <width>81</width>
      <height>16</height>

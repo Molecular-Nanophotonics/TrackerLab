@@ -134,7 +134,7 @@
         <widget class="QSpinBox" name="tab1ThresholdSpinBox">
          <property name="geometry">
           <rect>
-           <x>80</x>
+           <x>97</x>
            <y>20</y>
            <width>61</width>
            <height>22</height>
@@ -164,7 +164,7 @@
           <rect>
            <x>10</x>
            <y>20</y>
-           <width>71</width>
+           <width>81</width>
            <height>21</height>
           </rect>
          </property>
@@ -180,7 +180,7 @@
           <rect>
            <x>10</x>
            <y>50</y>
-           <width>71</width>
+           <width>81</width>
            <height>21</height>
           </rect>
          </property>
@@ -199,7 +199,7 @@
           <rect>
            <x>10</x>
            <y>80</y>
-           <width>71</width>
+           <width>81</width>
            <height>21</height>
           </rect>
          </property>
@@ -216,7 +216,7 @@
         <widget class="QSpinBox" name="tab1MinAreaSpinBox">
          <property name="geometry">
           <rect>
-           <x>80</x>
+           <x>97</x>
            <y>50</y>
            <width>61</width>
            <height>22</height>
@@ -235,7 +235,7 @@
         <widget class="QSpinBox" name="tab1MaxAreaSpinBox">
          <property name="geometry">
           <rect>
-           <x>80</x>
+           <x>97</x>
            <y>80</y>
            <width>61</width>
            <height>22</height>
@@ -257,7 +257,7 @@
         <widget class="QCheckBox" name="tab1InvertCheckBox">
          <property name="geometry">
           <rect>
-           <x>153</x>
+           <x>170</x>
            <y>22</y>
            <width>91</width>
            <height>17</height>
@@ -272,7 +272,7 @@
           <rect>
            <x>10</x>
            <y>130</y>
-           <width>111</width>
+           <width>131</width>
            <height>21</height>
           </rect>
          </property>
@@ -289,7 +289,7 @@
         <widget class="QSpinBox" name="tab1MaxFeaturesSpinBox">
          <property name="geometry">
           <rect>
-           <x>120</x>
+           <x>140</x>
            <y>130</y>
            <width>61</width>
            <height>22</height>
@@ -781,8 +781,8 @@
        <property name="geometry">
         <rect>
          <x>560</x>
-         <y>260</y>
-         <width>91</width>
+         <y>270</y>
+         <width>111</width>
          <height>23</height>
         </rect>
        </property>
@@ -793,8 +793,8 @@
       <widget class="QLabel" name="numberOfSpots">
        <property name="geometry">
         <rect>
-         <x>760</x>
-         <y>260</y>
+         <x>820</x>
+         <y>250</y>
          <width>61</width>
          <height>21</height>
         </rect>
@@ -812,14 +812,17 @@
       <widget class="QLabel" name="numberOfSpotsLabel">
        <property name="geometry">
         <rect>
-         <x>670</x>
-         <y>260</y>
-         <width>81</width>
+         <x>690</x>
+         <y>250</y>
+         <width>121</width>
          <height>20</height>
         </rect>
        </property>
        <property name="text">
         <string> # of Features:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
       <widget class="QFrame" name="preprocessingFrame">
@@ -856,9 +859,9 @@
        <widget class="QSpinBox" name="medianSpinBox">
         <property name="geometry">
          <rect>
-          <x>100</x>
+          <x>80</x>
           <y>40</y>
-          <width>71</width>
+          <width>91</width>
           <height>22</height>
          </rect>
         </property>
@@ -1024,9 +1027,9 @@
         </property>
         <property name="geometry">
          <rect>
-          <x>100</x>
+          <x>80</x>
           <y>80</y>
-          <width>71</width>
+          <width>91</width>
           <height>22</height>
          </rect>
         </property>
@@ -1240,7 +1243,7 @@
         <rect>
          <x>80</x>
          <y>196</y>
-         <width>91</width>
+         <width>121</width>
          <height>22</height>
         </rect>
        </property>
@@ -1269,9 +1272,9 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>180</x>
+         <x>220</x>
          <y>196</y>
-         <width>91</width>
+         <width>121</width>
          <height>22</height>
         </rect>
        </property>
@@ -1551,7 +1554,7 @@
          <rect>
           <x>10</x>
           <y>235</y>
-          <width>91</width>
+          <width>131</width>
           <height>23</height>
          </rect>
         </property>
@@ -1567,7 +1570,7 @@
          <rect>
           <x>10</x>
           <y>45</y>
-          <width>91</width>
+          <width>131</width>
           <height>23</height>
          </rect>
         </property>
@@ -1605,54 +1608,15 @@
         <string>Image/Video Export </string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="prefixLineEdit">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="geometry">
-        <rect>
-         <x>910</x>
-         <y>260</y>
-         <width>101</width>
-         <height>21</height>
-        </rect>
-       </property>
-      </widget>
-      <widget class="QLabel" name="prefixLabel">
-       <property name="geometry">
-        <rect>
-         <x>860</x>
-         <y>260</y>
-         <width>51</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Prefix:</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="dirLabel">
-       <property name="geometry">
-        <rect>
-         <x>360</x>
-         <y>300</y>
-         <width>511</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
       <widget class="QCheckBox" name="scaleBarCheckBox">
        <property name="enabled">
         <bool>false</bool>
        </property>
        <property name="geometry">
         <rect>
-         <x>860</x>
-         <y>290</y>
-         <width>70</width>
+         <x>910</x>
+         <y>250</y>
+         <width>81</width>
          <height>21</height>
         </rect>
        </property>
@@ -1669,9 +1633,9 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>930</x>
-         <y>289</y>
-         <width>81</width>
+         <x>910</x>
+         <y>275</y>
+         <width>101</width>
          <height>23</height>
         </rect>
        </property>
@@ -1727,13 +1691,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-<<<<<<< HEAD
      <width>1250</width>
      <height>21</height>
-=======
-     <width>1253</width>
-     <height>22</height>
->>>>>>> f17f890eb43c893d6d794829a67ad13cccd30a08
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

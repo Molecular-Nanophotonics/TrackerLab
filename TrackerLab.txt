@@ -1,0 +1,18 @@
+C:\Anaconda3\Library\bin;C:\Anaconda3\Library\bin;Microsoft Windows [Version 6.1.7601]
+Copyright (c) 2009 Microsoft Corporation. Alle Rechte vorbehalten.
+
+C:\Users\mona>cd Desktop
+
+C:\Users\mona\Desktop>cd TrackerLab
+
+C:\Users\mona\Desktop\TrackerLab>python.exe TrackerLab.py
+C:\Anaconda3\lib\site-packages\h5py\__init__.py:36: FutureWarning: Conversion of
+ the second argument of issubdtype from `float` to `np.floating` is deprecated.
+In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+
+
+Available platform plugins are: direct2d, minimal, offscreen, windows.
+
+
+C:\Users\mona\Desktop\TrackerLab>

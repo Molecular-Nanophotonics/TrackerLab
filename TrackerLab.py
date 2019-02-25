@@ -201,14 +201,14 @@ class Window(QMainWindow):
                 
          # SCALE BAR
          
-        self.scaleBarSettings.sbscaleSpinBox.valueChanged.connect(self.scaleBarChanged)
+        self.scaleBarSettings.scaleSpinBox.valueChanged.connect(self.scaleBarChanged)
+        self.scaleBarSettings.sbAutoButton.clicked.connect(self.autoScaleBar)
         self.scaleBarSettings.sbLengthSpinBox.valueChanged.connect(self.scaleBarChanged)
-        self.scaleBarSettings.sbHeightSpinBox.valueChanged.connect(self.scaleBarChanged)
         self.scaleBarSettings.sbXSpinBox.valueChanged.connect(self.scaleBarChanged)
         self.scaleBarSettings.sbYSpinBox.valueChanged.connect(self.scaleBarChanged)
         self.scaleBarSettings.sbLabelYOffsetSpinBox.valueChanged.connect(self.scaleBarChanged)
         self.scaleBarSettings.sbColorButton.clicked.connect(self.openColorDialog)
-        self.scaleBarSettings.sbAutoButton.clicked.connect(self.autoScaleBar)
+        self.scaleBarSettings.sbHeightSpinBox.valueChanged.connect(self.scaleBarChanged)
         self.scaleBarSettings.okButton.clicked.connect(self.scaleBarSettings.close)
         
         self.sb1 = QtGui.QGraphicsRectItem()
@@ -456,7 +456,7 @@ class Window(QMainWindow):
         if platform.system() == 'Darwin': # On MacOS the native file browser sometimes crashes
             options = QtWidgets.QFileDialog.DontUseNativeDialog
         else:
-            options = QtWidgets.QFileDialog.Option()
+            options = QtWidgets.QFileDialog.DontUseNativeDialog # QtWidgets.QFileDialog.Option()
             
         self.files, _ = QtWidgets.QFileDialog.getOpenFileNames(self, 'Select Files...', self.dir, 'TDMS or TIFF Files (*.tdms *.tif)', options=options) # 'All Files (*)'
         if self.files:
@@ -495,8 +495,7 @@ class Window(QMainWindow):
                 self.infoLabel.setOpenExternalLinks(True)
             else:
                 self.infoLabel.setText(self.infoLabel.text() + '<br><br>'  + '<span style=\"color:#ff0000;\">No Protocol File Found</span>')
-        
-            
+               
             
     def addFilesDialog(self):
         if not self.fileList:
@@ -505,7 +504,7 @@ class Window(QMainWindow):
             if platform.system() == 'Darwin': # Sometimes on MacOS the native file browser crashes 
                 options = QtWidgets.QFileDialog.DontUseNativeDialog
             else:
-                options = QtWidgets.QFileDialog.Option()
+                options = QtWidgets.QFileDialog.DontUseNativeDialog # QtWidgets.QFileDialog.Option()
             self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Select Files...', self.dir, 'TDMS or TIFF Files (*.tdms *.tif)', options=options) # 'All Files (*)'
             if self.files:
                 for file in self.files:
@@ -553,7 +552,7 @@ class Window(QMainWindow):
         if extension == '.tif':
             self.images = self.loadTIFFStack(file)
             self.infoLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames))
-        self.meanSeriesImage = np.mean(self.images,axis=(0)) # calc the mean image for background subtraction
+        self.meanSeriesImage = np.mean(self.images,axis=(0)) # image series mean for background subtraction
         
         cmaxmax = np.max(self.images) 
         self.cminSlider.setMaximum(cmaxmax)
@@ -671,15 +670,26 @@ class Window(QMainWindow):
                 
             # Save features and metadata in HDF5 file
             if self.hdf5:
-                store = pd.HDFStore(os.path.splitext(file)[0].replace('_movie', '') + self.exportPrefix + '_features.h5', 'w')
+                store = pd.HDFStore(os.path.splitext(file)[0].replace('_movie', '') + self.exportSuffix + '_features.h5', 'w')
                 store.put('features', self.spots)
                 store.put('metadata', metadata)
                 store.close()
                 
-            # Save metadata and features as CSV file
+            # Save protocol, metadata and features in CSV file
             if self.csv:
-                file = os.path.splitext(file)[0].replace('_movie', '') + self.exportPrefix + '_features.csv'
-                metadata.to_csv(file, mode='w')   
+                file = os.path.splitext(file)[0].replace('_movie', '') + self.exportSuffix + '_features.csv'
+                if os.path.isfile(self.dir + '/' + self.protocolFile):
+                    info = []
+                    with open(self.dir + '/' + self.protocolFile, 'r') as f:
+                        for line in f:
+                            info.append('#' + line)
+                    with open(file, 'w') as f:
+                        for line in info:
+                            f.write(line)
+                    metadata.to_csv(file, mode='a')  
+                else:
+                    metadata.to_csv(file, mode='w')  
+                    
                 self.spots.to_csv(file, mode='a')
             
             if self.canceled:
@@ -811,57 +821,36 @@ class Window(QMainWindow):
     def scaleBarChanged(self):
         if (self.scaleBarCheckBox.checkState()):
             
-            scale = self.scaleBarSettings.sbscaleSpinBox.value()
+            scale = self.scaleBarSettings.scaleSpinBox.value()
             sbX = self.scaleBarSettings.sbXSpinBox.value()*self.dimx
             sbY = self.scaleBarSettings.sbYSpinBox.value()*self.dimy
             sbLabelYOffset = self.scaleBarSettings.sbLabelYOffsetSpinBox.value()*self.dimy
-<<<<<<< HEAD
             sbWidth = int(np.round(self.scaleBarSettings.sbLengthSpinBox.value()/scale))
-
-=======
-            sbWidth = int(np.round(self.scaleBarSettings.sbLengthSpinBox.value()/(scale)))
-            sbHeight = self.scaleBarSettings.sbHeightSpinBox.value()
+            sbHeight = self.scaleBarSettings.sbHeightSpinBox.value()*self.dimy
             
->>>>>>> f17f890eb43c893d6d794829a67ad13cccd30a08
             self.sb1.setVisible(True)
             self.sb2.setVisible(True)
             self.sb1Label.setVisible(True)
             self.sb2Label.setVisible(True)
             
             # Scale Bars 
-<<<<<<< HEAD
-            self.sb1.setRect(sbX - sbWidth/2, sbY, sbWidth, 0.02*self.dimy)
+            self.sb1.setRect(sbX - sbWidth/2, sbY - sbHeight/2, sbWidth, sbHeight)
             self.sb1.setPen(pg.mkPen(None))
             self.sb1.setBrush(self.sbColor)
             
-            self.sb2.setRect(sbX - sbWidth/2, sbY, sbWidth, 0.02*self.dimy)
-=======
-            self.sb1.setRect(sbX - sbWidth/2, sbY, sbWidth, sbHeight)
-            self.sb1.setPen(pg.mkPen(None))
-            self.sb1.setBrush(self.sbColor)
-            
-            self.sb2.setRect(sbX - sbWidth/2, sbY, sbWidth, sbHeight)
->>>>>>> f17f890eb43c893d6d794829a67ad13cccd30a08
+            self.sb2.setRect(sbX - sbWidth/2, sbY - sbHeight/2, sbWidth, sbHeight)
             self.sb2.setPen(pg.mkPen(None))
             self.sb2.setBrush(self.sbColor)
             
             # Scale Bar Label
             self.sb1Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " \u03bcm")
-<<<<<<< HEAD
             self.sb1Label.setFont(QtGui.QFont("Helvetica", 0.04*self.dimy))
-=======
-            self.sb1Label.setFont(QtGui.QFont("Helvetica", 2*sbHeight))
->>>>>>> f17f890eb43c893d6d794829a67ad13cccd30a08
             self.sb1Label.setBrush(self.sbColor)
             bRect = self.sb1Label.boundingRect()
             self.sb1Label.setPos(sbX - bRect.width()/2, sbY - bRect.height()/2 - sbLabelYOffset)
             
             self.sb2Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " \u03bcm")
-<<<<<<< HEAD
             self.sb2Label.setFont(QtGui.QFont("Helvetica", 0.04*self.dimy))
-=======
-            self.sb2Label.setFont(QtGui.QFont("Helvetica", 2*sbHeight))
->>>>>>> f17f890eb43c893d6d794829a67ad13cccd30a08
             self.sb2Label.setBrush(self.sbColor)
             bRect = self.sb2Label.boundingRect()
             self.sb2Label.setPos(sbX - bRect.width()/2, sbY - bRect.height()/2 - sbLabelYOffset)
@@ -874,50 +863,40 @@ class Window(QMainWindow):
 
     def autoScaleBar(self):
         if (self.scaleBarCheckBox.checkState()):
-            unit = 'µm'# is written in the plot
-            scale = self.scaleBarSettings.sbscaleSpinBox.value()
-            # put image dims here
-            W_i = self.dimx #xdim  # width of the image in pxl
-            H_i = self.dimy #ydim  # Height of the image in pxl
             
-<<<<<<< HEAD
-            #self.scaleBarSettings.sbLengthSpinBox.setValue(...)
-            #self.scaleBarSettings.sbXSpinBox.setValue(...)
-            #self.scaleBarSettings.sbYSpinBox.setValue(...)
-            #self.scaleBarSettings.sbLabelYOffsetSpinBox.setValue(...)
-=======
-            W_m = W_i * scale
+            scale = self.scaleBarSettings.scaleSpinBox.value()
+            
+            W_m = self.dimx * scale
             suggested_relative_scalebar_width = 0.2
-            sb_height_k = 0.03
-            sb_right_edge_k = 0.94
-            sb_bot_pos_k = 0.93 # 0.07 
-            allowed_first_digit = np.array([1,2,5,10]) # the 10 in here is important (the numbersystem fliping point or whaterver its called)
+            sb_height_k = 0.02
+            sb_right_edge_k = 0.90
+            sb_bot_pos_k = 0.92 
+            allowed_first_digit = np.array([1, 2, 3, 5, 10]) # the 10 in here is important (the numbersystem fliping point or whaterver its called)
             suggested_sblength_m = ( 10**int('{:.0e}'.format(W_m * suggested_relative_scalebar_width)[2:]) 
-                                 * allowed_first_digit[
-                                     np.abs(int('{:.0e}'.format(W_m * suggested_relative_scalebar_width)[0])-allowed_first_digit).min()
+                                     * allowed_first_digit[np.abs(int('{:.0e}'.format(W_m * suggested_relative_scalebar_width)[0]) - allowed_first_digit).min()
                                      == np.abs(int('{:.0e}'.format(W_m * suggested_relative_scalebar_width)[0])-allowed_first_digit)
                                  ][0]
                                 )
             
             sblength_i = suggested_sblength_m/scale
-            sblength_k = sblength_i/W_i
-            sb_height_i = H_i * sb_height_k
-            sb_x_center_i = (sb_right_edge_k - sblength_k/2) * W_i
-            sb_x_center_k = sb_x_center_i / W_i
+            sblength_k = sblength_i/self.dimx
+            sb_x_center_i = (sb_right_edge_k - sblength_k/2) * self.dimx
+            sb_x_center_k = sb_x_center_i / self.dimx
             sb_y_center_k = sb_bot_pos_k - sb_height_k/2
+            sb_height_k/2
+            
             self.scaleBarSettings.sbLengthSpinBox.setValue(suggested_sblength_m)
-            self.scaleBarSettings.sbHeightSpinBox.setValue(sb_height_i)
+            self.scaleBarSettings.sbHeightSpinBox.setValue(sb_height_k)
             self.scaleBarSettings.sbXSpinBox.setValue(sb_x_center_k)
             self.scaleBarSettings.sbYSpinBox.setValue(sb_y_center_k)
-            self.scaleBarSettings.sbLabelYOffsetSpinBox.setValue(sb_height_k*1.3)
->>>>>>> f17f890eb43c893d6d794829a67ad13cccd30a08
+            self.scaleBarSettings.sbLabelYOffsetSpinBox.setValue(sb_height_k + 0.04)
             
             self.scaleBarChanged()
 
     
     def openColorDialog(self):
         self.sbColor = QtGui.QColorDialog.getColor()
-        self.scaleBarSettings.sbColorPreview.setStyleSheet("background-color: rgb(%i, %i, %i)" % (self.sbColor.red(), self.sbColor.green(), self.sbColor.blue()))
+        self.scaleBarSettings.sbColorPreview.setStyleSheet("background-color: %s" % self.sbColor.name())
         self.scaleBarChanged()
      
     def abortButtonClicked(self):
@@ -948,7 +927,7 @@ class Window(QMainWindow):
         self.settings.setValue('TrackingState', self.trackingCheckBox.checkState())
         self.settings.setValue('Pre-Processing/medianState', self.medianCheckBox.checkState())
         self.settings.setValue('Pre-Processing/subtractMeanState', self.subtractMeanCheckBox.checkState())
-        self.settings.setValue('Pre-Processing/medianSize', self.medianSpinBox.value())
+        self.settings.setValue('Pre-Processing/medianValue', self.medianSpinBox.value())
         self.settings.setValue('Pre-Processing/maskState', self.maskCheckBox.checkState())
         self.settings.setValue('Pre-Processing/maskType', self.maskTypeComboBox.currentIndex())
         self.settings.setValue('Pre-Processing/maskX', self.maskXSpinBox.value())
@@ -958,6 +937,7 @@ class Window(QMainWindow):
         self.settings.setValue('Preferences/HDF5', self.hdf5)
         self.settings.setValue('Preferences/CSV', self.csv)
         self.settings.setValue('Preferences/protocolFile', self.protocolFile)
+        self.settings.setValue('Preferences/exportSuffix', self.exportSuffix)
         self.settings.setValue('Video/exportTypeComboBox', self.exportTypeComboBox.currentIndex())
         self.settings.setValue('Video/exportViewComboBox', self.exportViewComboBox.currentIndex())
      
@@ -1010,7 +990,9 @@ class Window(QMainWindow):
                 self.preferences.radioButtonCSV.setChecked(self.csv)
                 
                 self.protocolFile = self.settings.value('Preferences/protocolFile', 'Protocol.txt')
-                self.preferences.protocolFileLineEdit.setText(self.protocolFile) 
+                self.preferences.protocolFileLineEdit.setText(self.protocolFile)
+                self.exportSuffix = self.settings.value('Preferences/exportSuffix', '')
+                self.preferences.suffixLineEdit.setText(self.exportSuffix) 
                 
                 self.exportTypeComboBox.setCurrentIndex(int(self.settings.value('Video/exportTypeComboBox', '0')))
                 self.exportViewComboBox.setCurrentIndex(int(self.settings.value('Video/exportViewComboBox', '0')))
@@ -1033,6 +1015,7 @@ class Window(QMainWindow):
             self.dir = '.'
             self.csv = 1
             self.hdf5 = 0
+            self.exportSuffix = ''
             self.protocolFile = 'Protocol.txt'
             self.sbColor = QtGui.QColor('#ffffff')
             self.scaleBarSettings.sbColorPreview.setStyleSheet('background-color: #ffffff')
@@ -1067,7 +1050,6 @@ class Window(QMainWindow):
             self.trackingCheckBox.setEnabled(state)
         self.tabWidget.setEnabled(state)
         self.removeFilesButton.setEnabled(state)
-        self.prefixLineEdit.setEnabled(state)
         self.scaleBarCheckBox.setEnabled(state)
         self.editScaleBarButton.setEnabled(state)
 
@@ -1082,10 +1064,12 @@ class Window(QMainWindow):
         if self.preferences.exec_() == QtGui.QDialog.Accepted:
             self.hdf5 = self.preferences.radioButtonHDF5.isChecked()
             self.csv = self.preferences.radioButtonCSV.isChecked()
+            self.exportSuffix = self.preferences.suffixLineEdit.text()
             self.protocolFile = self.preferences.protocolFileLineEdit.text()
         else: # Rejected 
             self.preferences.radioButtonHDF5.setChecked(self.hdf5)
             self.preferences.radioButtonCSV.setChecked(self.csv)
+            self.preferences.suffixLineEdit.setText(self.exportSuffix)
             self.preferences.protocolFileLineEdit.setText(self.protocolFile)
             
     

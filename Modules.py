@@ -41,24 +41,24 @@ def ConnectedComponent(i, image, lp1, lp2, **args):
         if j >= max_features: # Do not add feature
             continue 
         features = features.append([{'y': region.centroid[0], 
-        								   'x': region.centroid[1],
+        						     'x': region.centroid[1],
                                      'y_weighted': region.weighted_centroid[0],
                                      'x_weighted': region.weighted_centroid[1],
-    									   'orientation': region.orientation,
-    									   'minor_axis_length': region.minor_axis_length,
-    									   'major_axis_length': region.major_axis_length,
-    									   'area': region.area,
+    								 'orientation': region.orientation,
+    								 'minor_axis_length': region.minor_axis_length,
+    								 'major_axis_length': region.major_axis_length,
+    								 'area': region.area,
                                      'equivalent_diameter': region.equivalent_diameter,
                                      'filled_area': region.filled_area,
-    									   'max_intensity': region.max_intensity,
+    								 'max_intensity': region.max_intensity,
                                      'mean_intensity': region.mean_intensity,
                                      #'bbox': region.bbox,
                                      'eccentricity': region.eccentricity,
                                      #'weighted_moments_central': region.weighted_moments_central,
                                      #'inertia_tensor': region.inertia_tensor,
-    									   'frame': i,}])
+    								 'frame': i,}])
         j += 1 # feature added
-    features.reset_index(drop=True,inplace = True)
+    features.reset_index(drop=True, inplace = True)
     
     # Draw the overlay: Ellipses with minor and major axis. There is no build-in function for ellipses in PyQtGraph, so we draw them using the plotCurveItems lp2.
     if features.size > 0:            
