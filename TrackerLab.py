@@ -663,8 +663,8 @@ class Window(QMainWindow):
                     metadata[obj.objectName()] = obj.checkState();
                      
                                 
-            if self.prefixLineEdit.text():
-                self.exportPrefix = '_' + self.prefixLineEdit.text()
+            if self.preferences.suffixLineEdit.text():
+                self.exportPrefix = '_' + self.preferences.suffixLineEdit.text()
             else:
                 self.exportPrefix = ''
                 
