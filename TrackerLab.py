@@ -266,10 +266,9 @@ class Window(QMainWindow):
         self.ffmpeg = True
         try:
             sp.call(['FFmpeg/ffmpeg'])
-        except OSError as e:
-            if e.errno == os.errno.ENOENT:
-                self.ffmpeg = False # FFmpeg is not installed
-                print('FFmpeg is Not Installed. Video Export is Disabled.')
+        except:
+            self.ffmpeg = False # FFmpeg is not installed
+            print('FFmpeg is Not Installed. Video Export is Disabled.')
         
         self.exportVideo = False
         
@@ -833,7 +832,7 @@ class Window(QMainWindow):
             self.sb1Label.setVisible(True)
             self.sb2Label.setVisible(True)
             
-            # Scale Bars 
+            # Scale Bar 
             self.sb1.setRect(sbX - sbWidth/2, sbY - sbHeight/2, sbWidth, sbHeight)
             self.sb1.setPen(pg.mkPen(None))
             self.sb1.setBrush(self.sbColor)
@@ -866,12 +865,19 @@ class Window(QMainWindow):
             
             scale = self.scaleBarSettings.scaleSpinBox.value()
             
-            W_m = self.dimx * scale
+            #W_m = self.dimx * scale
             suggested_relative_scalebar_width = 0.2
             sb_height_k = 0.02
             sb_right_edge_k = 0.90
             sb_bot_pos_k = 0.92 
-            allowed_first_digit = np.array([1, 2, 3, 5, 10]) # the 10 in here is important (the numbersystem fliping point or whaterver its called)
+            allowed_first_digit = np.array([1, 2, 3, 5, 10]) # the 10 in here is important (the numbersystem hoping point or whaterver its called)
+            short_dim_i = np.min([self.dimx,self.dimy]) 
+            long_dim_i = np.max([self.dimx,self.dimy])
+            max_xy_ratio = 2/3
+            if max_xy_ratio * long_dim_i > short_dim_i: # for large aspect ratios take the shorter axis for the auto scale
+                W_m = short_dim_i * scale
+            else:
+                W_m = long_dim_i * scale
             suggested_sblength_m = ( 10**int('{:.0e}'.format(W_m * suggested_relative_scalebar_width)[2:]) 
                                      * allowed_first_digit[np.abs(int('{:.0e}'.format(W_m * suggested_relative_scalebar_width)[0]) - allowed_first_digit).min()
                                      == np.abs(int('{:.0e}'.format(W_m * suggested_relative_scalebar_width)[0])-allowed_first_digit)
