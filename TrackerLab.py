@@ -667,13 +667,6 @@ class Window(QMainWindow):
             else:
                 self.exportPrefix = ''
                 
-            # Save features and metadata in HDF5 file
-            if self.hdf5:
-                store = pd.HDFStore(os.path.splitext(file)[0].replace('_movie', '') + self.exportSuffix + '_features.h5', 'w')
-                store.put('features', self.spots)
-                store.put('metadata', metadata)
-                store.close()
-                
             # Save protocol, metadata and features in CSV file
             if self.csv:
                 file = os.path.splitext(file)[0].replace('_movie', '') + self.exportSuffix + '_features.csv'
@@ -681,7 +674,10 @@ class Window(QMainWindow):
                     info = []
                     with open(self.dir + '/' + self.protocolFile, 'r') as f:
                         for line in f:
-                            info.append('#' + line)
+                            if '\n' in line: 
+                                info.append('#' + line)
+                            else:
+                                info.append('#' + line + '\n')
                     with open(file, 'w') as f:
                         for line in info:
                             f.write(line)
@@ -690,6 +686,15 @@ class Window(QMainWindow):
                     metadata.to_csv(file, mode='w')  
                     
                 self.spots.to_csv(file, mode='a')
+                
+            # Save features and metadata in HDF5 file
+            if self.hdf5:
+                store = pd.HDFStore(os.path.splitext(file)[0].replace('_movie', '') + self.exportSuffix + '_features.h5', 'w')
+                store.put('features', self.spots)
+                store.put('metadata', metadata)
+                store.close()
+                
+
             
             if self.canceled:
                 break
