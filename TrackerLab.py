@@ -264,8 +264,14 @@ class Window(QMainWindow):
         
         # check if FFmpeg is available
         self.ffmpeg = True
+
         try:
+            if platform.system() == 'Darwin': # On MacOS the rights for the ffmpeg file have to changed 
+                os.chdir('FFmpeg')
+                os.chmod('ffmpeg',0o777) # "0o" is needed since chmod expects octal integers
+                os.chdir('..')
             sp.call(['FFmpeg/ffmpeg'])
+            
         except:
             self.ffmpeg = False # FFmpeg is not installed
             print('FFmpeg is Not Installed. Video Export is Disabled.')
