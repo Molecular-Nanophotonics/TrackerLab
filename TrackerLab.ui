@@ -125,7 +125,7 @@
         <bool>false</bool>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="ConnectedComponent">
         <attribute name="title">
@@ -543,7 +543,7 @@
           <bool>false</bool>
          </property>
          <property name="maximum">
-          <number>10000</number>
+          <number>9999999</number>
          </property>
          <property name="value">
           <number>450</number>
@@ -676,7 +676,7 @@
           <bool>false</bool>
          </property>
          <property name="maximum">
-          <number>10000</number>
+          <number>999999999</number>
          </property>
          <property name="value">
           <number>300</number>
@@ -695,7 +695,7 @@
           <bool>false</bool>
          </property>
          <property name="maximum">
-          <number>1000</number>
+          <number>999999</number>
          </property>
          <property name="value">
           <number>250</number>
@@ -740,7 +740,7 @@
           <bool>false</bool>
          </property>
          <property name="maximum">
-          <number>1000</number>
+          <number>9999999</number>
          </property>
          <property name="value">
           <number>50</number>
@@ -1692,7 +1692,7 @@
      <x>0</x>
      <y>0</y>
      <width>1250</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
