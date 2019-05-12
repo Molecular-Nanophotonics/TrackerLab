@@ -110,6 +110,7 @@ class Window(QMainWindow):
         self.medianCheckBox.stateChanged.connect(self.update)  
         self.subtractMeanCheckBox.stateChanged.connect(self.update)  
         self.medianSpinBox.valueChanged.connect(self.update)
+        self.SoftwareBinningSpinBox.valueChanged.connect(self.update)
         self.maskCheckBox.stateChanged.connect(self.update)
         self.maskXSpinBox.valueChanged.connect(self.maskChanged)
         self.maskYSpinBox.valueChanged.connect(self.maskChanged)
@@ -291,7 +292,7 @@ class Window(QMainWindow):
             mousePoint = self.p2.vb.mapSceneToView(e)  
             x = int(mousePoint.x())
             y = int(mousePoint.y()) 
-            if x > 0 and x < self.dimx and y > 0 and y < self.dimy:
+            if x > 0 and x < self.processedImage.shape[0] and y > 0 and y < self.processedImage.shape[1]:
                 self.mouseLabel.setText("x = %d\ty = %d\t[%d]" % (x, y, self.processedImage[y, x]))
                 
             #vLine.setPos(mousePoint.x())
@@ -299,7 +300,7 @@ class Window(QMainWindow):
     
         
     def update(self):
-            
+        
         if self.tabIndex != self.tabWidget.currentIndex():
             self.lp1.clear()
             self.lp2.clear()
@@ -321,6 +322,15 @@ class Window(QMainWindow):
         self.processedImage = self.images[self.frameSlider.value()]
         
         # Image Pre-Processing 
+        def rebin_image(arr_in,binning):
+            # throws away the last rows and cols 
+            new_shape = tuple(np.array(arr_in.shape)//binning)
+            arr = arr_in[:binning*new_shape[0],:binning*new_shape[1]]
+            shape = (new_shape[0], arr.shape[0] // new_shape[0],
+                     new_shape[1], arr.shape[1] // new_shape[1])
+            return arr.reshape(shape).mean(-1).mean(1)
+        self.processedImage = rebin_image(self.processedImage, self.SoftwareBinningSpinBox.value())
+        
         if self.subtractMeanCheckBox.checkState():
             self.processedImage = self.processedImage - self.meanSeriesImage
             self.processedImage[self.processedImage<0] = 0
@@ -339,7 +349,7 @@ class Window(QMainWindow):
         # Tracking
         spots = pd.DataFrame()
         if self.trackingCheckBox.checkState():
-            spots = self.findSpots(self.frameSlider.value())   
+            spots = self.findFeatures(self.frameSlider.value())   
 
             self.im2.setImage(self.processedImage) 
             
@@ -363,8 +373,8 @@ class Window(QMainWindow):
             
         #self.sp.setData(x=spots.x.tolist(), y=spots.y.tolist(), size=10)
         
-     # Maximum Tracking     
-    def findSpots(self, i):
+     # Tracking     
+    def findFeatures(self, i):
         
         spots = pd.DataFrame()
         
@@ -631,7 +641,7 @@ class Window(QMainWindow):
                 self.fileDoubleClicked(self.fileListWidget.item(f))
             self.statusBar.showMessage('Feature Detection... Processing: ' + os.path.basename(file))
             for j in range(self.images.shape[0]):
-                self.frameSlider.setValue(j)
+                self.frameSlider.setValue(j) # this triggers update()
                 processedFrames += 1
                 self.progressBar.setValue(processedFrames/totalFrames*100)
                 QtWidgets.QApplication.processEvents()
@@ -643,7 +653,8 @@ class Window(QMainWindow):
             # save metadata as data frame
             metadata = pd.DataFrame([{'dimx': self.dimx,
                                       'dimy': self.dimy,
-                                      'frames': self.frames}])
+                                      'frames': self.frames,
+                                      'software_binning': self.SoftwareBinningSpinBox.value()}])
 
             if os.path.splitext(file)[1] == '.tdms':
                 metadata['binning'] =  self.binning
@@ -942,6 +953,7 @@ class Window(QMainWindow):
         self.settings.setValue('Dir', self.dir)
         self.settings.setValue('TabIndex', self.tabWidget.currentIndex())
         self.settings.setValue('TrackingState', self.trackingCheckBox.checkState())
+        self.settings.setValue('Software_binning', self.SoftwareBinningSpinBox.value())
         self.settings.setValue('Pre-Processing/medianState', self.medianCheckBox.checkState())
         self.settings.setValue('Pre-Processing/subtractMeanState', self.subtractMeanCheckBox.checkState())
         self.settings.setValue('Pre-Processing/medianValue', self.medianSpinBox.value())
@@ -991,6 +1003,7 @@ class Window(QMainWindow):
                 self.dir = self.settings.value('Dir', '.')
                 self.trackingCheckBox.setCheckState(int(self.settings.value('TrackingState', '2')))
                 self.tabWidget.setCurrentIndex(int(self.settings.value('TabIndex', '0'))) 
+                self.SoftwareBinningSpinBox(int(self.settings.value('Software_binning', '1')))
                 self.subtractMeanCheckBox.setCheckState(int(self.settings.value('Pre-Processing/subtractMeanState', '0')))
                 self.medianCheckBox.setCheckState(int(self.settings.value('Pre-Processing/medianState', '0')))
                 self.medianSpinBox.setValue(int(self.settings.value('Pre-Processing/medianValue', '2'))) 
