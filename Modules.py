@@ -241,8 +241,32 @@ def JPTracker(i, image, lp1, lp2, **kwargs):
         image1[mask] = 0
         image2 = image - image1
         return [image1,image2]
-
-
+    
+    def Crescent_width(JP_image,x_JP,y_JP):
+        nbins = 10
+        phi_edges = np.linspace(-np.pi, np.pi, nbins+1)
+        #dphi = phi_edges[1] - phi_edges[0]
+        #phi_mids = phi_edges[:-1] + dphi/2
+        #i_list = np.arange(nbins)
+        dimy = np.shape(JP_image)[0]
+        dimx = np.shape(JP_image)[1]
+        x_list = np.arange(dimx) - dimx/2
+        y_list = np.arange(dimy) - dimx/2
+        x_M, y_M = np.meshgrid(x_list, y_list)
+        #r_M = np.sqrt(x_Mx**2 + y_M**2)
+        phi_M = np.arctan2(x_M,y_M)
+        #phi_hist = np.zeros(nbins)
+        mean_int_list = np.zeros(nbins)
+        for i in range(nbins):
+            #phi_hist[i] = np.sum( (phi_M > phi_edges[i])&(phi_M < phi_edges[i+1]) )
+            mean_int_list[i] = np.mean( JP_image[(phi_M > phi_edges[i])&(phi_M < phi_edges[i+1])] )
+        max_int = np.max(mean_int_list)
+        #min_int = np.min(mean_int_list)
+        min_int = 0.5*max_int
+        int_TH = 0.5*(min_int + max_int)
+        width = np.sum(mean_int_list < int_TH)/nbins
+        return width 
+       
     features = pd.DataFrame()
     intensityImage = image
     THImage = (image > threshold).astype(int) # relative threshold
@@ -264,8 +288,11 @@ def JPTracker(i, image, lp1, lp2, **kwargs):
         minYi, minXi, maxYi, maxXi = region.bbox
         if minYi < min_dist_boundray and maxYi > dim-min_dist_boundray and minXi < min_dist_boundray and maxXi > dim-min_dist_boundray: 
             continue
+        
         if not pairTrigger:
             x, y, phi = Track_single_JP(intensityImage[minYi:maxYi,minXi:maxXi])
+            crescent_width = Crescent_width(intensityImage[minYi:maxYi,minXi:maxXi], x, y)
+            
             features = features.append([{'y': x + minYi, # go bak to full image cords
                                'x': y + minXi,
                                #'COM_x': orient_x + minYi, 
@@ -276,8 +303,10 @@ def JPTracker(i, image, lp1, lp2, **kwargs):
                                'area': region.area,
                                'bbox': region.bbox,
                                'eccentricity': region.eccentricity,
+                               'hu_moments' : list(region.weighted_moments_hu),
                                'max_intensity': region.max_intensity,
                                'summed_intensity': region.area * region.mean_intensity,
+                               'crescent_width' : crescent_width,
                                'frame': i,
                                'ClosePairStatus': pairTrigger,
                                }])
@@ -296,6 +325,7 @@ def JPTracker(i, image, lp1, lp2, **kwargs):
                                    'area': region.area,
                                    'bbox': region.bbox,
                                    'eccentricity': region.eccentricity,
+                                   'hu_moments' : region.moments_hu,
                                    'max_intensity': np.max(masked_image),
                                    'summed_intensity': np.sum(masked_image),
                                    'frame': i,
