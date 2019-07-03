@@ -147,13 +147,13 @@ def JPTracker(i, image, lp1, lp2, **kwargs):
     threshold = kwargs['tab3ThresholdSpinBox']
     MinArea = kwargs['tab3MinAreaSpinBox']
     MaxArea = kwargs['tab3MaxAreaSpinBox']
-    MaxElipticity = kwargs['tab3MaxElipticitySpinBox'] * 0.1
+    MaxElipticity = kwargs['tab3MaxElipticitySpinBox']*0.01
     SeparateClosePairs = kwargs['SeparateClosePairsCheckBox'] #.checkState() ?
     MinAreaPair = kwargs['tab3MinAreaPairSpinBox']
     MaxAreaPair = kwargs['tab3MaxAreaPairSpinBox']
-    MinElipticityPair = kwargs['tab3MinElipticityPairSpinBox'] * 0.1
+    MinElipticityPair = kwargs['tab3MinElipticityPairSpinBox']*0.01
     MaxFeatures = kwargs['tab3MaxFeaturesSpinBox']
-    
+    Crescent_ratio = kwargs['tab3CrescentRatioSpinBox'] * 0.01
     
     def Threshold(frame,TH,new_value,**kwargs):
         """eats a xy grayscale image and applys threshold TH with new value. 
@@ -242,7 +242,7 @@ def JPTracker(i, image, lp1, lp2, **kwargs):
         image2 = image - image1
         return [image1,image2]
     
-    def Crescent_width(JP_image,x_JP,y_JP):
+    def Crescent_width(JP_image,x_JP,y_JP,Crescent_ratio):
         nbins = 10
         phi_edges = np.linspace(-np.pi, np.pi, nbins+1)
         #dphi = phi_edges[1] - phi_edges[0]
@@ -253,18 +253,19 @@ def JPTracker(i, image, lp1, lp2, **kwargs):
         x_list = np.arange(dimx) - dimx/2
         y_list = np.arange(dimy) - dimx/2
         x_M, y_M = np.meshgrid(x_list, y_list)
-        #r_M = np.sqrt(x_Mx**2 + y_M**2)
+        r_M = np.sqrt(x_M**2 + y_M**2)
         phi_M = np.arctan2(x_M,y_M)
         #phi_hist = np.zeros(nbins)
         mean_int_list = np.zeros(nbins)
         for i in range(nbins):
             #phi_hist[i] = np.sum( (phi_M > phi_edges[i])&(phi_M < phi_edges[i+1]) )
-            mean_int_list[i] = np.mean( JP_image[(phi_M > phi_edges[i])&(phi_M < phi_edges[i+1])] )
+            mean_int_list[i] = np.mean( JP_image[(phi_M > phi_edges[i]) & (phi_M < phi_edges[i+1]) & (r_M < np.mean([dimx,dimy])/2)] )
         max_int = np.max(mean_int_list)
         #min_int = np.min(mean_int_list)
-        min_int = 0.5*max_int
-        int_TH = 0.5*(min_int + max_int)
-        width = np.sum(mean_int_list < int_TH)/nbins
+        #min_int = 0.5*max_int
+        #int_TH = 0.5*(min_int + max_int)
+        int_TH = Crescent_ratio*(max_int)
+        width = np.sum(mean_int_list > int_TH)/nbins
         return width 
        
     features = pd.DataFrame()
@@ -291,7 +292,7 @@ def JPTracker(i, image, lp1, lp2, **kwargs):
         
         if not pairTrigger:
             x, y, phi = Track_single_JP(intensityImage[minYi:maxYi,minXi:maxXi])
-            crescent_width = Crescent_width(intensityImage[minYi:maxYi,minXi:maxXi], x, y)
+            crescent_width = Crescent_width(intensityImage[minYi:maxYi,minXi:maxXi], x, y, Crescent_ratio)
             
             features = features.append([{'y': x + minYi, # go bak to full image cords
                                'x': y + minXi,
@@ -328,22 +329,38 @@ def JPTracker(i, image, lp1, lp2, **kwargs):
                                    'hu_moments' : region.moments_hu,
                                    'max_intensity': np.max(masked_image),
                                    'summed_intensity': np.sum(masked_image),
+                                   'crescent_width' : crescent_width,
                                    'frame': i,
                                    'ClosePairStatus': pairTrigger,
                                    }])
                 j += 1 # feature added
 
         if features.size > 0:
-            axesX2 = []
-            axesY2 = []
-            clist = []
+            axesX_b = []
+            axesY_b = []
+            clist_b = []
+            axesX_r = []
+            axesY_r = []
+            clist_r = []
             for index, s in features.iterrows():
                 # JP Orientation vector
-                line_length = 8
-                axesX2.extend([s.x, s.x + line_length*np.sin(s.phi)])
-                axesY2.extend([s.y, s.y + line_length*np.cos(s.phi)])
-                clist.extend([1,0])
-            lp1.setData(x=axesX2, y=axesY2, connect=np.array(clist))
+                line_length = (s.bbox[2] -  s.bbox[0])/2
+                axesX_r.extend([s.x, s.x + line_length*np.sin(s.phi)])
+                axesY_r.extend([s.y, s.y + line_length*np.cos(s.phi)])
+                clist_r.extend([1,0])
+                # JP crescent width bar
+                box_h = s.bbox[2] - s.bbox[0]
+                box_w = s.bbox[3] - s.bbox[1]
+                axesX_b.extend([s.x - box_w/2, s.x + box_w/2])
+                axesY_b.extend([s.y + box_h/2 , s.y + box_h/2])
+                clist_b.extend([1,0])
+                axesX_r.extend([s.x - box_w/2, s.x - box_w/2 + s.crescent_width*box_w])
+                axesY_r.extend([s.y + box_h/2 + 1, s.y + box_h/2 + 1])
+                clist_r.extend([1,0])
+                
+            lp2.setData(x=axesX_r, y=axesY_r, connect=np.array(clist_r))
+            lp1.setData(x=axesX_b, y=axesY_b, connect=np.array(clist_b))
+            
     return features, THImage
 
 

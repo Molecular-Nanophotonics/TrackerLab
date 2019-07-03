@@ -382,39 +382,11 @@
         <attribute name="title">
          <string>JP Tracker</string>
         </attribute>
-        <widget class="QSpinBox" name="tab3MinElipticityPairSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>331</x>
-           <y>49</y>
-           <width>61</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string comment="just checking" extracomment="comment on tooltip">0 - 1</string>
-         </property>
-         <property name="keyboardTracking">
-          <bool>false</bool>
-         </property>
-         <property name="maximum">
-          <number>10</number>
-         </property>
-         <property name="singleStep">
-          <number>1</number>
-         </property>
-         <property name="value">
-          <number>5</number>
-         </property>
-         <property name="displayIntegerBase">
-          <number>10</number>
-         </property>
-        </widget>
         <widget class="QLabel" name="numberOfClosePairs">
          <property name="geometry">
           <rect>
-           <x>331</x>
-           <y>139</y>
+           <x>330</x>
+           <y>140</y>
            <width>61</width>
            <height>20</height>
           </rect>
@@ -433,7 +405,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>49</y>
+           <y>30</y>
            <width>71</width>
            <height>21</height>
           </rect>
@@ -452,8 +424,8 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>139</y>
-           <width>71</width>
+           <y>90</y>
+           <width>81</width>
            <height>21</height>
           </rect>
          </property>
@@ -471,7 +443,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>109</y>
+           <y>70</y>
            <width>111</width>
            <height>21</height>
           </rect>
@@ -486,36 +458,11 @@
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
-        <widget class="QSpinBox" name="tab3MaxElipticitySpinBox">
-         <property name="geometry">
-          <rect>
-           <x>102</x>
-           <y>109</y>
-           <width>61</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="keyboardTracking">
-          <bool>false</bool>
-         </property>
-         <property name="maximum">
-          <number>10</number>
-         </property>
-         <property name="singleStep">
-          <number>1</number>
-         </property>
-         <property name="value">
-          <number>5</number>
-         </property>
-         <property name="displayIntegerBase">
-          <number>10</number>
-         </property>
-        </widget>
         <widget class="QLabel" name="tab3MaxElipticityPairLabel">
          <property name="geometry">
           <rect>
-           <x>223</x>
-           <y>49</y>
+           <x>222</x>
+           <y>20</y>
            <width>121</width>
            <height>21</height>
           </rect>
@@ -533,8 +480,8 @@
         <widget class="QSpinBox" name="tab3MaxAreaPairSpinBox">
          <property name="geometry">
           <rect>
-           <x>331</x>
-           <y>109</y>
+           <x>330</x>
+           <y>80</y>
            <width>61</width>
            <height>22</height>
           </rect>
@@ -552,8 +499,8 @@
         <widget class="QLabel" name="tab3MaxAreaPairLabel">
          <property name="geometry">
           <rect>
-           <x>223</x>
-           <y>109</y>
+           <x>222</x>
+           <y>80</y>
            <width>101</width>
            <height>21</height>
           </rect>
@@ -571,8 +518,8 @@
         <widget class="QLabel" name="tab3MaxAreaLabel">
          <property name="geometry">
           <rect>
-           <x>10</x>
-           <y>79</y>
+           <x>8</x>
+           <y>50</y>
            <width>71</width>
            <height>21</height>
           </rect>
@@ -590,8 +537,8 @@
         <widget class="QLabel" name="numberOfClosePairsLabel">
          <property name="geometry">
           <rect>
-           <x>223</x>
-           <y>139</y>
+           <x>222</x>
+           <y>140</y>
            <width>121</width>
            <height>20</height>
           </rect>
@@ -603,8 +550,8 @@
         <widget class="QSpinBox" name="tab3MaxFeaturesSpinBox">
          <property name="geometry">
           <rect>
-           <x>102</x>
-           <y>139</y>
+           <x>100</x>
+           <y>90</y>
            <width>61</width>
            <height>22</height>
           </rect>
@@ -625,9 +572,9 @@
         <widget class="QSpinBox" name="tab3ThresholdSpinBox">
          <property name="geometry">
           <rect>
-           <x>102</x>
-           <y>19</y>
-           <width>61</width>
+           <x>100</x>
+           <y>4</y>
+           <width>71</width>
            <height>24</height>
           </rect>
          </property>
@@ -647,8 +594,8 @@
         <widget class="QLabel" name="tab3MinAreaPairLabel">
          <property name="geometry">
           <rect>
-           <x>223</x>
-           <y>79</y>
+           <x>222</x>
+           <y>50</y>
            <width>91</width>
            <height>21</height>
           </rect>
@@ -666,8 +613,8 @@
         <widget class="QSpinBox" name="tab3MaxAreaSpinBox">
          <property name="geometry">
           <rect>
-           <x>102</x>
-           <y>79</y>
+           <x>100</x>
+           <y>50</y>
            <width>61</width>
            <height>22</height>
           </rect>
@@ -685,8 +632,8 @@
         <widget class="QSpinBox" name="tab3MinAreaPairSpinBox">
          <property name="geometry">
           <rect>
-           <x>331</x>
-           <y>79</y>
+           <x>330</x>
+           <y>50</y>
            <width>61</width>
            <height>22</height>
           </rect>
@@ -705,7 +652,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>22</y>
+           <y>7</y>
            <width>71</width>
            <height>16</height>
           </rect>
@@ -717,8 +664,8 @@
         <widget class="QCheckBox" name="SeparateClosePairsCheckBox">
          <property name="geometry">
           <rect>
-           <x>223</x>
-           <y>19</y>
+           <x>220</x>
+           <y>0</y>
            <width>171</width>
            <height>20</height>
           </rect>
@@ -730,8 +677,8 @@
         <widget class="QSpinBox" name="tab3MinAreaSpinBox">
          <property name="geometry">
           <rect>
-           <x>102</x>
-           <y>49</y>
+           <x>100</x>
+           <y>30</y>
            <width>61</width>
            <height>22</height>
           </rect>
@@ -746,30 +693,80 @@
           <number>50</number>
          </property>
         </widget>
-        <widget class="QLabel" name="label_6">
+        <widget class="QLabel" name="tab3CrescentRatioLabel">
          <property name="geometry">
           <rect>
-           <x>400</x>
-           <y>54</y>
-           <width>47</width>
-           <height>13</height>
+           <x>10</x>
+           <y>110</y>
+           <width>91</width>
+           <height>21</height>
           </rect>
          </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
          <property name="text">
-          <string>e-10</string>
+          <string>crescent ratio:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
-        <widget class="QLabel" name="label_7">
+        <widget class="QSpinBox" name="tab3MaxElipticitySpinBox">
          <property name="geometry">
           <rect>
-           <x>170</x>
-           <y>115</y>
-           <width>47</width>
-           <height>13</height>
+           <x>100</x>
+           <y>70</y>
+           <width>48</width>
+           <height>24</height>
           </rect>
          </property>
-         <property name="text">
-          <string>e-10</string>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="singleStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>50</number>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="tab3MinElipticityPairSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>330</x>
+           <y>20</y>
+           <width>48</width>
+           <height>24</height>
+          </rect>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="singleStep">
+          <number>2</number>
+         </property>
+         <property name="value">
+          <number>50</number>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="tab3CrescentRatioSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>100</x>
+           <y>110</y>
+           <width>48</width>
+           <height>24</height>
+          </rect>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="singleStep">
+          <number>2</number>
+         </property>
+         <property name="value">
+          <number>80</number>
          </property>
         </widget>
        </widget>

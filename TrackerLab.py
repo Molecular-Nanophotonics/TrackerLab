@@ -383,7 +383,7 @@ class Window(QMainWindow):
             if obj.metaObject().className() == 'QSpinBox':
                 args[obj.objectName()] = obj.value();
             if obj.metaObject().className() == 'QCheckBox':
-                args[obj.objectName()] = obj.checkState();     
+                args[obj.objectName()] = obj.checkState(); 
 
         method = getattr(Modules, self.tabWidget.currentWidget().objectName())
         spots, self.processedImage  = method(i, self.processedImage, self.lp1, self.lp2, **args)
