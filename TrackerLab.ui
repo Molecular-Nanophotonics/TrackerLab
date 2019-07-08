@@ -831,7 +831,7 @@
          <x>360</x>
          <y>40</y>
          <width>181</width>
-         <height>181</height>
+         <height>201</height>
         </rect>
        </property>
        <property name="frameShape">
@@ -844,7 +844,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>30</y>
+          <y>31</y>
           <width>70</width>
           <height>21</height>
          </rect>
@@ -876,7 +876,7 @@
         <property name="geometry">
          <rect>
           <x>11</x>
-          <y>89</y>
+          <y>90</y>
           <width>70</width>
           <height>21</height>
          </rect>
@@ -889,7 +889,7 @@
         <property name="geometry">
          <rect>
           <x>121</x>
-          <y>119</y>
+          <y>120</y>
           <width>51</width>
           <height>22</height>
          </rect>
@@ -914,7 +914,7 @@
         <property name="geometry">
          <rect>
           <x>31</x>
-          <y>119</y>
+          <y>120</y>
           <width>51</width>
           <height>22</height>
          </rect>
@@ -939,7 +939,7 @@
         <property name="geometry">
          <rect>
           <x>31</x>
-          <y>149</y>
+          <y>150</y>
           <width>51</width>
           <height>22</height>
          </rect>
@@ -1009,7 +1009,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>10</y>
+          <y>5</y>
           <width>161</width>
           <height>20</height>
          </rect>
@@ -1025,7 +1025,7 @@
         <property name="geometry">
          <rect>
           <x>81</x>
-          <y>89</y>
+          <y>90</y>
           <width>91</width>
           <height>22</height>
          </rect>
@@ -1048,7 +1048,7 @@
         <property name="geometry">
          <rect>
           <x>121</x>
-          <y>149</y>
+          <y>150</y>
           <width>51</width>
           <height>22</height>
          </rect>
@@ -1087,15 +1087,15 @@
          <rect>
           <x>10</x>
           <y>60</y>
-          <width>131</width>
+          <width>101</width>
           <height>21</height>
          </rect>
         </property>
         <property name="text">
-         <string>software binning:</string>
+         <string>Software Binning:</string>
         </property>
        </widget>
-       <widget class="QSpinBox" name="SoftwareBinningSpinBox">
+       <widget class="QSpinBox" name="softwareBinningSpinBox">
         <property name="geometry">
          <rect>
           <x>120</x>
@@ -1131,7 +1131,7 @@
        <zorder>maskHeightSpinBox</zorder>
        <zorder>maskHeightLabel</zorder>
        <zorder>preprocessingFrameLabel_3</zorder>
-       <zorder>SoftwareBinningSpinBox</zorder>
+       <zorder>softwareBinningSpinBox</zorder>
       </widget>
       <widget class="QLabel" name="preprocessingFrameLabel">
        <property name="geometry">
@@ -1150,9 +1150,9 @@
        <property name="geometry">
         <rect>
          <x>360</x>
-         <y>230</y>
+         <y>250</y>
          <width>181</width>
-         <height>81</height>
+         <height>61</height>
         </rect>
        </property>
        <property name="text">
@@ -1726,7 +1726,7 @@
      <x>0</x>
      <y>0</y>
      <width>1250</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
