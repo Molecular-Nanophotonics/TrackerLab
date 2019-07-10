@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Discription: This is the Molecular Nanophotonics TrackLab.
-Author(s): M. Fränzl
+Author(s): M. Fränzl, N. Söker
 Data: 18/09/18
 """
 
@@ -35,7 +35,6 @@ import imageio
 from nptdms import TdmsFile
 
 import subprocess as sp # for calling ffmpeg
-import copy
 
 import Modules
 
@@ -87,8 +86,8 @@ class Window(QMainWindow):
         
         self.preferences.radioButtonHDF5.setChecked(self.hdf5)
         self.preferences.radioButtonCSV.setChecked(self.csv)
-        self.selectFilesButton.clicked.connect(self.selectFilesDialog)
-        self.addFilesButton.clicked.connect(self.addFilesDialog)
+        self.selectFilesButton.clicked.connect(self.selectFiles)
+        self.addFilesButton.clicked.connect(self.appendFiles)
         self.removeFilesButton.clicked.connect(self.removeFiles)
         
         self.fileList = []
@@ -113,13 +112,10 @@ class Window(QMainWindow):
         self.subtractMeanCheckBox.stateChanged.connect(self.update)  
         self.medianSpinBox.valueChanged.connect(self.update)
         self.softwareBinningSpinBox.valueChanged.connect(self.update)
-        self.maskCheckBox.stateChanged.connect(self.update)
-        self.maskXSpinBox.valueChanged.connect(self.maskChanged)
-        self.maskYSpinBox.valueChanged.connect(self.maskChanged)
+        self.maskCheckBox.stateChanged.connect(self.maskCheckBoxChanged)
         self.maskTypeComboBox.currentIndexChanged.connect(self.maskTypeChanged) 
-        self.maskWidthSpinBox.valueChanged.connect(self.maskChanged)
-        self.maskHeightSpinBox.valueChanged.connect(self.maskChanged)
-
+        self.roiCheckBox.stateChanged.connect(self.roiCheckBoxChanged)
+        
         self.mask = np.array([])
         
         self.trackingCheckBox.stateChanged.connect(self.trackingCheckBoxChanged)
@@ -172,6 +168,7 @@ class Window(QMainWindow):
         self.im1 = pg.ImageItem()
         self.p1.addItem(self.im1)
         self.p1.getViewBox().invertY(True)
+
         
         self.p2 = graphicsLayout.addPlot(row=1, col=2)
         self.p2.showAxis('top')
@@ -186,13 +183,14 @@ class Window(QMainWindow):
         self.p2.addItem(self.im2)
         self.p2.getViewBox().invertY(True)
     
-        self.p2.setXLink(self.p1.vb)
-        self.p2.setYLink(self.p1.vb)
-
+        self.roi = 0  # important for start-up
+        self.maskROI = 0
+        
         self.exportVideoButton.clicked.connect(self.exportVideoButtonClicked)
         self.exportImageButton.clicked.connect(self.exportImageButtonClicked)
- 
+        
         # items for overlay
+        
         #self.sp1 = pg.ScatterPlotItem(pen=pg.mkPen('r', width=3), brush=pg.mkBrush(None), pxMode=False)
         #self.p2.addItem(self.sp1)
         
@@ -271,7 +269,7 @@ class Window(QMainWindow):
         try:
             if platform.system() == 'Darwin': # On MacOS the rights for the ffmpeg file have to changed 
                 os.chdir('FFmpeg')
-                os.chmod('ffmpeg',0o777) # "0o" is needed since chmod expects octal integers
+                os.chmod('ffmpeg', 0o777) # "0o" is needed since chmod expects octal integers
                 os.chdir('..')
             sp.call(['FFmpeg/ffmpeg'])
             
@@ -294,12 +292,11 @@ class Window(QMainWindow):
             mousePoint = self.p2.vb.mapSceneToView(e)  
             x = int(mousePoint.x())
             y = int(mousePoint.y()) 
-            if x > 0 and x < self.processedImage.shape[0] and y > 0 and y < self.processedImage.shape[1]:
+            if x > 0 and x < self.processedImage.shape[1] and y > 0 and y < self.processedImage.shape[0]:
                 self.mouseLabel.setText("x = %d\ty = %d\t[%d]" % (x, y, self.processedImage[y, x]))
                 
             #vLine.setPos(mousePoint.x())
-            #hLine.setPos(mousePoint.y())
-    
+            #hLine.setPos(mousePoint.y())            
         
     def update(self):
         
@@ -323,6 +320,10 @@ class Window(QMainWindow):
         
         self.processedImage = self.images[self.frameSlider.value()]
         
+        if self.roiCheckBox.checkState():
+            self.processedImage = self.roi.getArrayRegion(self.processedImage, img=self.im1)
+            self.roiChanged()
+                  
         # Image Pre-Processing 
         def rebin_image(arr_in,binning):
             # throws away the last rows and cols 
@@ -340,12 +341,10 @@ class Window(QMainWindow):
         if self.medianCheckBox.checkState():
             self.processedImage = ndimage.median_filter(self.processedImage, self.medianSpinBox.value())
             
-        if self.maskCheckBox.checkState():
-            if (self.mask.shape[0] != self.dimy or self.mask.shape[1] != self.dimx):
-                self.maskChanged()
+        if self.maskCheckBox.checkState() and self.maskROI:
+            self.maskChanged()
             self.processedImage = self.mask*self.processedImage
-            
-
+        
         #skimage.io.imsave('image.tif',self.processedImage)
         
         # Tracking
@@ -374,7 +373,7 @@ class Window(QMainWindow):
             self.spots = self.spots.append(spots)
             
         #self.sp.setData(x=spots.x.tolist(), y=spots.y.tolist(), size=10)
-        
+                
      # Tracking     
     def findFeatures(self, i):
         
@@ -395,36 +394,99 @@ class Window(QMainWindow):
                                                         
         return spots  
 
-
+       
     def maskTypeChanged(self):
         if self.maskTypeComboBox.currentIndex() == 0:
-            self.maskWidthLabel.setText("D:")
-            self.maskHeightLabel.hide()
-            self.maskHeightSpinBox.hide()
+            self.p1.removeItem(self.maskROI)
+            self.maskROI = pg.CircleROI([self.maskX, self.maskY], [self.maskW, self.maskH], maxBounds=QtCore.QRectF(0, 0, self.dimx, self.dimy), pen=(0, 10), scaleSnap=True, translateSnap=True)
+            self.maskROI.sigRegionChanged.connect(self.update)
+            self.p1.addItem(self.maskROI)
         else:
-            self.maskWidthLabel.setText("W:")
-            self.maskHeightLabel.show()
-            self.maskHeightSpinBox.show()
+            self.p1.removeItem(self.maskROI)
+            self.maskROI = pg.RectROI([self.maskX, self.maskY], [self.maskW, self.maskH], maxBounds=QtCore.QRectF(0, 0, self.dimx, self.dimy), pen=(0, 10), scaleSnap=True, translateSnap=True)
+            self.maskROI.sigRegionChanged.connect(self.update)
+            self.p1.addItem(self.maskROI)
+        self.update()
         
-        if self.preprocessingFrame.isEnabled():            
-            self.maskChanged();
+    def maskCheckBoxChanged(self):
+         # If the mask bounds are larger than the image set ROI to the size of the image (This might be the case if a smaller image displayed) 
+        if self.maskX > self.dimx or self.maskX + self.maskW > self.dimx or self.maskY > self.dimy or self.maskY + self.maskH > self.dimy:
+            self.maskX = 0; self.maskY = 0; self.maskW = self.dimx; self.maskH = self.dimy 
+        if self.maskROI and self.maskCheckBox.checkState():
+           self.p1.removeItem(self.maskROI)
+           self.maskROI = 0   
+        if not self.maskROI and self.maskCheckBox.checkState():
+            if self.maskTypeComboBox.currentIndex() == 0:
+                self.maskROI = pg.CircleROI([self.maskX, self.maskY], [self.maskW, self.maskH], maxBounds=QtCore.QRectF(0, 0, self.dimx, self.dimy), pen=(0, 10), scaleSnap=True, translateSnap=True)
+            else:
+                self.maskROI = pg.RectROI([self.maskX, self.maskY], [self.maskW, self.maskH], maxBounds=QtCore.QRectF(0, 0, self.dimx, self.dimy), pen=(0, 10), scaleSnap=True, translateSnap=True)                 
+            self.maskROI.sigRegionChanged.connect(self.update)
+            self.p1.addItem(self.maskROI)
+            self.maskTypeComboBox.setEnabled(True)
+            self.maskLabel.setVisible(True)
+        else:
+            self.p1.removeItem(self.maskROI)
+            self.maskROI = 0
+            self.maskTypeComboBox.setEnabled(False)
+            self.maskLabel.setVisible(False)
+        self.update()
         
         
     def maskChanged(self):
-        x0 = self.maskXSpinBox.value() 
-        y0 = self.maskYSpinBox.value()
-        xx, yy= np.meshgrid(np.arange(0, self.dimx, 1), np.arange(0, self.dimy, 1))
-        if self.maskTypeComboBox.currentIndex() == 0:
-            d = self.maskWidthSpinBox.value()
-            self.mask = (((xx - x0)**2 + (yy - y0)**2) < (d/2)**2).astype(int)
+            if self.roiCheckBox.checkState():
+                xx, yy= np.meshgrid(np.arange(self.roiX, self.roiX + self.roiW, 1), np.arange(self.roiY, self.roiY + self.roiH, 1))
+            else:
+                xx, yy= np.meshgrid(np.arange(0, self.dimx, 1), np.arange(0, self.dimy, 1))
+            if self.maskTypeComboBox.currentIndex() == 0:
+                self.maskX, self.maskY = self.maskROI.pos()
+                self.maskW, self.maskH = self.maskROI.size()
+                self.mask = (((xx - self.maskX - (self.maskW-1)/2)**2 + (yy - self.maskY - (self.maskH-1)/2)**2) < ((self.maskW)/2)**2).astype(int)
+            if self.maskTypeComboBox.currentIndex() == 1:
+                self.maskX, self.maskY =  self.maskROI.pos()
+                self.maskW, self.maskH = self.maskROI.size()
+                self.mask = ((np.abs(xx - self.maskX - self.maskW/2 + 1) <= (self.maskW+1)/2) & (np.abs(yy - self.maskY - self.maskH/2 + 1) <= (self.maskH+1)/2)).astype(int)
+            
+            self.maskLabel.setText("<font color='#ff0000'>Mask: (%d, %d) (%d, %d)</font>" % (self.maskX, self.maskY, self.maskW, self.maskH))
+            
+    def roiCheckBoxChanged(self):
+        # If the ROI bounds larger than the image set ROI to the size of the image (This might be the case if a smaller image displayed) 
+        if self.roiX > self.dimx or self.roiX + self.roiW > self.dimx or self.roiY > self.dimy or self.roiY + self.roiH > self.dimy:
+           self.roiX = 0; self.roiY = 0; self.roiW = self.dimx; self.roiH = self.dimy 
+        if self.roi and self.roiCheckBox.checkState():
+            self.p1.removeItem(self.roi)
+            self.roi = 0   
+        if not self.roi and self.roiCheckBox.checkState():
+            self.roi = pg.RectROI([self.roiX,  self.roiY], [self.roiW, self.roiH], maxBounds=QtCore.QRectF(0, 0, self.dimx, self.dimy), pen=(3, 10), scaleSnap=True, translateSnap=True)
+            self.roi.sigRegionChanged.connect(self.update)
+            self.p1.addItem(self.roi)
+            self.p2.setXLink(None)
+            self.p2.setYLink(None)
+            self.roiLabel.setVisible(True)
+            if self.roiW > self.roiH:
+                self.p2.setRange(xRange=[0, self.roiW], yRange=[(self.roiH - self.roiW)/2, (self.roiH + self.roiW)/2])
+            else:
+                self.p2.setRange(xRange=[(self.roiW - self.roiH)/2, (self.roiW + self.roiH)/2], yRange=[0, self.roiH])
         else:
-            w = self.maskWidthSpinBox.value()
-            h = self.maskHeightSpinBox.value()
-            self.mask = ((np.abs(xx - x0) < w) & (np.abs(yy - y0) < h)).astype(int)
-        
+            self.p1.removeItem(self.roi)
+            self.roi = 0
+            self.p2.setXLink(self.p1.vb)
+            self.p2.setYLink(self.p1.vb)
+            self.roiLabel.setVisible(False)
         self.update()
         
-       
+        
+    def roiChanged(self):
+        if self.roiCheckBox.checkState():
+            self.roiX, self.roiY = self.roi.pos()
+            self.roiW, self.roiH = self.roi.size()
+            self.roiLabel.setText("<font color='#00ff00'>ROI: (%d, %d) (%d, %d)</font>" % (self.roiX, self.roiY, self.roiW, self.roiH))
+        else:
+            #self.roiX, self.roiY = (0, 0)
+            #self.roiW, self.roiH = (self.dimx, self.dimy)
+            self.p2.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy])
+            
+        
+
     def frameSliderChanged(self, value):
         self.frameSpinBox.setValue(value)
         self.update()
@@ -470,12 +532,22 @@ class Window(QMainWindow):
         
 
     def selectFilesDialog(self):
-        if platform.system() == 'Darwin': # On MacOS the native file browser sometimes crashes
-            options = QtWidgets.QFileDialog.DontUseNativeDialog
-        else:
-            options = QtWidgets.QFileDialog.DontUseNativeDialog # QtWidgets.QFileDialog.Option()
-        
+        options = QtWidgets.QFileDialog.DontUseNativeDialog 
         self.files, _ = QtWidgets.QFileDialog.getOpenFileNames(self, 'Select Files...', self.dir, ';;'.join(self.filterList), self.filterList[self.selectedFilter], options=options) # 'All Files (*)'
+        if self.files:
+            extension = os.path.splitext(self.files[0])[1]
+            if extension == '.tdms':
+                self.selectedFilter = 0
+            if extension == '.tif':
+                self.selectedFilter = 1
+            if extension == '.mp4':
+                self.selectedFilter = 2
+            
+        
+    def selectFiles(self):
+        
+        self.selectFilesDialog()
+        
         if self.files:
             self.fileList = []
             self.fileListWidget.clear()
@@ -485,14 +557,6 @@ class Window(QMainWindow):
                     item = QtGui.QListWidgetItem(os.path.basename(file))
                     item.setToolTip(file)
                     self.fileListWidget.addItem(item) # self.fileListWidget.addItem(os.path.basename(file))  
-                    
-            extension = os.path.splitext(self.files[0])[1]
-            if extension == '.tdms':
-                self.selectedFilter = 0
-            if extension == '.tif':
-                self.selectedFilter = 1
-            if extension == '.mp4':
-                self.selectedFilter = 2
                 
             self.displayedItem = self.fileListWidget.item(0)
             self.displayedItem.setIcon(self.displayedIcon)
@@ -523,15 +587,11 @@ class Window(QMainWindow):
                 self.infoLabel.setText(self.infoLabel.text() + '<br><br>'  + '<span style=\"color:#ff0000;\">No Protocol File Found</span>')
                
             
-    def addFilesDialog(self):
+    def appendFiles(self):
         if not self.fileList:
-            self.selectFilesDialog()
+            self.selectFiles()
         else:
-            if platform.system() == 'Darwin': # Sometimes on MacOS the native file browser crashes 
-                options = QtWidgets.QFileDialog.DontUseNativeDialog
-            else:
-                options = QtWidgets.QFileDialog.DontUseNativeDialog # QtWidgets.QFileDialog.Option()
-            self.files, _ =  QtWidgets.QFileDialog.getOpenFileNames(self, 'Add Files...', self.dir, ';;'.join(self.filterList), self.filterList[self.selectedFilter], options=options) # 'All Files (*)'
+            self.selectFilesDialog()
             if self.files:
                 for file in self.files:
                     if fnmatch.fnmatch(file, '*_movie.tdms') or fnmatch.fnmatch(file, '*.tif') or fnmatch.fnmatch(file,'*.mp4'):
@@ -540,15 +600,7 @@ class Window(QMainWindow):
                         item.setToolTip(file)
                         self.fileListWidget.addItem(item) # self.fileListWidget.addItem(os.path.basename(file))
                 
-                extension = os.path.splitext(self.files[0])[1]
-                if extension == '.tdms':
-                    self.selectedFilter = 0
-                if extension == '.tif':
-                    self.selectedFilter = 1
-                if extension == '.mp4':
-                    self.selectedFilter = 2
-                    
-        
+                
     def removeFiles(self):
         for item in self.fileListWidget.selectedItems():
             if item == self.displayedItem:
@@ -589,6 +641,12 @@ class Window(QMainWindow):
             self.images = self.loadMP4Video(file)
             self.infoLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames))
         
+        if self.roiCheckBox.checkState():
+            self.roiCheckBoxChanged()
+        
+        if self.maskCheckBox.checkState():
+            self.maskCheckBoxChanged()
+            
         self.meanSeriesImage = np.mean(self.images,axis=(0)) # image series mean for background subtraction
         
         cmaxmax = np.max(self.images) 
@@ -614,12 +672,15 @@ class Window(QMainWindow):
         self.endFrameSpinBox.setMaximum(self.frames-1)
         self.endFrameSpinBox.setValue(self.frames-1)
         
-        self.p1.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy])
-        self.p2.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy])
-        
+        self.p1.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy]) 
+        if not self.roiCheckBox.checkState():
+            self.p2.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy])
+                    
         self.scaleBarChanged()
         
         self.statusBar.showMessage('Ready')
+
+        
               
     def loadTDMSImages(self, file):
         tdms_file = TdmsFile(file)
@@ -694,10 +755,15 @@ class Window(QMainWindow):
                 metadata['subtract_mean'] = self.subtractMeanCheckBox.checkState()
             if self.maskCheckBox.checkState():
                 metadata['maskType'] = self.maskTypeComboBox.currentText()
-                metadata['maskX'] = self.maskXSpinBox.value()
-                metadata['maskY'] = self.maskYSpinBox.value()
-                metadata['maskW'] = self.maskWidthSpinBox.value()
-                metadata['maskH'] = self.maskHeightSpinBox.value()
+                metadata['maskX'] = int(self.maskX)
+                metadata['maskY'] = int(self.maskY)
+                metadata['maskW'] = int(self.maskW)
+                metadata['maskH'] = int(self.maskH)
+            if self.roiCheckBox.checkState():
+                metadata['roiX'] = int(self.roiX)
+                metadata['roiY'] = int(self.roiY)
+                metadata['roiW'] = int(self.roiW)
+                metadata['roiH'] = int(self.roiH)
             
             metadata['method'] = self.tabWidget.tabText(self.tabIndex)
             for obj in self.tabWidget.currentWidget().findChildren(QtGui.QWidget):
@@ -776,17 +842,19 @@ class Window(QMainWindow):
         
         commands = ['FFmpeg/ffmpeg',
                     '-loglevel', 'quiet',
-                    '-y',  # (optional) overwrite output file if it exists
+                    '-y',  # overwrite output file if it exists
                     '-f', 'image2pipe',
                     '-vcodec', 'png',
-                    '-r', str(self.framerateSpinBox.value()),  # frames per second
+                    '-framerate', str(self.framerateSpinBox.value()),  # frames per second
                     '-i', '-',  # The input comes from a pipe
-                    '-pix_fmt', 'yuv420p',
-                    '-vcodec', 'libx264',
+                    '-vf', 'format=yuv420p', # same as '-pix_fmt', 'yuv420p', 
+                    '-vcodec', 'libx264', # requires even width and height
+                    #'-vf', 'scale=500:-2', 
                     '-qscale', '0',
                     filename]
         
         pipe = sp.Popen(commands, stdin=sp.PIPE)
+        
         
         processedFrames = 0
         totalFrames = self.images.shape[0]*len(self.fileList) # estimate the total number of frames from the first file
@@ -804,11 +872,27 @@ class Window(QMainWindow):
                     exporter = pg.exporters.ImageExporter(self.im1)
                 else:
                     exporter = pg.exporters.ImageExporter(self.im2)
-                exporter.params.param('width').setValue(500, blockSignal=exporter.widthChanged)
-                exporter.params.param('height').setValue(int(500*self.dimy/self.dimx), blockSignal=exporter.heightChanged)
+                              
+                if self.roiCheckBox.checkState():
+                    w = int(self.roiW)
+                    h = int(self.roiH)
+                else:
+                    w = int(self.dimx)
+                    h = int(self.dimy)
+                
+                exporter.params.param('width').setValue(w, blockSignal=exporter.widthChanged)
+                exporter.params.param('height').setValue(h, blockSignal=exporter.heightChanged)
+                
+                # drop 1 pixel if width or height is not a even number (libx264 requires even width and height) 
+                if w % 2 != 0:
+                    w -= 1
+                if h % 2 != 0:
+                    h -= 1
+
                 buffer = QtCore.QBuffer()
                 buffer.open(QtCore.QIODevice.ReadWrite)
-                exporter.export(toBytes=True).save(buffer, 'PNG')
+                qimage = exporter.export(toBytes=True)
+                qimage.copy(QtCore.QRect(0,0, w, h)).save(buffer, 'PNG') # get image with new width and height
                 pipe.stdin.write(buffer.data())
                 processedFrames += 1
                 self.progressBar.setValue(processedFrames/totalFrames*100)
@@ -854,9 +938,11 @@ class Window(QMainWindow):
         else:
             exporter = pg.exporters.ImageExporter(self.im2)    
         
-        exporter.params.param('width').setValue(500, blockSignal=exporter.widthChanged)
-        exporter.params.param('height').setValue(int(500*self.dimy/self.dimx), blockSignal=exporter.heightChanged)
-        
+        #exporter.params.param('width').setValue(self.processedImage.shape[1], blockSignal=exporter.widthChanged)
+        #exporter.params.param('height').setValue(self.processedImage.shape[0], blockSignal=exporter.heightChanged)
+        exporter.parameters()['width'] = self.processedImage.shape[1]
+        exporter.parameters()['height'] = self.processedImage.shape[0]
+                    
         if os.path.splitext(self.fileList[0])[1] == '.tdms':
             filename = os.path.splitext(self.fileList[0])[0].replace('_movie', '') + '_Frame_' + str(self.frameSlider.value()) + '.png'
         if os.path.splitext(self.fileList[0])[1] == '.tif':
@@ -986,10 +1072,15 @@ class Window(QMainWindow):
         self.settings.setValue('Pre-Processing/medianValue', self.medianSpinBox.value())
         self.settings.setValue('Pre-Processing/maskState', self.maskCheckBox.checkState())
         self.settings.setValue('Pre-Processing/maskType', self.maskTypeComboBox.currentIndex())
-        self.settings.setValue('Pre-Processing/maskX', self.maskXSpinBox.value())
-        self.settings.setValue('Pre-Processing/maskY', self.maskYSpinBox.value())
-        self.settings.setValue('Pre-Processing/maskWidth', self.maskWidthSpinBox.value())
-        self.settings.setValue('Pre-Processing/maskHeight', self.maskHeightSpinBox.value())
+        self.settings.setValue('Pre-Processing/maskX', int(self.maskX))
+        self.settings.setValue('Pre-Processing/maskY', int(self.maskY))
+        self.settings.setValue('Pre-Processing/maskW', int(self.maskW))
+        self.settings.setValue('Pre-Processing/maskH', int(self.maskH))
+        self.settings.setValue('Pre-Processing/roiState', self.roiCheckBox.checkState())
+        self.settings.setValue('Pre-Processing/roiX', int(self.roiX))
+        self.settings.setValue('Pre-Processing/roiY', int(self.roiY))
+        self.settings.setValue('Pre-Processing/roiW', int(self.roiW))
+        self.settings.setValue('Pre-Processing/roiH', int(self.roiH))
         self.settings.setValue('Preferences/HDF5', self.hdf5)
         self.settings.setValue('Preferences/CSV', self.csv)
         self.settings.setValue('Preferences/protocolFile', self.protocolFile)
@@ -1036,12 +1127,17 @@ class Window(QMainWindow):
             self.medianCheckBox.setCheckState(int(self.settings.value('Pre-Processing/medianState', '0')))
             self.medianSpinBox.setValue(int(self.settings.value('Pre-Processing/medianValue', '2'))) 
             self.maskCheckBox.setCheckState(int(self.settings.value('Pre-Processing/maskState', '0')))
-            self.maskTypeComboBox.setCurrentIndex(int(self.settings.value('Pre-Processing/maskType', '0')))
-            self.maskXSpinBox.setValue(int(self.settings.value('Pre-Processing/maskX', '100')))  
-            self.maskYSpinBox.setValue(int(self.settings.value('Pre-Processing/maskY', '100')))  
-            self.maskWidthSpinBox.setValue(int(self.settings.value('Pre-Processing/maskWidth', '100')))
-            self.maskHeightSpinBox.setValue(int(self.settings.value('Pre-Processing/maskHeight', '100')))
-            
+            self.maskTypeComboBox.setCurrentIndex(int(self.settings.value('Pre-Processing/maskType', '0'))) 
+            self.maskX = int(self.settings.value('Pre-Processing/maskX', '0'))  
+            self.maskY = int(self.settings.value('Pre-Processing/maskY', '0'))  
+            self.maskW = int(self.settings.value('Pre-Processing/maskW', '100'))
+            self.maskH = int(self.settings.value('Pre-Processing/maskH', '100'))
+            self.roiCheckBox.setCheckState(int(self.settings.value('Pre-Processing/roiState', '0')))
+            self.roiX = int(self.settings.value('Pre-Processing/roiX', '0'))  
+            self.roiY = int(self.settings.value('Pre-Processing/roiY', '0'))  
+            self.roiW = int(self.settings.value('Pre-Processing/roiW', '100'))
+            self.roiH = int(self.settings.value('Pre-Processing/roiH', '100'))
+        
             self.hdf5 = int(self.settings.value('Preferences/HDF5', '1'))
             self.csv = int(self.settings.value('Preferences/CSV', '0'))
             self.preferences.radioButtonHDF5.setChecked(self.hdf5)
@@ -1064,13 +1160,20 @@ class Window(QMainWindow):
             self.sbColor = QtGui.QColor(self.settings.value('ScaleBar/Color', '#ffffff'))
             self.scaleBarSettings.sbColorPreview.setStyleSheet("background-color: %s" % self.sbColor.name())            
  
-            self.maskTypeChanged()
             return 0
             
         except:
             self.settings.remove('') # Clear the Settings.ini file
             self.dir = '.'
             self.selectedFilter = 0
+            self.maskX = 0
+            self.maskY = 0
+            self.maskW = 100
+            self.maskH = 100
+            self.roiX = 0
+            self.roiY = 0
+            self.roiW = 100
+            self.roiH = 100
             self.csv = 1
             self.hdf5 = 0
             self.exportSuffix = ''
