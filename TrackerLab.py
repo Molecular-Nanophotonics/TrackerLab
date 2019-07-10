@@ -65,6 +65,7 @@ class Window(QMainWindow):
         self.ui = loadUi('TrackerLab.ui', self)        
         self.preferences = Preferences()
         self.scaleBarSettings = ScaleBarSettings()
+        #self.scaleBar2Settings = ScaleBarSettings()
     
         self.displayedIcon = QtGui.QIcon(QtGui.QPixmap("Resources/Circle.png")) 
         ## draw the icon  
@@ -141,7 +142,9 @@ class Window(QMainWindow):
 
         self.editScaleBarButton.clicked.connect(self.showScaleBarSettings)
         self.scaleBarCheckBox.stateChanged.connect(self.scaleBarChanged)
-
+        #self.editScaleBar2Button.clicked.connect(self.showScaleBarSettings)
+        #self.scaleBar2CheckBox.stateChanged.connect(self.scaleBarChanged)
+        
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 0.75)
         pg.setConfigOption('imageAxisOrder', 'row-major')
@@ -855,7 +858,6 @@ class Window(QMainWindow):
         
         pipe = sp.Popen(commands, stdin=sp.PIPE)
         
-        
         processedFrames = 0
         totalFrames = self.images.shape[0]*len(self.fileList) # estimate the total number of frames from the first file
             
@@ -870,15 +872,16 @@ class Window(QMainWindow):
                 self.frameSlider.setValue(i)
                 if self.exportViewComboBox.currentIndex() == 0: 
                     exporter = pg.exporters.ImageExporter(self.im1)
-                else:
-                    exporter = pg.exporters.ImageExporter(self.im2)
-                              
-                if self.roiCheckBox.checkState():
-                    w = int(self.roiW)
-                    h = int(self.roiH)
-                else:
                     w = int(self.dimx)
                     h = int(self.dimy)
+                else:
+                    exporter = pg.exporters.ImageExporter(self.im2)
+                    if self.roiCheckBox.checkState():
+                        w = int(self.roiW)
+                        h = int(self.roiH)
+                    else:
+                        w = int(self.dimx)
+                        h = int(self.dimy)
                 
                 exporter.params.param('width').setValue(w, blockSignal=exporter.widthChanged)
                 exporter.params.param('height').setValue(h, blockSignal=exporter.heightChanged)
@@ -935,13 +938,20 @@ class Window(QMainWindow):
     def exportImageButtonClicked(self):
         if self.exportViewComboBox.currentIndex() == 0: 
             exporter = pg.exporters.ImageExporter(self.im1)
+            w = int(self.dimx)
+            h = int(self.dimy)
         else:
-            exporter = pg.exporters.ImageExporter(self.im2)    
+            exporter = pg.exporters.ImageExporter(self.im2)
+            if self.roiCheckBox.checkState():
+                w = int(self.roiW)
+                h = int(self.roiH)
+            else:
+                w = int(self.dimx)
+                h = int(self.dimy)
         
-        #exporter.params.param('width').setValue(self.processedImage.shape[1], blockSignal=exporter.widthChanged)
-        #exporter.params.param('height').setValue(self.processedImage.shape[0], blockSignal=exporter.heightChanged)
-        exporter.parameters()['width'] = self.processedImage.shape[1]
-        exporter.parameters()['height'] = self.processedImage.shape[0]
+        
+        exporter.params.param('width').setValue(w, blockSignal=exporter.widthChanged)
+        exporter.params.param('height').setValue(h, blockSignal=exporter.heightChanged)
                     
         if os.path.splitext(self.fileList[0])[1] == '.tdms':
             filename = os.path.splitext(self.fileList[0])[0].replace('_movie', '') + '_Frame_' + str(self.frameSlider.value()) + '.png'
@@ -952,6 +962,36 @@ class Window(QMainWindow):
         
             
     def scaleBarChanged(self):
+        if (self.scaleBarCheckBox.checkState()):
+            
+            scale = self.scaleBarSettings.scaleSpinBox.value()
+            sbX = self.scaleBarSettings.sbXSpinBox.value()*self.dimx
+            sbY = self.scaleBarSettings.sbYSpinBox.value()*self.dimy
+            sbLabelYOffset = self.scaleBarSettings.sbLabelYOffsetSpinBox.value()*self.dimy
+            sbWidth = int(np.round(self.scaleBarSettings.sbLengthSpinBox.value()/scale))
+            sbHeight = self.scaleBarSettings.sbHeightSpinBox.value()*self.dimy
+            
+            self.sb1.setVisible(True)
+            self.sb1Label.setVisible(True)
+            
+            # Scale Bar 
+            self.sb1.setRect(sbX - sbWidth/2, sbY - sbHeight/2, sbWidth, sbHeight)
+            self.sb1.setPen(pg.mkPen(None))
+            self.sb1.setBrush(self.sbColor)
+               
+            # Scale Bar Label
+            self.sb1Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " \u03bcm")
+            self.sb1Label.setFont(QtGui.QFont("Helvetica", 0.04*self.dimy))
+            self.sb1Label.setBrush(self.sbColor)
+            bRect = self.sb1Label.boundingRect()
+            self.sb1Label.setPos(sbX - bRect.width()/2, sbY - bRect.height()/2 - sbLabelYOffset)
+            
+        else:
+            self.sb1.setVisible(False)
+            self.sb1Label.setVisible(False)
+
+    '''
+    def scaleBar1Changed(self):
         if (self.scaleBarCheckBox.checkState()):
             
             scale = self.scaleBarSettings.scaleSpinBox.value()
@@ -992,8 +1032,8 @@ class Window(QMainWindow):
             self.sb2.setVisible(False)
             self.sb1Label.setVisible(False)
             self.sb2Label.setVisible(False)
-
-
+        '''
+     
     def autoScaleBar(self):
         if (self.scaleBarCheckBox.checkState()):
             
@@ -1213,6 +1253,8 @@ class Window(QMainWindow):
         self.removeFilesButton.setEnabled(state)
         self.scaleBarCheckBox.setEnabled(state)
         self.editScaleBarButton.setEnabled(state)
+        #self.scaleBar2CheckBox.setEnabled(state)
+        #self.editScaleBar2Button.setEnabled(state)
 
 
     def enableLevels(self, state): 
@@ -1237,7 +1279,9 @@ class Window(QMainWindow):
     def showScaleBarSettings(self):
         self.scaleBarSettings.show()
         
-            
+    #def showScaleBar2Settings(self):
+    #    self.scaleBar2Settings.show() 
+        
     def aboutClicked(self):
        about = QMessageBox()
        about.setWindowTitle("About")

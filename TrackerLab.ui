@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1541</width>
+    <width>1574</width>
     <height>922</height>
    </rect>
   </property>
@@ -118,7 +118,7 @@
          <x>850</x>
          <y>40</y>
          <width>451</width>
-         <height>201</height>
+         <height>221</height>
         </rect>
        </property>
        <property name="autoFillBackground">
@@ -777,21 +777,21 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>850</x>
-         <y>270</y>
-         <width>111</width>
+         <x>1180</x>
+         <y>275</y>
+         <width>121</width>
          <height>23</height>
         </rect>
        </property>
        <property name="text">
-        <string>Process Files</string>
+        <string>Process All</string>
        </property>
       </widget>
       <widget class="QLabel" name="numberOfSpots">
        <property name="geometry">
         <rect>
-         <x>1110</x>
-         <y>270</y>
+         <x>970</x>
+         <y>277</y>
          <width>61</width>
          <height>21</height>
         </rect>
@@ -809,17 +809,14 @@
       <widget class="QLabel" name="numberOfSpotsLabel">
        <property name="geometry">
         <rect>
-         <x>980</x>
-         <y>270</y>
+         <x>850</x>
+         <y>277</y>
          <width>121</width>
          <height>20</height>
         </rect>
        </property>
        <property name="text">
         <string> # of Features:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
       <widget class="QFrame" name="preprocessingFrame">
@@ -992,7 +989,7 @@
          <x>360</x>
          <y>40</y>
          <width>161</width>
-         <height>251</height>
+         <height>151</height>
         </rect>
        </property>
        <property name="text">
@@ -1488,14 +1485,14 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>1200</x>
-         <y>255</y>
-         <width>81</width>
+         <x>370</x>
+         <y>240</y>
+         <width>91</width>
          <height>21</height>
         </rect>
        </property>
        <property name="text">
-        <string>Scale Bars</string>
+        <string>Scale Bar 1</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -1507,9 +1504,9 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>1200</x>
-         <y>280</y>
-         <width>101</width>
+         <x>460</x>
+         <y>240</y>
+         <width>71</width>
          <height>23</height>
         </rect>
        </property>
@@ -1554,6 +1551,41 @@
        </property>
        <property name="text">
         <string/>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="editScaleBar2Button">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>460</x>
+         <y>266</y>
+         <width>71</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Edit</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="scaleBar2CheckBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>370</x>
+         <y>266</y>
+         <width>91</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Scale Bar 2</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </widget>
@@ -1604,7 +1636,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1541</width>
+     <width>1574</width>
      <height>21</height>
     </rect>
    </property>
