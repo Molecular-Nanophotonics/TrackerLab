@@ -743,7 +743,7 @@ class Window(QMainWindow):
             metadata = pd.DataFrame([{'dimx': self.dimx,
                                       'dimy': self.dimy,
                                       'frames': self.frames,
-                                      'software_binning': self.SoftwareBinningSpinBox.value()}])
+                                      'software_binning': self.softwareBinningSpinBox.value()}])
 
             if os.path.splitext(file)[1] == '.tdms':
                 metadata['binning'] =  self.binning
@@ -1122,7 +1122,7 @@ class Window(QMainWindow):
             self.selectedFilter = int(self.settings.value('SelectedFilter', '0'))
             self.trackingCheckBox.setCheckState(int(self.settings.value('TrackingState', '2')))
             self.tabWidget.setCurrentIndex(int(self.settings.value('TabIndex', '0'))) 
-            self.softwareBinningSpinBox.setValue(int(self.settings.value('Pre-Processing/SoftwareBinning', '1')))
+            self.softwareBinningSpinBox.setValue(int(self.settings.value('Pre-Processing/softwareBinning', '1')))
             self.subtractMeanCheckBox.setCheckState(int(self.settings.value('Pre-Processing/subtractMeanState', '0')))
             self.medianCheckBox.setCheckState(int(self.settings.value('Pre-Processing/medianState', '0')))
             self.medianSpinBox.setValue(int(self.settings.value('Pre-Processing/medianValue', '2'))) 
