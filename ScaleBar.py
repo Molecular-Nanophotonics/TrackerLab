@@ -23,6 +23,7 @@ class ScaleBarDialog(QDialog):
         
 # Class for Scale Bar 
 class ScaleBar:
+    
     def __init__(self):
 
         self.settingsDialog = ScaleBarDialog()
@@ -35,27 +36,29 @@ class ScaleBar:
         self.sbColor = QtGui.QColor('#ffffff')
         self.settingsDialog.sbColorPreview.setStyleSheet('background-color: #ffffff')
         
-        self.settingsDialog.scaleSpinBox.valueChanged.connect(self.changed)
-        self.settingsDialog.sbAutoButton.clicked.connect(self.auto)
-        self.settingsDialog.sbLengthSpinBox.valueChanged.connect(self.changed)
-        self.settingsDialog.sbXSpinBox.valueChanged.connect(self.changed)
-        self.settingsDialog.sbYSpinBox.valueChanged.connect(self.changed)
-        self.settingsDialog.sbLabelYOffsetSpinBox.valueChanged.connect(self.changed)
+        self.settingsDialog.scaleSpinBox.valueChanged.connect(self.render)
+        self.settingsDialog.sbAutoButton.clicked.connect(self.setAuto)
+        self.settingsDialog.sbLengthSpinBox.valueChanged.connect(self.render)
+        self.settingsDialog.sbXSpinBox.valueChanged.connect(self.render)
+        self.settingsDialog.sbYSpinBox.valueChanged.connect(self.render)
+        self.settingsDialog.sbLabelYOffsetSpinBox.valueChanged.connect(self.render)
         self.settingsDialog.sbColorButton.clicked.connect(self.openColorDialog)
-        self.settingsDialog.sbHeightSpinBox.valueChanged.connect(self.update)
+        self.settingsDialog.sbHeightSpinBox.valueChanged.connect(self.render)
         self.settingsDialog.okButton.clicked.connect(self.settingsDialog.close)
+
 
     def add(self, p):
         p.addItem(self.bar)
         p.addItem(self.label)
       
-    def update(self, dimx, dimy):
+        
+    def sizeChanged(self, dimx, dimy):
         self.dimx = dimx
         self.dimy = dimy
-        self.changed()
+        self.render()
+
         
-        
-    def changed(self):
+    def render(self):
         scale = self.settingsDialog.scaleSpinBox.value()
         sbX = self.settingsDialog.sbXSpinBox.value()*self.dimx
         sbY = self.settingsDialog.sbYSpinBox.value()*self.dimy
@@ -70,34 +73,36 @@ class ScaleBar:
            
         # Label
         self.label.setText(str(self.settingsDialog.sbLengthSpinBox.value()) + " \u03bcm")
-        self.label.setFont(QtGui.QFont("Helvetica", 0.04*self.dimy))
+        self.label.setFont(QtGui.QFont("Helvetica", 0.04*self.dimy)) # (self.dimx + self.dimy)/2
         self.label.setBrush(self.sbColor)
         bRect = self.label.boundingRect()
         self.label.setPos(sbX - bRect.width()/2, sbY - bRect.height()/2 - sbLabelYOffset)
         
+        
     def showSettingsDialog(self):
         self.settingsDialog.show()
+        
         
     def setVisible(self, state): 
         self.bar.setVisible(state)
         self.label.setVisible(state)
         
+        
     def openColorDialog(self):
         self.sbColor = QtGui.QColorDialog.getColor()
         self.settingsDialog.sbColorPreview.setStyleSheet("background-color: %s" % self.sbColor.name())
-        self.changed()
+        self.render()
+
 
     def restoreSettings(self, group, settings):
         self.settingsDialog.scaleSpinBox.setValue(float(settings.value(group + '/' + 'Scale', '0.1')))
         self.settingsDialog.sbLengthSpinBox.setValue(int(settings.value(group + '/' + 'Length', '5')))
         self.settingsDialog.sbXSpinBox.setValue(float(settings.value(group + '/' + 'X', '0.80')))
         self.settingsDialog.sbYSpinBox.setValue(float(settings.value(group + '/' + 'Y', '0.90')))
-        self.settingsDialog.sbLabelYOffsetSpinBox.setValue(float(settings.value(group + '/' + 'LabelYOffset', '0.05')))
-        
+        self.settingsDialog.sbLabelYOffsetSpinBox.setValue(float(settings.value(group + '/' + 'LabelYOffset', '0.05'))) 
         self.sbColor = QtGui.QColor(settings.value(group + '/' + 'Color', '#ffffff'))
         self.settingsDialog.sbColorPreview.setStyleSheet("background-color: %s" % self.sbColor.name())
-
-                
+        
         
     def saveSettings(self, group, settings):
         settings.setValue(group + '/' + 'Scale', self.settingsDialog.scaleSpinBox.value())
@@ -106,12 +111,10 @@ class ScaleBar:
         settings.setValue(group + '/' + 'Y', self.settingsDialog.sbYSpinBox.value())
         settings.setValue(group + '/' + 'LabelYOffset', self.settingsDialog.sbLabelYOffsetSpinBox.value())
         settings.setValue(group + '/' + 'Color', self.sbColor.name())
-
-
-    def auto(self):
         
+        
+    def setAuto(self):
         scale = self.settingsDialog.scaleSpinBox.value()   
-        #W_m = self.dimx * scale
         suggested_relative_scalebar_width = 0.2
         sb_height_k = 0.02
         sb_right_edge_k = 0.90
@@ -143,6 +146,5 @@ class ScaleBar:
         self.settingsDialog.sbYSpinBox.setValue(sb_y_center_k)
         self.settingsDialog.sbLabelYOffsetSpinBox.setValue(sb_height_k + 0.04)
         
-        self.changed()
-        
+        self.render()
     

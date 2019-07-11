@@ -444,6 +444,7 @@ class Window(QMainWindow):
             self.p2.setXLink(self.p1.vb)
             self.p2.setYLink(self.p1.vb)
             self.roiLabel.setVisible(False)
+            self.scaleBar2.sizeChanged(self.dimx, self.dimy)
         self.update()
         
         
@@ -452,7 +453,8 @@ class Window(QMainWindow):
             self.roiX, self.roiY = self.roi.pos()
             self.roiW, self.roiH = self.roi.size()
             self.roiLabel.setText("<font color='#00ff00'>ROI: (%d, %d) (%d, %d)</font>" % (self.roiX, self.roiY, self.roiW, self.roiH))
-            self.scaleBar2.update(self.roiW, self.roiH)
+            self.scaleBar2.sizeChanged(self.roiW, self.roiH)
+            self.scaleBar2.setAuto()
         else:
             #self.roiX, self.roiY = (0, 0)
             #self.roiW, self.roiH = (self.dimx, self.dimy)
@@ -650,16 +652,14 @@ class Window(QMainWindow):
         self.endFrameSpinBox.setValue(self.frames-1)
         
         self.p1.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy]) 
-        self.scaleBar1.update(self.dimx, self.dimy)
+        self.scaleBar1.sizeChanged(self.dimx, self.dimy)
         
         if not self.roiCheckBox.checkState():
             self.p2.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy])
+            self.scaleBar2.sizeChanged(self.dimx, self.dimy)
         else:
             self.roiChanged()
-                    
-        
-
-        
+                     
         self.statusBar.showMessage('Ready')
 
         
@@ -988,8 +988,13 @@ class Window(QMainWindow):
         self.settings.setValue('Video/exportTypeComboBox', self.exportTypeComboBox.currentIndex())
         self.settings.setValue('Video/exportViewComboBox', self.exportViewComboBox.currentIndex())
      
-        self.scaleBar1.saveSettings('ScaleBar1', self.settings)
-        self.scaleBar2.saveSettings('ScaleBar2', self.settings)
+    
+        self.scaleBar1.saveSettings('ScaleBar1', self.settings)   
+        self.settings.setValue('ScaleBar1/State', self.scaleBar1CheckBox.checkState())
+        
+        self.scaleBar2.saveSettings('ScaleBar2', self.settings)   
+        self.settings.setValue('ScaleBar2/State', self.scaleBar1CheckBox.checkState())
+
         
         for tabCount in range(self.tabWidget.count()):
             tab = self.tabWidget.widget(tabCount);
@@ -1047,7 +1052,12 @@ class Window(QMainWindow):
             self.exportViewComboBox.setCurrentIndex(int(self.settings.value('Video/exportViewComboBox', '0')))
             
             self.scaleBar1.restoreSettings('ScaleBar1', self.settings)
+            self.scaleBar1CheckBox.setCheckState(int(self.settings.value('ScaleBar1/State', '0')))
+            self.scaleBar1.setVisible(self.scaleBar1CheckBox.checkState())
+            
             self.scaleBar2.restoreSettings('ScaleBar2', self.settings)
+            self.scaleBar2CheckBox.setCheckState(int(self.settings.value('ScaleBar2/State', '0')))
+            self.scaleBar2.setVisible(self.scaleBar2CheckBox.checkState())
 
             return 0
             
