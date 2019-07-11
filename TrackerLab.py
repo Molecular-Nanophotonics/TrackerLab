@@ -136,8 +136,7 @@ class Window(QMainWindow):
         self.scaleBar2Button.clicked.connect(self.scaleBar2.showSettingsDialog)
         self.scaleBar2CheckBox.stateChanged.connect(self.scaleBar2.setVisible)
 
-
-        
+    
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 0.75)
         pg.setConfigOption('imageAxisOrder', 'row-major')
@@ -198,10 +197,6 @@ class Window(QMainWindow):
                 
         self.scaleBar1.add(self.p1)
         self.scaleBar2.add(self.p2)
-        
-        # Mouse moved events                
-        self.p1.scene().sigMouseMoved.connect(self.mouseMoved)   
-        self.p2.getViewBox().scene().sigMouseMoved.connect(self.mouseMoved) 
 
         
         self.batch = False
@@ -543,6 +538,10 @@ class Window(QMainWindow):
             #self.frameSlider.setMaximum(self.frames-1)
             self.setEnabled(True)
             
+            # Connect mouseMoved events
+            self.p1.scene().sigMouseMoved.connect(self.mouseMoved)   
+            self.p2.getViewBox().scene().sigMouseMoved.connect(self.mouseMoved)
+        
             if not self.trackingCheckBox.checkState():
                 self.tabWidget.setEnabled(False)
             
@@ -651,11 +650,15 @@ class Window(QMainWindow):
         self.endFrameSpinBox.setValue(self.frames-1)
         
         self.p1.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy]) 
+        self.scaleBar1.update(self.dimx, self.dimy)
+        
         if not self.roiCheckBox.checkState():
             self.p2.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy])
+        else:
+            self.roiChanged()
                     
-        self.scaleBar1.update(self.dimx, self.dimy)
-        self.scaleBar2.update(self.dimx, self.dimy)
+        
+
         
         self.statusBar.showMessage('Ready')
 
