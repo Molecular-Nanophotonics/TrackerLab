@@ -1479,7 +1479,7 @@
         <string>Image/Video Export </string>
        </property>
       </widget>
-      <widget class="QCheckBox" name="scaleBarCheckBox">
+      <widget class="QCheckBox" name="scaleBar1CheckBox">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -1498,7 +1498,7 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QPushButton" name="editScaleBarButton">
+      <widget class="QPushButton" name="scaleBar1Button">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -1553,7 +1553,7 @@
         <string/>
        </property>
       </widget>
-      <widget class="QPushButton" name="editScaleBar2Button">
+      <widget class="QPushButton" name="scaleBar2Button">
        <property name="enabled">
         <bool>false</bool>
        </property>

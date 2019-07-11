@@ -36,7 +36,7 @@ from nptdms import TdmsFile
 
 import subprocess as sp # for calling ffmpeg
 
-import Modules
+import ScaleBar, Modules
 
 import platform
 
@@ -48,24 +48,17 @@ class Preferences(QDialog):
         
         self.okButton.clicked.connect(self.accept)
         self.cancelButton.clicked.connect(self.reject)
-
-
-class ScaleBarSettings(QDialog):
-    def __init__(self):
-        super().__init__(None,  QtCore.Qt.WindowCloseButtonHint)
-        
-        loadUi('ScaleBarSettings.ui', self)
         
         
-
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
         
         self.ui = loadUi('TrackerLab.ui', self)        
         self.preferences = Preferences()
-        self.scaleBarSettings = ScaleBarSettings()
-        #self.scaleBar2Settings = ScaleBarSettings()
+        
+        self.scaleBar1 = ScaleBar.ScaleBar();
+        self.scaleBar2 = ScaleBar.ScaleBar();
     
         self.displayedIcon = QtGui.QIcon(QtGui.QPixmap("Resources/Circle.png")) 
         ## draw the icon  
@@ -76,8 +69,7 @@ class Window(QMainWindow):
         #painter.drawEllipse(QtCore.QPoint(16, 16), 5, 5)
         #self.displayedIcon = QtGui.QIcon(pixmap)
         
-        # restore setting from TrackerLab.ini file
-        
+        # Restore setting from TrackerLab.ini file
         if self.restoreSettings():
             print('An error occured opening the INI file. A new INI file will be created on closing.')
         else:
@@ -97,7 +89,6 @@ class Window(QMainWindow):
         
         self.frameSlider.valueChanged.connect(self.frameSliderChanged)   
         self.frameSpinBox.valueChanged.connect(self.frameSpinBoxChanged)  
-        #self.fileComboBox.currentIndexChanged.connect(self.fileComboBoxChanged) 
       
         self.colormapComboBox.currentIndexChanged.connect(self.colormapComboBoxChanged) 
         self.scalingComboBox.currentIndexChanged.connect(self.scalingComboBoxChanged) 
@@ -140,10 +131,12 @@ class Window(QMainWindow):
         self.actionSettings.triggered.connect(self.showPreferences)
         self.actionAbout.triggered.connect(self.aboutClicked)
 
-        self.editScaleBarButton.clicked.connect(self.showScaleBarSettings)
-        self.scaleBarCheckBox.stateChanged.connect(self.scaleBarChanged)
-        #self.editScaleBar2Button.clicked.connect(self.showScaleBarSettings)
-        #self.scaleBar2CheckBox.stateChanged.connect(self.scaleBarChanged)
+        self.scaleBar1Button.clicked.connect(self.scaleBar1.showSettingsDialog)
+        self.scaleBar1CheckBox.stateChanged.connect(self.scaleBar1.setVisible)
+        self.scaleBar2Button.clicked.connect(self.scaleBar2.showSettingsDialog)
+        self.scaleBar2CheckBox.stateChanged.connect(self.scaleBar2.setVisible)
+
+
         
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 0.75)
@@ -186,13 +179,13 @@ class Window(QMainWindow):
         self.p2.addItem(self.im2)
         self.p2.getViewBox().invertY(True)
     
-        self.roi = 0  # important for start-up
+        self.roi = 0  # Important for start-up
         self.maskROI = 0
         
         self.exportVideoButton.clicked.connect(self.exportVideoButtonClicked)
         self.exportImageButton.clicked.connect(self.exportImageButtonClicked)
         
-        # items for overlay
+        # Items for overlay
         
         #self.sp1 = pg.ScatterPlotItem(pen=pg.mkPen('r', width=3), brush=pg.mkBrush(None), pxMode=False)
         #self.p2.addItem(self.sp1)
@@ -203,29 +196,10 @@ class Window(QMainWindow):
         self.lp2 = pg.PlotCurveItem(pen=pg.mkPen('r', width=3), brush=pg.mkBrush(None), pxMode=False)
         self.p2.addItem(self.lp2)
                 
-         # SCALE BAR
-         
-        self.scaleBarSettings.scaleSpinBox.valueChanged.connect(self.scaleBarChanged)
-        self.scaleBarSettings.sbAutoButton.clicked.connect(self.autoScaleBar)
-        self.scaleBarSettings.sbLengthSpinBox.valueChanged.connect(self.scaleBarChanged)
-        self.scaleBarSettings.sbXSpinBox.valueChanged.connect(self.scaleBarChanged)
-        self.scaleBarSettings.sbYSpinBox.valueChanged.connect(self.scaleBarChanged)
-        self.scaleBarSettings.sbLabelYOffsetSpinBox.valueChanged.connect(self.scaleBarChanged)
-        self.scaleBarSettings.sbColorButton.clicked.connect(self.openColorDialog)
-        self.scaleBarSettings.sbHeightSpinBox.valueChanged.connect(self.scaleBarChanged)
-        self.scaleBarSettings.okButton.clicked.connect(self.scaleBarSettings.close)
+        self.scaleBar1.add(self.p1)
+        self.scaleBar2.add(self.p2)
         
-        self.sb1 = QtGui.QGraphicsRectItem()
-        self.sb2 = QtGui.QGraphicsRectItem()
-        self.p1.addItem(self.sb1)
-        self.p2.addItem(self.sb2)
-        
-        self.sb1Label = QtGui.QGraphicsSimpleTextItem()
-        self.sb2Label = QtGui.QGraphicsSimpleTextItem()
-        self.p1.addItem(self.sb1Label)
-        self.p2.addItem(self.sb2Label)
-         
-        # mouse moved events                
+        # Mouse moved events                
         self.p1.scene().sigMouseMoved.connect(self.mouseMoved)   
         self.p2.getViewBox().scene().sigMouseMoved.connect(self.mouseMoved) 
 
@@ -249,7 +223,7 @@ class Window(QMainWindow):
         self.progressBar.setMaximumWidth(250)
         self.progressBar.setValue(0)
         
-        # load colormaps        
+        # Load colormaps        
         self.colormaps = []
         self.colormapComboBox.clear()
         for file in glob.glob('Colormaps/*.csv'):
@@ -266,7 +240,7 @@ class Window(QMainWindow):
         
         self.infoLabel.setTextFormat(QtCore.Qt.RichText) 
         
-        # check if FFmpeg is available
+        # Check if FFmpeg is available
         self.ffmpeg = True
 
         try:
@@ -329,7 +303,7 @@ class Window(QMainWindow):
                   
         # Image Pre-Processing 
         def rebin_image(arr_in,binning):
-            # throws away the last rows and cols 
+            # Throw away the last rows and cols 
             new_shape = tuple(np.array(arr_in.shape)//binning)
             arr = arr_in[:binning*new_shape[0],:binning*new_shape[1]]
             shape = (new_shape[0], arr.shape[0] // new_shape[0],
@@ -483,6 +457,7 @@ class Window(QMainWindow):
             self.roiX, self.roiY = self.roi.pos()
             self.roiW, self.roiH = self.roi.size()
             self.roiLabel.setText("<font color='#00ff00'>ROI: (%d, %d) (%d, %d)</font>" % (self.roiX, self.roiY, self.roiW, self.roiH))
+            self.scaleBar2.update(self.roiW, self.roiH)
         else:
             #self.roiX, self.roiY = (0, 0)
             #self.roiW, self.roiH = (self.dimx, self.dimy)
@@ -679,7 +654,8 @@ class Window(QMainWindow):
         if not self.roiCheckBox.checkState():
             self.p2.setRange(xRange=[0, self.dimx], yRange=[0, self.dimy])
                     
-        self.scaleBarChanged()
+        self.scaleBar1.update(self.dimx, self.dimy)
+        self.scaleBar2.update(self.dimx, self.dimy)
         
         self.statusBar.showMessage('Ready')
 
@@ -960,125 +936,6 @@ class Window(QMainWindow):
         
         exporter.export(filename) 
         
-            
-    def scaleBarChanged(self):
-        if (self.scaleBarCheckBox.checkState()):
-            
-            scale = self.scaleBarSettings.scaleSpinBox.value()
-            sbX = self.scaleBarSettings.sbXSpinBox.value()*self.dimx
-            sbY = self.scaleBarSettings.sbYSpinBox.value()*self.dimy
-            sbLabelYOffset = self.scaleBarSettings.sbLabelYOffsetSpinBox.value()*self.dimy
-            sbWidth = int(np.round(self.scaleBarSettings.sbLengthSpinBox.value()/scale))
-            sbHeight = self.scaleBarSettings.sbHeightSpinBox.value()*self.dimy
-            
-            self.sb1.setVisible(True)
-            self.sb1Label.setVisible(True)
-            
-            # Scale Bar 
-            self.sb1.setRect(sbX - sbWidth/2, sbY - sbHeight/2, sbWidth, sbHeight)
-            self.sb1.setPen(pg.mkPen(None))
-            self.sb1.setBrush(self.sbColor)
-               
-            # Scale Bar Label
-            self.sb1Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " \u03bcm")
-            self.sb1Label.setFont(QtGui.QFont("Helvetica", 0.04*self.dimy))
-            self.sb1Label.setBrush(self.sbColor)
-            bRect = self.sb1Label.boundingRect()
-            self.sb1Label.setPos(sbX - bRect.width()/2, sbY - bRect.height()/2 - sbLabelYOffset)
-            
-        else:
-            self.sb1.setVisible(False)
-            self.sb1Label.setVisible(False)
-
-    '''
-    def scaleBar1Changed(self):
-        if (self.scaleBarCheckBox.checkState()):
-            
-            scale = self.scaleBarSettings.scaleSpinBox.value()
-            sbX = self.scaleBarSettings.sbXSpinBox.value()*self.dimx
-            sbY = self.scaleBarSettings.sbYSpinBox.value()*self.dimy
-            sbLabelYOffset = self.scaleBarSettings.sbLabelYOffsetSpinBox.value()*self.dimy
-            sbWidth = int(np.round(self.scaleBarSettings.sbLengthSpinBox.value()/scale))
-            sbHeight = self.scaleBarSettings.sbHeightSpinBox.value()*self.dimy
-            
-            self.sb1.setVisible(True)
-            self.sb2.setVisible(True)
-            self.sb1Label.setVisible(True)
-            self.sb2Label.setVisible(True)
-            
-            # Scale Bar 
-            self.sb1.setRect(sbX - sbWidth/2, sbY - sbHeight/2, sbWidth, sbHeight)
-            self.sb1.setPen(pg.mkPen(None))
-            self.sb1.setBrush(self.sbColor)
-            
-            self.sb2.setRect(sbX - sbWidth/2, sbY - sbHeight/2, sbWidth, sbHeight)
-            self.sb2.setPen(pg.mkPen(None))
-            self.sb2.setBrush(self.sbColor)
-            
-            # Scale Bar Label
-            self.sb1Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " \u03bcm")
-            self.sb1Label.setFont(QtGui.QFont("Helvetica", 0.04*self.dimy))
-            self.sb1Label.setBrush(self.sbColor)
-            bRect = self.sb1Label.boundingRect()
-            self.sb1Label.setPos(sbX - bRect.width()/2, sbY - bRect.height()/2 - sbLabelYOffset)
-            
-            self.sb2Label.setText(str(self.scaleBarSettings.sbLengthSpinBox.value()) + " \u03bcm")
-            self.sb2Label.setFont(QtGui.QFont("Helvetica", 0.04*self.dimy))
-            self.sb2Label.setBrush(self.sbColor)
-            bRect = self.sb2Label.boundingRect()
-            self.sb2Label.setPos(sbX - bRect.width()/2, sbY - bRect.height()/2 - sbLabelYOffset)
-        else:
-            self.sb1.setVisible(False)
-            self.sb2.setVisible(False)
-            self.sb1Label.setVisible(False)
-            self.sb2Label.setVisible(False)
-        '''
-     
-    def autoScaleBar(self):
-        if (self.scaleBarCheckBox.checkState()):
-            
-            scale = self.scaleBarSettings.scaleSpinBox.value()
-            
-            #W_m = self.dimx * scale
-            suggested_relative_scalebar_width = 0.2
-            sb_height_k = 0.02
-            sb_right_edge_k = 0.90
-            sb_bot_pos_k = 0.92 
-            allowed_first_digit = np.array([1, 2, 3, 5, 10]) # the 10 in here is important (the numbersystem hoping point or whaterver its called)
-            short_dim_i = np.min([self.dimx,self.dimy]) 
-            long_dim_i = np.max([self.dimx,self.dimy])
-            max_xy_ratio = 2/3
-            if max_xy_ratio * long_dim_i > short_dim_i: # for large aspect ratios take the shorter axis for the auto scale
-                W_m = short_dim_i * scale
-            else:
-                W_m = long_dim_i * scale
-            suggested_sblength_m = ( 10**int('{:.0e}'.format(W_m * suggested_relative_scalebar_width)[2:]) 
-                                     * allowed_first_digit[np.abs(int('{:.0e}'.format(W_m * suggested_relative_scalebar_width)[0]) - allowed_first_digit).min()
-                                     == np.abs(int('{:.0e}'.format(W_m * suggested_relative_scalebar_width)[0])-allowed_first_digit)
-                                 ][0]
-                                )
-            
-            sblength_i = suggested_sblength_m/scale
-            sblength_k = sblength_i/self.dimx
-            sb_x_center_i = (sb_right_edge_k - sblength_k/2) * self.dimx
-            sb_x_center_k = sb_x_center_i / self.dimx
-            sb_y_center_k = sb_bot_pos_k - sb_height_k/2
-            sb_height_k/2
-            
-            self.scaleBarSettings.sbLengthSpinBox.setValue(suggested_sblength_m)
-            self.scaleBarSettings.sbHeightSpinBox.setValue(sb_height_k)
-            self.scaleBarSettings.sbXSpinBox.setValue(sb_x_center_k)
-            self.scaleBarSettings.sbYSpinBox.setValue(sb_y_center_k)
-            self.scaleBarSettings.sbLabelYOffsetSpinBox.setValue(sb_height_k + 0.04)
-            
-            self.scaleBarChanged()
-
-    
-    def openColorDialog(self):
-        self.sbColor = QtGui.QColorDialog.getColor()
-        self.scaleBarSettings.sbColorPreview.setStyleSheet("background-color: %s" % self.sbColor.name())
-        self.scaleBarChanged()
-     
     def abortButtonClicked(self):
         self.abort = True
        
@@ -1128,13 +985,8 @@ class Window(QMainWindow):
         self.settings.setValue('Video/exportTypeComboBox', self.exportTypeComboBox.currentIndex())
         self.settings.setValue('Video/exportViewComboBox', self.exportViewComboBox.currentIndex())
      
-        
-        self.settings.setValue('ScaleBar/Scale', self.scaleBarSettings.scaleSpinBox.value())
-        self.settings.setValue('ScaleBar/Length', self.scaleBarSettings.sbLengthSpinBox.value())
-        self.settings.setValue('ScaleBar/X', self.scaleBarSettings.sbXSpinBox.value())
-        self.settings.setValue('ScaleBar/Y', self.scaleBarSettings.sbYSpinBox.value())
-        self.settings.setValue('ScaleBar/LabelYOffset', self.scaleBarSettings.sbLabelYOffsetSpinBox.value())
-        self.settings.setValue('ScaleBar/Color', self.sbColor.name())
+        self.scaleBar1.saveSettings('ScaleBar1', self.settings)
+        self.scaleBar2.saveSettings('ScaleBar2', self.settings)
         
         for tabCount in range(self.tabWidget.count()):
             tab = self.tabWidget.widget(tabCount);
@@ -1191,15 +1043,9 @@ class Window(QMainWindow):
             self.exportTypeComboBox.setCurrentIndex(int(self.settings.value('Video/exportTypeComboBox', '0')))
             self.exportViewComboBox.setCurrentIndex(int(self.settings.value('Video/exportViewComboBox', '0')))
             
-            self.scaleBarSettings.scaleSpinBox.setValue(float(self.settings.value('ScaleBar/Scale', '0.1')))
-            self.scaleBarSettings.sbLengthSpinBox.setValue(int(self.settings.value('ScaleBar/Length', '5')))
-            self.scaleBarSettings.sbXSpinBox.setValue(float(self.settings.value('ScaleBar/X', '0.80')))
-            self.scaleBarSettings.sbYSpinBox.setValue(float(self.settings.value('ScaleBar/Y', '0.90')))
-            self.scaleBarSettings.sbLabelYOffsetSpinBox.setValue(float(self.settings.value('ScaleBar/LabelYOffset', '0.05')))
-            
-            self.sbColor = QtGui.QColor(self.settings.value('ScaleBar/Color', '#ffffff'))
-            self.scaleBarSettings.sbColorPreview.setStyleSheet("background-color: %s" % self.sbColor.name())            
- 
+            self.scaleBar1.restoreSettings('ScaleBar1', self.settings)
+            self.scaleBar2.restoreSettings('ScaleBar2', self.settings)
+
             return 0
             
         except:
@@ -1218,8 +1064,6 @@ class Window(QMainWindow):
             self.hdf5 = 0
             self.exportSuffix = ''
             self.protocolFile = 'Protocol.txt'
-            self.sbColor = QtGui.QColor('#ffffff')
-            self.scaleBarSettings.sbColorPreview.setStyleSheet('background-color: #ffffff')
             return 1
             
         
@@ -1251,10 +1095,10 @@ class Window(QMainWindow):
             self.trackingCheckBox.setEnabled(state)
         self.tabWidget.setEnabled(state)
         self.removeFilesButton.setEnabled(state)
-        self.scaleBarCheckBox.setEnabled(state)
-        self.editScaleBarButton.setEnabled(state)
-        #self.scaleBar2CheckBox.setEnabled(state)
-        #self.editScaleBar2Button.setEnabled(state)
+        self.scaleBar1CheckBox.setEnabled(state)
+        self.scaleBar1Button.setEnabled(state)
+        self.scaleBar2CheckBox.setEnabled(state)
+        self.scaleBar2Button.setEnabled(state)
 
 
     def enableLevels(self, state): 
@@ -1276,8 +1120,8 @@ class Window(QMainWindow):
             self.preferences.protocolFileLineEdit.setText(self.protocolFile)
             
     
-    def showScaleBarSettings(self):
-        self.scaleBarSettings.show()
+    def showScaleBar1Settings(self):
+        self.scaleBar1.showSettingsDialog()
         
     #def showScaleBar2Settings(self):
     #    self.scaleBar2Settings.show() 
@@ -1298,3 +1142,12 @@ if __name__ == '__main__':
     window = Window()
     window.show()
     sys.exit(app.exec_())
+    
+
+
+
+
+
+        
+        
+        
