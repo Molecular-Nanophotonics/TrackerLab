@@ -527,7 +527,7 @@ class Window(QMainWindow):
             self.fileList = []
             self.fileListWidget.clear()
             for file in self.files:
-                if fnmatch.fnmatch(file,'*_movie.tdms') or fnmatch.fnmatch(file,'*.tif') or fnmatch.fnmatch(file,'*.mp4'):
+                if fnmatch.fnmatch(file,'*_movie.tdms') or fnmatch.fnmatch(file,'*_video.tdms') or fnmatch.fnmatch(file,'*.tif') or fnmatch.fnmatch(file,'*.mp4'):
                     self.fileList.append(file)
                     item = QtGui.QListWidgetItem(os.path.basename(file))
                     item.setToolTip(file)
@@ -573,7 +573,7 @@ class Window(QMainWindow):
             self.selectFilesDialog()
             if self.files:
                 for file in self.files:
-                    if fnmatch.fnmatch(file, '*_movie.tdms') or fnmatch.fnmatch(file, '*.tif') or fnmatch.fnmatch(file,'*.mp4'):
+                    if fnmatch.fnmatch(file, '*_movie.tdms') or fnmatch.fnmatch(file, '*_video.tdms') or fnmatch.fnmatch(file, '*.tif') or fnmatch.fnmatch(file,'*.mp4'):
                         self.fileList.append(file) 
                         item = QtGui.QListWidgetItem(os.path.basename(file))
                         item.setToolTip(file)
@@ -661,8 +661,6 @@ class Window(QMainWindow):
             self.roiChanged()
                      
         self.statusBar.showMessage('Ready')
-
-        
               
     def loadTDMSImages(self, file):
         tdms_file = TdmsFile(file)
