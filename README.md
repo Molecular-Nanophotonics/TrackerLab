@@ -1,4 +1,7 @@
-# TrackerLab
+# TrackerLab v2.2
+
+Martin Fränzl <br>
+Molecular Nanophotonics Group
 
 ## Contents
 
