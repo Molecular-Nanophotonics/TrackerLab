@@ -34,7 +34,7 @@ The FFmpeg binaries are included in this repository (>50MB!). On Ma OS the acces
 
 ## Instructions for Use
 
-To start the TrackerLab run `TrackerLab.py`
+Start the TrackerLab with: `python TrackerLab.py`
 
 If all required packages are installed properly you should see something similar to: <br>
 
