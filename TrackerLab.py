@@ -46,7 +46,7 @@ import platform
 
 import importlib
 
-module_names = [os.path.basename(f)[:-3] for f in glob.glob(os.path.join(os.path.dirname('Modules/'), "*.py")) if not f.endswith("__init__.py")]
+module_names = [os.path.basename(f)[:-3] for f in glob.glob(os.path.join(os.path.dirname('Modules/'), "*.py")) if not (f.endswith("__init__.py") or f.endswith('Template.py'))]
 modules_list = []
 for module_name in module_names:
     modules_list.append(importlib.import_module('Modules.' + module_name))
