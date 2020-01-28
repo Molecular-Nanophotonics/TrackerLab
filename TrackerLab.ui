@@ -118,658 +118,15 @@
          <x>850</x>
          <y>40</y>
          <width>451</width>
-         <height>221</height>
+         <height>271</height>
         </rect>
        </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>-1</number>
        </property>
-       <widget class="QWidget" name="ConnectedComponent">
-        <attribute name="title">
-         <string>Connected-Component</string>
-        </attribute>
-        <widget class="QSpinBox" name="tab1ThresholdSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>97</x>
-           <y>20</y>
-           <width>61</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string/>
-         </property>
-         <property name="keyboardTracking">
-          <bool>false</bool>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>100000</number>
-         </property>
-         <property name="singleStep">
-          <number>10</number>
-         </property>
-         <property name="value">
-          <number>1000</number>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab1ThresholdLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>20</y>
-           <width>81</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Threshold:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab1MinAreaLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>50</y>
-           <width>81</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>Min. Area:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab1MaxAreaLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>80</y>
-           <width>81</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>Max. Area:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="tab1MinAreaSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>97</x>
-           <y>50</y>
-           <width>61</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="keyboardTracking">
-          <bool>false</bool>
-         </property>
-         <property name="maximum">
-          <number>10000</number>
-         </property>
-         <property name="value">
-          <number>10</number>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="tab1MaxAreaSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>97</x>
-           <y>80</y>
-           <width>61</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="keyboardTracking">
-          <bool>false</bool>
-         </property>
-         <property name="maximum">
-          <number>100000</number>
-         </property>
-         <property name="singleStep">
-          <number>1</number>
-         </property>
-         <property name="value">
-          <number>250</number>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="tab1InvertCheckBox">
-         <property name="geometry">
-          <rect>
-           <x>170</x>
-           <y>22</y>
-           <width>91</width>
-           <height>17</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Invert</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab1MaxFeaturesLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>130</y>
-           <width>131</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>Max. # of Features:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="tab1MaxFeaturesSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>140</x>
-           <y>130</y>
-           <width>61</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="keyboardTracking">
-          <bool>false</bool>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>1000</number>
-         </property>
-         <property name="value">
-          <number>1000</number>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="DifferenceOfGaussians">
-        <attribute name="title">
-         <string>Difference of Gaussians</string>
-        </attribute>
-        <widget class="QSpinBox" name="tab2MaxSigmaSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>80</x>
-           <y>50</y>
-           <width>61</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="keyboardTracking">
-          <bool>false</bool>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="value">
-          <number>5</number>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab2ThresholdLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>20</y>
-           <width>61</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Threshold:</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab2MaxSigmaLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>50</y>
-           <width>61</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Max. Sigma:</string>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="tab2ThresholdSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>80</x>
-           <y>20</y>
-           <width>61</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="value">
-          <number>10</number>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="JPTracker">
-        <attribute name="title">
-         <string>JP Tracker</string>
-        </attribute>
-        <widget class="QLabel" name="numberOfClosePairs">
-         <property name="geometry">
-          <rect>
-           <x>330</x>
-           <y>140</y>
-           <width>61</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::Panel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Sunken</enum>
-         </property>
-         <property name="text">
-          <string>0</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab3MinAreaLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>30</y>
-           <width>71</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>Min. Area:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab3MaxFeaturesLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>90</y>
-           <width>81</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>Max. # of JP:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab3MaxElipticityLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>70</y>
-           <width>111</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>Max. Elipticity:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab3MaxElipticityPairLabel">
-         <property name="geometry">
-          <rect>
-           <x>222</x>
-           <y>20</y>
-           <width>121</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>Min. Elipticity Pair:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="tab3MaxAreaPairSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>330</x>
-           <y>80</y>
-           <width>61</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="keyboardTracking">
-          <bool>false</bool>
-         </property>
-         <property name="maximum">
-          <number>9999999</number>
-         </property>
-         <property name="value">
-          <number>450</number>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab3MaxAreaPairLabel">
-         <property name="geometry">
-          <rect>
-           <x>222</x>
-           <y>80</y>
-           <width>101</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>Max. Area Pair:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab3MaxAreaLabel">
-         <property name="geometry">
-          <rect>
-           <x>8</x>
-           <y>50</y>
-           <width>71</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>Max. Area:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="numberOfClosePairsLabel">
-         <property name="geometry">
-          <rect>
-           <x>222</x>
-           <y>140</y>
-           <width>121</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string># of Close Pairs:</string>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="tab3MaxFeaturesSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>100</x>
-           <y>90</y>
-           <width>61</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="keyboardTracking">
-          <bool>false</bool>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>1000</number>
-         </property>
-         <property name="value">
-          <number>1000</number>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="tab3ThresholdSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>100</x>
-           <y>4</y>
-           <width>71</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>70000</number>
-         </property>
-         <property name="singleStep">
-          <number>50</number>
-         </property>
-         <property name="value">
-          <number>1000</number>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab3MinAreaPairLabel">
-         <property name="geometry">
-          <rect>
-           <x>222</x>
-           <y>50</y>
-           <width>91</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>Min. Area Pair:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="tab3MaxAreaSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>100</x>
-           <y>50</y>
-           <width>61</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="keyboardTracking">
-          <bool>false</bool>
-         </property>
-         <property name="maximum">
-          <number>999999999</number>
-         </property>
-         <property name="value">
-          <number>300</number>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="tab3MinAreaPairSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>330</x>
-           <y>50</y>
-           <width>61</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="keyboardTracking">
-          <bool>false</bool>
-         </property>
-         <property name="maximum">
-          <number>999999</number>
-         </property>
-         <property name="value">
-          <number>250</number>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab3ThresholdLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>7</y>
-           <width>71</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Threshold</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="SeparateClosePairsCheckBox">
-         <property name="geometry">
-          <rect>
-           <x>220</x>
-           <y>0</y>
-           <width>171</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Separate Close Pairs</string>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="tab3MinAreaSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>100</x>
-           <y>30</y>
-           <width>61</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="keyboardTracking">
-          <bool>false</bool>
-         </property>
-         <property name="maximum">
-          <number>9999999</number>
-         </property>
-         <property name="value">
-          <number>50</number>
-         </property>
-        </widget>
-        <widget class="QLabel" name="tab3CrescentRatioLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>110</y>
-           <width>91</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>crescent ratio:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="tab3MaxElipticitySpinBox">
-         <property name="geometry">
-          <rect>
-           <x>100</x>
-           <y>70</y>
-           <width>48</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="singleStep">
-          <number>10</number>
-         </property>
-         <property name="value">
-          <number>50</number>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="tab3MinElipticityPairSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>330</x>
-           <y>20</y>
-           <width>48</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="singleStep">
-          <number>2</number>
-         </property>
-         <property name="value">
-          <number>50</number>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="tab3CrescentRatioSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>100</x>
-           <y>110</y>
-           <width>48</width>
-           <height>24</height>
-          </rect>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="singleStep">
-          <number>2</number>
-         </property>
-         <property name="value">
-          <number>80</number>
-         </property>
-        </widget>
-       </widget>
       </widget>
       <widget class="QPushButton" name="batchButton">
        <property name="enabled">
@@ -778,45 +135,13 @@
        <property name="geometry">
         <rect>
          <x>1180</x>
-         <y>275</y>
+         <y>10</y>
          <width>121</width>
          <height>23</height>
         </rect>
        </property>
        <property name="text">
-        <string>Process All</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="numberOfSpots">
-       <property name="geometry">
-        <rect>
-         <x>970</x>
-         <y>277</y>
-         <width>61</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Panel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="numberOfSpotsLabel">
-       <property name="geometry">
-        <rect>
-         <x>850</x>
-         <y>277</y>
-         <width>121</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string> # of Features:</string>
+        <string>Batch</string>
        </property>
       </widget>
       <widget class="QFrame" name="preprocessingFrame">
@@ -841,20 +166,20 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>31</y>
-          <width>70</width>
+          <y>80</y>
+          <width>91</width>
           <height>21</height>
          </rect>
         </property>
         <property name="text">
-         <string>Median:</string>
+         <string>Median Filter:</string>
         </property>
        </widget>
        <widget class="QSpinBox" name="medianSpinBox">
         <property name="geometry">
          <rect>
           <x>120</x>
-          <y>30</y>
+          <y>80</y>
           <width>51</width>
           <height>22</height>
          </rect>
@@ -872,8 +197,8 @@
        <widget class="QCheckBox" name="maskCheckBox">
         <property name="geometry">
          <rect>
-          <x>11</x>
-          <y>90</y>
+          <x>10</x>
+          <y>110</y>
           <width>70</width>
           <height>21</height>
          </rect>
@@ -886,7 +211,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>5</y>
+          <y>140</y>
           <width>161</width>
           <height>20</height>
          </rect>
@@ -902,7 +227,7 @@
         <property name="geometry">
          <rect>
           <x>81</x>
-          <y>90</y>
+          <y>110</y>
           <width>91</width>
           <height>22</height>
          </rect>
@@ -925,7 +250,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>60</y>
+          <y>10</y>
           <width>101</width>
           <height>21</height>
          </rect>
@@ -938,7 +263,7 @@
         <property name="geometry">
          <rect>
           <x>120</x>
-          <y>60</y>
+          <y>10</y>
           <width>51</width>
           <height>22</height>
          </rect>
@@ -960,7 +285,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>120</y>
+          <y>40</y>
           <width>161</width>
           <height>21</height>
          </rect>
@@ -969,18 +294,31 @@
          <string>Region of Interest</string>
         </property>
        </widget>
+       <widget class="Line" name="line_2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>60</y>
+          <width>271</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
       </widget>
       <widget class="QLabel" name="preprocessingFrameLabel">
        <property name="geometry">
         <rect>
          <x>540</x>
-         <y>11</y>
+         <y>12</y>
          <width>161</width>
-         <height>20</height>
+         <height>16</height>
         </rect>
        </property>
        <property name="text">
-        <string>Image Processing</string>
+        <string>Pre-Processing</string>
        </property>
       </widget>
       <widget class="QLabel" name="infoLabel">
@@ -989,8 +327,14 @@
          <x>360</x>
          <y>40</y>
          <width>161</width>
-         <height>151</height>
+         <height>111</height>
         </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
        </property>
        <property name="text">
         <string/>
@@ -999,7 +343,7 @@
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
        </property>
       </widget>
-      <widget class="QCheckBox" name="trackingCheckBox">
+      <widget class="QCheckBox" name="featureDetectionCheckBox">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -1008,7 +352,7 @@
          <x>850</x>
          <y>12</y>
          <width>121</width>
-         <height>17</height>
+         <height>16</height>
         </rect>
        </property>
        <property name="text">
@@ -1485,8 +829,8 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>370</x>
-         <y>240</y>
+         <x>380</x>
+         <y>214</y>
          <width>91</width>
          <height>21</height>
         </rect>
@@ -1505,8 +849,8 @@
        <property name="geometry">
         <rect>
          <x>460</x>
-         <y>240</y>
-         <width>71</width>
+         <y>214</y>
+         <width>61</width>
          <height>23</height>
         </rect>
        </property>
@@ -1518,9 +862,9 @@
        <property name="geometry">
         <rect>
          <x>360</x>
-         <y>10</y>
+         <y>12</y>
          <width>131</width>
-         <height>20</height>
+         <height>16</height>
         </rect>
        </property>
        <property name="text">
@@ -1560,8 +904,8 @@
        <property name="geometry">
         <rect>
          <x>460</x>
-         <y>266</y>
-         <width>71</width>
+         <y>240</y>
+         <width>61</width>
          <height>23</height>
         </rect>
        </property>
@@ -1575,8 +919,8 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>370</x>
-         <y>266</y>
+         <x>380</x>
+         <y>240</y>
          <width>91</width>
          <height>21</height>
         </rect>
@@ -1586,6 +930,48 @@
        </property>
        <property name="checked">
         <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="preprocessingFrameLabel_5">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>160</y>
+         <width>131</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Tools</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="lineProfileButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>379</x>
+         <y>180</y>
+         <width>81</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Line Profile</string>
+       </property>
+      </widget>
+      <widget class="Line" name="line">
+       <property name="geometry">
+        <rect>
+         <x>350</x>
+         <y>160</y>
+         <width>20</width>
+         <height>131</height>
+        </rect>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </widget>

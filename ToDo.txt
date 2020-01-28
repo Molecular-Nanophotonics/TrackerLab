@@ -1,1 +1,0 @@
-- Fix color scalebBug on start up
