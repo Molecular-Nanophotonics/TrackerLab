@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Discription: Template Module with Comments.
+Discription: Template module with detailed comments.
 Author(s):   M. Fränzl
 Data:        28/01/20
 """
@@ -26,9 +26,9 @@ class Module(QtWidgets.QWidget):
     def __init__(self):
         super().__init__(None)
         
-        moduleName = os.path.splitext(os.path.basename(__file__))[0] # The module name is defined by the filename
-        loadUi('Modules/' + moduleName + '.ui', self) # Load *.ui file with the same filename
-        self.iniFile = 'Modules/' + moduleName + '.ini' # Define the filename for the *.ini file  
+        moduleName = os.path.splitext(os.path.basename(__file__))[0] # The module name is defined by the nam of this file 
+        loadUi('Modules/' + moduleName + '.ui', self) # Load the *.ui file with the same filename
+        self.iniFile = 'Modules/' + moduleName + '.ini' # Define the filename for the *.ini file 
         
         # Connect the input widgets events to the "updated" event of the module. The widget names are defined in the *.ui file.
         self.thresholdSpinBox.valueChanged.connect(self.updated.emit)
@@ -39,16 +39,15 @@ class Module(QtWidgets.QWidget):
         self.p = plot # Get reference to the plot
         self.pc = pg.PlotCurveItem(pen=pg.mkPen('r', width=3), brush=pg.mkBrush(None), pxMode=False) # Create plot item for the overlay.
         self.p.addItem(self.pc) # Add the plot item to the plot  
-        ini.loadSettings(self.iniFile, self.widget) # restore stettings from the *.ini file   
+        ini.loadSettings(self.iniFile, self.widget) # Restore stettings from the *.ini file
         
     # The detach function is called when the module is deselected in the main application  
     def detach(self):
-        self.p.removeItem(self.pc) # remove the overlay
-        ini.saveSettings(self.iniFile, self.widget) # save stettings to the *.ini file   
+        self.p.removeItem(self.pc) # Remove the overlay
+        ini.saveSettings(self.iniFile, self.widget) # Save stettings to the *.ini file 
        
-
-    # This function is doing the actual feature detection.
-    # It requires the frame number and an image item as input parameters and needs to return a pandas DataFrame
+    # This function is responsible of the actual feature detection.
+    # It requires the frame number and an ImageItem as input parameters and needs to return a Pandas DataFrame
     def findFeatures(self, frame, imageItem):
         
         # Get values from the input widgets
@@ -57,11 +56,11 @@ class Module(QtWidgets.QWidget):
 
         # Get the image array from the ImageItem
         image = imageItem.image
-        # Detected features in the image
+        # Detected features in the image. Here we use the Difference of Gaussian (DoG) algorithm provided with the "skimage" package.
         mlist = blob_dog(image/image.max(), max_sigma=maxSigma, threshold=threshold/100)
         radii = mlist[:, 2]*np.sqrt(2)
     
-        # Save the detected features as pandas DataFrame
+        # Save the detected features as Pandas DataFrame
         features = pd.DataFrame()
         x, y = np.meshgrid(np.arange(0, image.shape[0], 1), np.arange(0, image.shape[1], 1))
         if mlist.size > 0:
@@ -78,9 +77,11 @@ class Module(QtWidgets.QWidget):
         
         # Draw the overlay
         if features.size > 0:
-            drawOverlay.circles(features.x.values, features.y.values, radii, self.pc) # Draw circles as overlay
+            drawOverlay.circles(features.x.values, features.y.values, radii, self.pc) # Draw circles around the detected features 
+            self.numberOfFeatures.setText(str(features.shape[0])) # Display the number of features in a text box
         else:
             self.pc.setData() # Remove overlay
-
+            self.numberOfFeatures.setText('0') # Set the displayed number of features to 0
+            
         # Return the features DataDrame
         return features

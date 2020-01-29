@@ -57,7 +57,7 @@ class Module(QtWidgets.QWidget):
         radii = mlist[:, 2]*np.sqrt(2)
     
         features = pd.DataFrame()
-        x, y = np.meshgrid(np.arange(0, image.shape[0], 1), np.arange(0, image.shape[1], 1))
+        x, y = np.meshgrid(np.arange(0, image.shape[1], 1), np.arange(0, image.shape[0], 1))
         if mlist.size > 0:
             for j in range(mlist.shape[0]):
                 mask = (((x - mlist[j, 1])**2 + (y - mlist[j, 0])**2) < (mlist[j, 2]*np.sqrt(2))**2).astype(int)
@@ -71,7 +71,9 @@ class Module(QtWidgets.QWidget):
         
         if features.size > 0:
             drawOverlay.circles(features.x.values, features.y.values, radii, self.pc)
+            self.numberOfFeatures.setText(str(features.shape[0]))
         else:
-            self.pc.setData() 
+            self.pc.setData()
+            self.numberOfFeatures.setText('0')
 
         return features

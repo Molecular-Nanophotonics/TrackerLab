@@ -101,9 +101,8 @@ class Module(QtWidgets.QWidget):
             drawOverlay.ellipses(features.x.values, features.y.values, features.minor_axis_length.values, features.major_axis_length.values, features.orientation.values, self.pc1, self.pc2)
             self.numberOfFeatures.setText(str(features.shape[0]))
         else:
-            self.numberOfFeatures.setText('0')
             self.pc1.setData() 
             self.pc2.setData()
-            
+            self.numberOfFeatures.setText('0')
    
         return features
