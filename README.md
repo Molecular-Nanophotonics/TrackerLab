@@ -27,8 +27,8 @@ The following extra packages are required:
 1. nptdms
 2. pyqtgraph
 
-The *FFmeg* binaries required for the Video Export function are included in this repository. If you have *FFmpeg* already installed TrackerLab will use this installation. <br>
-When using the binary on MacOS the acces permission might has to be changed by executing `chmod 777 ffmpeg` in the *FFmpeg* directory. 
+The FFmpeg binaries required for the Video Export function are included in this repository. If you have FFmpeg already installed, TrackerLab will use your installation. <br>
+When using the binary on MacOS the access permission might has to be changed by executing `chmod 777 ffmpeg` in the FFmpeg directory. 
 
 ## Instructions for Use
 
