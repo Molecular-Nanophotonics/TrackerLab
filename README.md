@@ -1,7 +1,6 @@
 # TrackerLab v2.2
 
-Martin Fränzl <br>
-Molecular Nanophotonics Group
+Martin Fränzl, Molecular Nanophotonics Group, Universität Leipzig
 
 ## Contents
 
