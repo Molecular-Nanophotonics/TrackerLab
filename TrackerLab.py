@@ -283,7 +283,6 @@ class Window(QMainWindow):
             
         self.tabIndex = 0
         self.modules[self.tabIndex].attach(self.p2)
-        self.modules[self.tabIndex].updated.connect(self.update)
         self.tabWidget.currentChanged.connect(self.tabIndexChanged) 
         
 
@@ -344,6 +343,7 @@ class Window(QMainWindow):
     def tabIndexChanged(self):
         self.modules[self.tabIndex].detach()        
         self.tabIndex = self.tabWidget.currentIndex()
+        self.modules[self.tabIndex].updated.connect(self.update)
         self.modules[self.tabIndex].attach(self.p2)
         self.update()
         
@@ -579,6 +579,7 @@ class Window(QMainWindow):
             self.displayedItemChanged(0)
             #self.frameSlider.setValue(0) # Here, self.update() is called
             #self.frameSlider.setMaximum(self.frames-1)
+            
             self.setEnabled(True)
             
             # Connect mouseMoved events

@@ -19,7 +19,9 @@ from PyQt5 import QtWidgets
 
 import pyqtgraph as pg
 
-from .utils import drawOverlay, ini
+from .utils import pgutils
+from .utils.settings import saveSettings, restoreSettings
+
 
 class Module(QtWidgets.QWidget):
 
@@ -30,7 +32,7 @@ class Module(QtWidgets.QWidget):
         
         moduleName = os.path.splitext(os.path.basename(__file__))[0]
         loadUi('Modules/' + moduleName + '.ui', self)
-        self.iniFile = 'Modules/' + moduleName + '.ini'
+        self.settingsFile = 'Modules/' + moduleName + '.ini'
         
         self.thresholdSpinBox.valueChanged.connect(self.updated.emit)  
         self.minAreaSpinBox.valueChanged.connect(self.updated.emit)  
@@ -41,17 +43,14 @@ class Module(QtWidgets.QWidget):
            
     def attach(self, plot):
         self.p = plot
-        self.pc1 = pg.PlotCurveItem(pen=pg.mkPen('b', width=3), brush=pg.mkBrush(None), pxMode=False)
-        self.pc2 = pg.PlotCurveItem(pen=pg.mkPen('r', width=3), brush=pg.mkBrush(None), pxMode=False)
-        self.p.addItem(self.pc1)
-        self.p.addItem(self.pc2)
-        ini.loadSettings(self.iniFile, self.widget)   
+        self.items = []
+        restoreSettings(self.settingsFile, self.widget)
         
         
     def detach(self):
-        self.p.removeItem(self.pc1)
-        self.p.removeItem(self.pc2)
-        ini.saveSettings(self.iniFile, self.widget)
+        for item in self.items:
+            self.p.removeItem(item) 
+        saveSettings(self.settingsFile, self.widget)
         
 
     def findFeatures(self, frame, imageItem):
@@ -91,12 +90,31 @@ class Module(QtWidgets.QWidget):
                                          'mean_intensity': region.mean_intensity,
                                          #'bbox': region.bbox,
                                          'frame': frame,}])
-            j += 1 # feature added
+            j += 1 # Feature added
         features.reset_index(drop=True, inplace = True)
         
         imageItem.setImage(thresholdImage)
         
-        # Draw overlay
+        # Remove overlay items
+        for item in self.items:
+            self.p.removeItem(item) 
+        self.items = []
+        # Draw new overlay
+        for i, f in features.iterrows():
+            self.items.append(pgutils.EllipseItem([f.x, f.y], f.minor_axis_length, f.major_axis_length, -np.degrees(f.orientation) + 90, color='r', width=2))
+            self.p.addItem(self.items[-1])
+            self.items.append(pgutils.LineItem([f.x, f.y], [f.x + 0.5*f.major_axis_length*np.cos(f.orientation), f.y - 0.5*f.major_axis_length*np.sin(f.orientation)], color='b', width=2))
+            self.p.addItem(self.items[-1])
+            self.items.append(pgutils.LineItem([f.x, f.y], [f.x + 0.5*f.minor_axis_length*np.sin(f.orientation), f.y + 0.5*f.minor_axis_length*np.cos(f.orientation)], color='b', width=2))
+            self.p.addItem(self.items[-1])
+            
+        if features.size > 0:
+            self.numberOfFeatures.setText(str(features.shape[0]))
+        else:
+            self.numberOfFeatures.setText('0')
+            
+
+        '''
         if features.size > 0:
             drawOverlay.ellipses(features.x.values, features.y.values, features.minor_axis_length.values, features.major_axis_length.values, features.orientation.values, self.pc1, self.pc2)
             self.numberOfFeatures.setText(str(features.shape[0]))
@@ -104,5 +122,6 @@ class Module(QtWidgets.QWidget):
             self.pc1.setData() 
             self.pc2.setData()
             self.numberOfFeatures.setText('0')
-   
+        '''
+        
         return features

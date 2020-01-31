@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1574</width>
+    <width>1540</width>
     <height>922</height>
    </rect>
   </property>
@@ -329,12 +329,6 @@
          <width>161</width>
          <height>111</height>
         </rect>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
        </property>
        <property name="text">
         <string/>
@@ -1022,7 +1016,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1574</width>
+     <width>1540</width>
      <height>21</height>
     </rect>
    </property>

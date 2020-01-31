@@ -17,7 +17,8 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5 import QtWidgets
 import pyqtgraph as pg
 
-from .utils import drawOverlay, ini
+from .utils import pgutils
+from .utils.settings import saveSettings, restoreSettings
 
 
 class Module(QtWidgets.QWidget):
@@ -29,7 +30,7 @@ class Module(QtWidgets.QWidget):
         
         moduleName = os.path.splitext(os.path.basename(__file__))[0]
         loadUi('Modules/' + moduleName + '.ui', self)
-        self.iniFile = 'Modules/' + moduleName + '.ini'
+        self.settingsFile = 'Modules/' + moduleName + '.ini'
         
         self.thresholdSpinBox.valueChanged.connect(self.updated.emit)
         self.maxSigmaSpinBox.valueChanged.connect(self.updated.emit)
@@ -37,14 +38,14 @@ class Module(QtWidgets.QWidget):
            
     def attach(self, plot):
         self.p = plot
-        self.pc = pg.PlotCurveItem(pen=pg.mkPen('r', width=3), brush=pg.mkBrush(None), pxMode=False)
-        self.p.addItem(self.pc)  
-        ini.loadSettings(self.iniFile, self.widget)   
+        self.items = []
+        restoreSettings(self.settingsFile, self.widget)
         
         
     def detach(self):
-        self.p.removeItem(self.pc) 
-        ini.saveSettings(self.iniFile, self.widget)
+        for item in self.items:
+            self.p.removeItem(item) 
+        saveSettings(self.settingsFile, self.widget)
        
 
     def findFeatures(self, frame, imageItem):
@@ -67,13 +68,19 @@ class Module(QtWidgets.QWidget):
                                              'area': 2*np.pi*mlist[j, 2]**2,
                                              'frame': frame,}])
         
-        imageItem.setImage(image)
+        #imageItem.setImage(image)
         
+        for item in self.items:
+            self.p.removeItem(item) 
+                
+        self.items = []
+        for i, f in features.iterrows():
+            self.items.append(pgutils.CircleItem([f.x, f.y], radii[i], color='r', width=2))
+            self.p.addItem(self.items[-1]) 
+            
         if features.size > 0:
-            drawOverlay.circles(features.x.values, features.y.values, radii, self.pc)
             self.numberOfFeatures.setText(str(features.shape[0]))
         else:
-            self.pc.setData()
             self.numberOfFeatures.setText('0')
 
         return features
