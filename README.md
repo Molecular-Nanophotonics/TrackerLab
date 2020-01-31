@@ -1,6 +1,6 @@
 # TrackerLab v2.2
 
-Martin Fränzl, Molecular Nanophotonics Group, Universität Leipzig
+*Martin Fränzl*, Molecular Nanophotonics Group, Universität Leipzig
 
 ## Contents
 
@@ -16,10 +16,6 @@ Martin Fränzl, Molecular Nanophotonics Group, Universität Leipzig
 
 This is the repository for the Molecular Nanophotonics TrackerLab. It is a modular GUI writen in Python for detecting features in digital microscopy images based on PyQt and PyQtGraph.
 
-## Sample Data
-
-A sample dataset for testing is available at: .`73/Sample Data`
-
 ## Installation Guide
 
 The TrackerLab supports Windows, Mac OS and Linux and requires the [Anaconda](https://www.anaconda.com/download/) framework with Python 3 to be installed. 
@@ -31,8 +27,7 @@ The following extra packages are required:
 1. nptdms
 2. pyqtgraph
 
-The FFmpeg binaries are included in this repository (>50MB!). On Ma OS the acces permission might has to be changed by exicuting > chmod 777 ffmpeg < in the terminal.
-(To use the Video Export function FFmpeg needs to be installed.)
+The FFmpeg binaries required for the Video Export function are included in this repository. If you have FFmpeg already installed, TrackerLab will use your installation instead.
 
 ## Instructions for Use
 
@@ -50,6 +45,10 @@ In the feature detection tab the detection method and the parameters can be sele
 
 Click `Batch` to process all files in the file list. Depending on the settings (`Edit > Settings`) the feature detection data will be stored as `*_features.csv` CSV file or as `*_features.h5` HDF5 file. See the [Jupyter-Notebooks](#jupyter-notebooks) section for more information on how to read the files in Jupyter-Notebooks. 
 
+## Sample Data
+
+A sample dataset for testing is available at: .`73/Sample Data`
+
 ## Jupyter Notebooks
 
 [Read_Features_Files.ipynb](https://github.com/Molecular-Nanophotonics/TrackerLab/blob/master/Jupyter-Notebooks/Read_Features_Files.ipynb) demonstates how to read the exported CSV and HDF5 feature files.
@@ -58,6 +57,6 @@ For more information on how to work with `*_feature` files and DataFrames in gen
 
 ## Adding New Feature Detection Tabs
 
-The software has a modular design making it easy to add new feature detection tabs. To add a new module tab, enter the `Modules` folder, copy the `Template.py` and `Template.ui` and rename them to your desired module name, e.g., `MyModule.py` and `MyModule.ui`. The new module will be automatically loaded when restarting the application. To learn how a module works, open the `MyModule.py` and read the comments. The `MyModule.ui` can be edited with the *Qt Designer* contained in your Anacoda installation.
+The software has a modular design making it easy to add new feature detection tabs. To add a new module tab, enter the `Modules` folder, copy the `Template.py` and `Template.ui` files and rename them to your desired module name, e.g., `MyModule.py` and `MyModule.ui`. The new module will be automatically loaded when restarting the application. To learn how a module works, open the `MyModule.py` and read the comments. The `MyModule.ui` can be edited with the *Qt Designer* contained in your Anacoda installation.
 
 
