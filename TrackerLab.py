@@ -51,8 +51,7 @@ modules_list = []
 for module_name in module_names:
     modules_list.append(importlib.import_module('Modules.' + module_name))
    
-        
-    
+
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
