@@ -39,7 +39,7 @@ class Module(QtWidgets.QWidget):
         self.maxAreaSpinBox.valueChanged.connect(self.updated.emit)
         self.invertCheckBox.stateChanged.connect(self.updated.emit)
         self.maxFeaturesSpinBox.valueChanged.connect(self.updated.emit)
-        
+        self.showOverlayCheckBox.stateChanged.connect(self.updated.emit)
            
     def attach(self, plot):
         self.p = plot
@@ -95,18 +95,20 @@ class Module(QtWidgets.QWidget):
         
         imageItem.setImage(thresholdImage)
         
-        # Remove overlay items
+        # Overlay
         for item in self.items:
             self.p.removeItem(item) 
         self.items = []
-        # Draw new overlay
-        for i, f in features.iterrows():
-            self.items.append(pgutils.EllipseItem([f.x, f.y], f.minor_axis_length, f.major_axis_length, -np.degrees(f.orientation) + 90, color='r', width=2))
-            self.p.addItem(self.items[-1])
-            self.items.append(pgutils.LineItem([f.x, f.y], [f.x + 0.5*f.major_axis_length*np.cos(f.orientation), f.y - 0.5*f.major_axis_length*np.sin(f.orientation)], color='b', width=2))
-            self.p.addItem(self.items[-1])
-            self.items.append(pgutils.LineItem([f.x, f.y], [f.x + 0.5*f.minor_axis_length*np.sin(f.orientation), f.y + 0.5*f.minor_axis_length*np.cos(f.orientation)], color='b', width=2))
-            self.p.addItem(self.items[-1])
+        if self.showOverlayCheckBox.checkState():
+            for i, f in features.iterrows():
+                x0 = f.x + 0.5
+                y0 = f.y + 0.5
+                self.items.append(pgutils.EllipseItem([x0, y0], f.minor_axis_length, f.major_axis_length, -np.degrees(f.orientation) + 90, color='r', width=2))
+                self.p.addItem(self.items[-1])
+                self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.major_axis_length*np.cos(f.orientation), y0 - 0.5*f.major_axis_length*np.sin(f.orientation)], color='b', width=2))
+                self.p.addItem(self.items[-1])
+                self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.minor_axis_length*np.sin(f.orientation), y0 + 0.5*f.minor_axis_length*np.cos(f.orientation)], color='b', width=2))
+                self.p.addItem(self.items[-1])
             
         if features.size > 0:
             self.numberOfFeatures.setText(str(features.shape[0]))

@@ -40,7 +40,7 @@ from nptdms import TdmsFile
 
 import subprocess as sp # for calling ffmpeg
 
-import ScaleBar
+from Utils import ScaleBar, Preferences, LineProfile
 
 import platform
 
@@ -51,57 +51,21 @@ modules_list = []
 for module_name in module_names:
     modules_list.append(importlib.import_module('Modules.' + module_name))
    
+        
     
-class Preferences(QDialog):
-    def __init__(self):
-        super().__init__(None,  QtCore.Qt.WindowCloseButtonHint)
-        
-        loadUi('Preferences.ui', self)
-        
-        self.okButton.clicked.connect(self.accept)
-        self.cancelButton.clicked.connect(self.reject)
-        
-
-class LineProfileWindow(QWidget):
-    
-    closed = QtCore.pyqtSignal()
-    
-    def __init__(self):
-        super().__init__()
-        
-        loadUi('LineProfileWindow.ui', self)
-        
-        gLayout = pg.GraphicsLayoutWidget()  
-        self.layout.addWidget(gLayout)   
-        self.p = gLayout.addPlot()
-        self.p.showAxis('top')
-        self.p.showAxis('right')
-        self.p.setLabels(left='Intensity', bottom='px')
-        self.p.getAxis('top').setStyle(showValues=False)
-        self.p.getAxis('right').setStyle(showValues=False)
-        self.p.getAxis('top').setHeight(10)
-        self.p.getAxis('right').setWidth(15)
-        
-    def closeEvent(self, e):
-        self.closed.emit()
-        e.accept()
-     
-    
-    
-        
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
         
         self.ui = loadUi('TrackerLab.ui', self)        
-        self.preferences = Preferences()
+        self.preferences = Preferences.PreferencesWindow()
 
         
         self.scaleBar1 = ScaleBar.ScaleBar();
         self.scaleBar2 = ScaleBar.ScaleBar();
     
         self.displayedIcon = QtGui.QIcon(QtGui.QPixmap("Resources/Circle.png")) 
-        ## draw the icon  
+        ## Draw the Icon   
         #pixmap = QtGui.QPixmap(32, 32)
         #pixmap.fill(QtCore.Qt.white)
         #painter = QtGui.QPainter(pixmap)
@@ -115,7 +79,11 @@ class Window(QMainWindow):
         else:
             print('Settings restored from "' + self.settings.fileName() + '"')
             
-        self.filterList = ['TDMS Files (*.tdms)', 'TIFF Files (*.tif)', 'MP4 Files (*.mp4)']
+        self.filterList = ['TDMS Files (*.tdms)', 
+                           'TIFF Files (*.tif)',
+                           'MP4 Files (*.mp4)', 
+                           'PNG Files (*.png)', 
+                           'JPG Files (*.jpg)']
         
         self.preferences.radioButtonHDF5.setChecked(self.hdf5)
         self.preferences.radioButtonCSV.setChecked(self.csv)
@@ -169,7 +137,7 @@ class Window(QMainWindow):
         pg.setConfigOption('foreground', 0.75)
         pg.setConfigOption('imageAxisOrder', 'row-major')
         
-        self.lineProfileWindow = LineProfileWindow()
+        self.lineProfileWindow = LineProfile.LineProfileWindow()
         self.lineProfileWindow.closed.connect(self.lineProfileWindowClosed)
         self.lineProfileWindow.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         self.lineProfileButton.clicked.connect(self.lineProfileButtonClicked)
@@ -283,6 +251,7 @@ class Window(QMainWindow):
             
         self.tabIndex = 0
         self.modules[self.tabIndex].attach(self.p2)
+        self.modules[self.tabIndex].updated.connect(self.update)
         self.tabWidget.currentChanged.connect(self.tabIndexChanged) 
         
 
@@ -303,13 +272,10 @@ class Window(QMainWindow):
         
         
     def lineProfileWindowClosed(self):
-        #(self.pos1, self.pos2), _ = self.lineSegmentROI.getArraySlice(self.images[self.frameSlider.value()].T, self.im1, returnSlice=False)
-
         self.p1.removeItem(self.lineSegmentROI)
         self.lineSegmentROI = 0
 
-       
-       
+          
     def mouseMoved(self, e):
         if self.p1.vb.sceneBoundingRect().contains(e):
             mousePoint = self.p1.vb.mapSceneToView(e)
@@ -322,8 +288,8 @@ class Window(QMainWindow):
             mousePoint = self.p2.vb.mapSceneToView(e)  
             x = int(mousePoint.x())
             y = int(mousePoint.y()) 
-            if x > 0 and x < self.processedImage.shape[1] and y > 0 and y < self.processedImage.shape[0]:
-                self.mouseLabel.setText("x = %d\ty = %d\t[%d]" % (x, y, self.processedImage[y, x]))
+            if x > 0 and x < self.im2.image.shape[1] and y > 0 and y < self.im2.image.shape[0]:
+                self.mouseLabel.setText("x = %d\ty = %d\t[%d]" % (x, y, self.im2.image[y, x]))
                 
             #vLine.setPos(mousePoint.x())
             #hLine.setPos(mousePoint.y())            
@@ -346,6 +312,7 @@ class Window(QMainWindow):
         self.modules[self.tabIndex].updated.connect(self.update)
         self.modules[self.tabIndex].attach(self.p2)
         self.update()
+        
         
     
     def softwareBinning(self, arr_in, binning):
@@ -552,13 +519,17 @@ class Window(QMainWindow):
         self.files, _ = QtWidgets.QFileDialog.getOpenFileNames(self, 'Select Files...', self.dir, ';;'.join(self.filterList), self.filterList[self.selectedFilter], options=options) # 'All Files (*)'
         if self.files:
             extension = os.path.splitext(self.files[0])[1]
+            #self.selectedFilter = self.filterList.index(extension)
             if extension == '.tdms':
                 self.selectedFilter = 0
             if extension == '.tif':
                 self.selectedFilter = 1
             if extension == '.mp4':
                 self.selectedFilter = 2
-            
+            if extension == '.png':
+                self.selectedFilter = 3
+            if extension == '.jpg':
+                self.selectedFilter = 4
         
     def selectFiles(self):
         
@@ -568,7 +539,7 @@ class Window(QMainWindow):
             self.fileList = []
             self.fileListWidget.clear()
             for file in self.files:
-                if fnmatch.fnmatch(file,'*_movie.tdms') or fnmatch.fnmatch(file,'*_video.tdms') or fnmatch.fnmatch(file,'*.tif') or fnmatch.fnmatch(file,'*.mp4'):
+                if fnmatch.fnmatch(file,'*_movie.tdms') or fnmatch.fnmatch(file,'*_video.tdms') or fnmatch.fnmatch(file,'*.tif') or fnmatch.fnmatch(file,'*.mp4')  or fnmatch.fnmatch(file,'*.png') or fnmatch.fnmatch(file,'*.jpg'):
                     self.fileList.append(file)
                     item = QtGui.QListWidgetItem(os.path.basename(file))
                     item.setToolTip(file)
@@ -602,10 +573,10 @@ class Window(QMainWindow):
                 
             self.dir = os.path.dirname(self.files[0])
             if os.path.isfile(self.dir + '/' + self.protocolFile):
-                self.infoLabel.setText(self.infoLabel.text() + '<br><br>' + '<a href=\"file:///' + self.dir + '/' + self.protocolFile + '\">Edit Protocol File</a>')
+                self.infoLabel.setText(self.infoLabel.text() + '<br>' + '<a href=\"file:///' + self.dir + '/' + self.protocolFile + '\">Edit Protocol File</a>')
                 self.infoLabel.setOpenExternalLinks(True)
             else:
-                self.infoLabel.setText(self.infoLabel.text() + '<br><br>'  + '<span style=\"color:#ff0000;\">No Protocol File Found</span>')
+                self.infoLabel.setText(self.infoLabel.text() + '<br>'  + '<span style=\"color:#ff0000;\">No Protocol File Found</span>')
                
             
     def appendFiles(self):
@@ -615,7 +586,7 @@ class Window(QMainWindow):
             self.selectFilesDialog()
             if self.files:
                 for file in self.files:
-                    if fnmatch.fnmatch(file, '*_movie.tdms') or fnmatch.fnmatch(file,'*_video.tdms') or fnmatch.fnmatch(file, '*.tif') or fnmatch.fnmatch(file,'*.mp4'):
+                    if fnmatch.fnmatch(file, '*_movie.tdms') or fnmatch.fnmatch(file,'*_video.tdms') or fnmatch.fnmatch(file, '*.tif') or fnmatch.fnmatch(file,'*.mp4') or fnmatch.fnmatch(file,'*.png') or fnmatch.fnmatch(file,'*.jpg'):
                         self.fileList.append(file) 
                         item = QtGui.QListWidgetItem(os.path.basename(file))
                         item.setToolTip(file)
@@ -654,21 +625,27 @@ class Window(QMainWindow):
         self.statusBar.showMessage('Loading: ' + os.path.basename(file))
         if extension == '.tdms':
             self.images = self.loadTDMSImages(file)
-            self.infoLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames) + '<br>' + 'Binning: ' + str(self.binning) + '<br>' + 'Exposure: ' + str(self.exposure) + ' s')
+            #self.infoLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames) + '<br>' + 'Binning: ' + str(self.binning) + '<br>' + 'Exposure: ' + str(self.exposure) + ' s')
         if extension == '.tif':
             self.images = self.loadTIFFStack(file)
             self.infoLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames))
         if extension == '.mp4':
             self.images = self.loadMP4Video(file)
+            self.infoLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames))    
+        if extension == '.png':
+            self.images = self.loadPNGImage(file)
             self.infoLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames))
-        
+        if extension == '.jpg':
+            self.images = self.loadJPGImage(file)
+            self.infoLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames))
+            
         if self.roiCheckBox.checkState():
             self.roiCheckBoxChanged()
         
         if self.maskCheckBox.checkState():
             self.maskCheckBoxChanged()
             
-        self.meanSeriesImage = np.mean(self.images,axis=(0)) # image series mean for background subtraction
+        #self.meanSeriesImage = np.mean(self.images,axis=(0)) # image series mean for background subtraction
         
         cmaxmax = np.max(self.images) 
         self.cminSlider.setMaximum(cmaxmax)
@@ -703,17 +680,48 @@ class Window(QMainWindow):
             self.roiChanged()
                      
         self.statusBar.showMessage('Ready')
-              
+    
+          
     def loadTDMSImages(self, file):
         tdms_file = TdmsFile(file)
+        info = ''
         p = tdms_file.object().properties
+        
         self.dimx = int(p['dimx'])
         self.dimy = int(p['dimy'])
         self.binning = int(p['binning'])
         self.frames = int(p['dimz'])
         self.exposure = float(p['exposure'].replace(',', '.'))
+
+        info += 'Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames) + '<br>'
+        info += 'Binning: ' + str(self.binning) + '<br>'
+        info += 'Exposure: ' + str(self.exposure) + ' s<br>'
+                                   
+        try:
+            self.kinetic_cycle = float(p['kinetic_cycle'].replace(',', '.'))
+            info += 'Kinetic Cycle: ' + str(self.kinetic_cycle) + ' s (' + '%.1f' % (1/self.kinetic_cycle) + ' fps)<br>'
+        except:
+            pass
+        try:
+            frame_transfer = int(p['frame_transfer'])
+            info += 'Frame Transfer: ' 
+            if frame_transfer:
+                info += 'On <br>'
+            else:
+                info += 'Off <br>'
+        except:
+            pass
+        try:
+            camera_model = p['camera_model']
+            info += 'Camera: ' + camera_model + '<br>'
+        except:
+            pass
+            
+        self.infoLabel.setText(info)
         images = tdms_file.channel_data('Image', 'Image')
+                
         return images.reshape(self.frames, self.dimy, self.dimx)
+    
          
     def loadTIFFStack(self, file):
         images = io.imread(file)
@@ -729,6 +737,27 @@ class Window(QMainWindow):
         self.frames = video.get_length()
         images = np.stack([video.get_data(i)[:,:,0] for i in range(self.frames)]) 
         return images
+    
+    def loadPNGImage(self, file):
+        images = io.imread(file)
+        self.dimx = images.shape[0]
+        self.dimy = images.shape[1]
+        #images = images.mean(axis=2)[np.newaxis,:,:]
+        images = images[:,:,0]
+        images = images[np.newaxis,:,:]
+        self.frames = 1
+        return images
+    
+    def loadJPGImage(self, file):
+        images = io.imread(file)
+        self.dimx = images.shape[0]
+        self.dimy = images.shape[1]
+        #images = images.mean(axis=2)[np.newaxis,:,:]
+        images = images[:,:,0]
+        images = images[np.newaxis,:,:]
+        self.frames = 1
+        return images
+    
     
     def batchButtonClicked(self):
         self.setEnabled(False)

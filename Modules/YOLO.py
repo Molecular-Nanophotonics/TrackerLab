@@ -37,13 +37,15 @@ class Module(QtWidgets.QWidget):
         self.settingsFile = 'Modules/' + moduleName + '.ini'
         
         self.enabled = False
+        self.objThresholdSpinBox.setEnabled(False)
+        self.nmsThresholdSpinBox.setEnabled(False)
         self.color_list = ['c', 'y', 'm', 'g', 'b']
         
-        #self.openFileDialogButton.setIcon(self.openFileDialogButton.style().standardIcon(QStyle.SP_BrowserReload))
         self.openFileDialogButton.clicked.connect(self.openFileDialog)
         self.objThresholdSpinBox.valueChanged.connect(self.updated.emit)
         self.nmsThresholdSpinBox.valueChanged.connect(self.updated.emit)
-        
+        self.showOverlayCheckBox.stateChanged.connect(self.updated.emit)
+
         
     def openFileDialog(self):
         options = QtWidgets.QFileDialog.DontUseNativeDialog 
@@ -86,13 +88,19 @@ class Module(QtWidgets.QWidget):
         # If no error ... 
         self.lineEdit.setText(pbFile)   
         self.enabled = True
+        self.objThresholdSpinBox.setEnabled(True)
+        self.nmsThresholdSpinBox.setEnabled(True)
         self.updated.emit()    
         
         
     def attach(self, plot):
         self.p = plot
         self.items = []
+        self.enabled = False
+        self.objThresholdSpinBox.setEnabled(False)
+        self.nmsThresholdSpinBox.setEnabled(False)
         restoreSettings(self.settingsFile, self.widget)
+        self.numberOfFeatures.setText('0')
         #if os.path.isfile(self.lineEdit.text()):
         #    self.loadModel(self.lineEdit.text())
         #else:
@@ -123,29 +131,39 @@ class Module(QtWidgets.QWidget):
             output = self.session.run(self.output_tensor, {'import/' + self.INPUT_NODE_NAME + ':0': input_tensor}) # run model
             bboxes = decode_output(output[0], self.ANCHORS, self.CLASSES, OBJ_THRESHOLD, NMS_THRESHOLD) # decode output tensor
             
-            for item in self.items:
-                self.p.removeItem(item) 
-                
-            self.items = []
             for bbox in bboxes:
                 xmin = bbox.xmin*dimx
                 ymin = bbox.ymin*dimy
                 xmax = bbox.xmax*dimx
                 ymax = bbox.ymax*dimy
                 class_idx = bbox.get_label()
-                item = pgutils.RectangleItem([xmin, ymin], [xmax - xmin , ymax - ymin], self.color_list[class_idx], width=2)
-                self.items.append(item)
-                self.p.addItem(item)   
+                features = features.append([{'x': 0.5*(xmin + xmax),
+                                             'y': 0.5*(ymin + ymax),
+                                             'xmin': xmin, 
+                                             'ymin': ymin,
+                                             'xmax': xmax,
+                                             'ymax': ymax,
+                                             'w': xmax - xmin,
+                                             'h': ymax - ymin,
+                                             'class_idx': class_idx,
+                                             'frame': frame,}])
+    
+            for item in self.items:
+                self.p.removeItem(item) 
+            self.items = []
+            if self.showOverlayCheckBox.checkState():
+                for i, f in features.iterrows():
+                    item = pgutils.RectangleItem([f.xmin, f.ymin], [f.w, f.h], self.color_list[int(f.class_idx)], width=2)
+                    self.items.append(item)
+                    self.p.addItem(item)   
         
             #imageItem.setImage(image)
         
-            '''
             if features.size > 0:
-                drawOverlay.circles(features.x.values, features.y.values, radii, self.pc)
                 self.numberOfFeatures.setText(str(features.shape[0]))
             else:
                 self.pc.setData()
                 self.numberOfFeatures.setText('0')
-            '''
+            
 
         return features

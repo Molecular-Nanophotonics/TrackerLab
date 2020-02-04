@@ -34,7 +34,7 @@ class Module(QtWidgets.QWidget):
         
         self.thresholdSpinBox.valueChanged.connect(self.updated.emit)
         self.maxSigmaSpinBox.valueChanged.connect(self.updated.emit)
-        
+        self.showOverlayCheckBox.stateChanged.connect(self.updated.emit)
            
     def attach(self, plot):
         self.p = plot
@@ -72,11 +72,12 @@ class Module(QtWidgets.QWidget):
         
         for item in self.items:
             self.p.removeItem(item) 
-                
         self.items = []
-        for i, f in features.iterrows():
-            self.items.append(pgutils.CircleItem([f.x, f.y], radii[i], color='r', width=2))
-            self.p.addItem(self.items[-1]) 
+        
+        if self.showOverlayCheckBox.checkState():
+            for i, f in features.iterrows():
+                self.items.append(pgutils.CircleItem([f.x+0.5, f.y+0.5], radii[i], color='r', width=2))
+                self.p.addItem(self.items[-1]) 
             
         if features.size > 0:
             self.numberOfFeatures.setText(str(features.shape[0]))
