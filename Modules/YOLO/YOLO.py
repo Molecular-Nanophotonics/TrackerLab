@@ -20,10 +20,10 @@ import pyqtgraph as pg
 import tensorflow as tf
 import configparser
             
-from .utils import pgutils
-from .utils.settings import saveSettings, restoreSettings
+from ..Utils import pgutils
+from ..Utils.settings import saveSettings, restoreSettings
 
-from .utils.YOLO import decode_output
+from .utils import decode_output
 
 class Module(QtWidgets.QWidget):
 
@@ -32,9 +32,8 @@ class Module(QtWidgets.QWidget):
     def __init__(self):
         super().__init__(None)
         
-        moduleName = os.path.splitext(os.path.basename(__file__))[0]
-        loadUi('Modules/' + moduleName + '.ui', self)
-        self.settingsFile = 'Modules/' + moduleName + '.ini'
+        loadUi(os.path.splitext(os.path.relpath(__file__))[0] + '.ui', self)
+        self.settingsFile = os.path.splitext(os.path.relpath(__file__))[0] + '.ini'
         
         self.enabled = False
         self.objThresholdSpinBox.setEnabled(False)

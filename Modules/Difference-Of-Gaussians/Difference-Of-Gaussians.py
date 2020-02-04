@@ -17,8 +17,8 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5 import QtWidgets
 import pyqtgraph as pg
 
-from .utils import pgutils
-from .utils.settings import saveSettings, restoreSettings
+from ..Utils import pgutils
+from ..Utils.settings import saveSettings, restoreSettings
 
 
 class Module(QtWidgets.QWidget):
@@ -28,9 +28,8 @@ class Module(QtWidgets.QWidget):
     def __init__(self):
         super().__init__(None)
         
-        moduleName = os.path.splitext(os.path.basename(__file__))[0]
-        loadUi('Modules/' + moduleName + '.ui', self)
-        self.settingsFile = 'Modules/' + moduleName + '.ini'
+        loadUi(os.path.splitext(os.path.relpath(__file__))[0] + '.ui', self)
+        self.settingsFile = os.path.splitext(os.path.relpath(__file__))[0] + '.ini'
         
         self.thresholdSpinBox.valueChanged.connect(self.updated.emit)
         self.maxSigmaSpinBox.valueChanged.connect(self.updated.emit)
