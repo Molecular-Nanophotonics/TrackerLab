@@ -49,7 +49,7 @@ class Module(QtWidgets.QWidget):
     def openFileDialog(self):
         options = QtWidgets.QFileDialog.DontUseNativeDialog 
         
-        file, _ = QtWidgets.QFileDialog.getOpenFileNames(self, 'Load YOLO Model...',  os.path.dirname(os.path.realpath(__file__)) + '\\utils\Models', 'Protocol Buffer File (*.pb)', 'Protocol Buffer File (*.pb)', options=options) # 'All Files (*)'
+        file, _ = QtWidgets.QFileDialog.getOpenFileNames(self, 'Load YOLO Model...',  os.path.dirname(os.path.realpath(__file__)) + '/Models', 'Protocol Buffer File (*.pb)', 'Protocol Buffer File (*.pb)', options=options) # 'All Files (*)'
         
         if file:
             self.loadModel(file[0])

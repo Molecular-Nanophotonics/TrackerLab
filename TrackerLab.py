@@ -47,14 +47,14 @@ import platform
 import importlib
 
 
-module_names = []
+moduleNames = []
 for m in os.listdir('Modules'):
     if os.path.isdir(os.path.join('Modules', m)) and m != 'Utils' and m != 'Template' and m != '__pycache__':
-       module_names.append(m)
+       moduleNames.append(m)
                
-modules_list = []
-for module_name in module_names:
-    modules_list.append(importlib.import_module('Modules.' + module_name + '.' + module_name))
+moduleList = []
+for moduleName in moduleNames:
+    moduleList.append(importlib.import_module('Modules.' + moduleName + '.' + moduleName))
 
 class Window(QMainWindow):
     def __init__(self):
@@ -82,11 +82,11 @@ class Window(QMainWindow):
         else:
             print('Settings restored from "' + self.settings.fileName() + '"')
             
-        self.filterList = ['TDMS Files (*.tdms)', 
+        self.filterList = ['TDMS Video Files (*_video.tdms *_movie.tdms)', # *_movie.tdms is kept for backward compatibility 
                            'TIFF Files (*.tif)',
-                           'MP4 Files (*.mp4)', 
-                           'PNG Files (*.png)', 
-                           'JPG Files (*.jpg)']
+                           'MP4 Video (*.mp4)', 
+                           'PNG Image (*.png)', 
+                           'JPG Image (*.jpg, *.jpeg)']
         
         self.preferences.radioButtonHDF5.setChecked(self.hdf5)
         self.preferences.radioButtonCSV.setChecked(self.csv)
@@ -246,16 +246,21 @@ class Window(QMainWindow):
         
         # Setup the "Modules" tab widget
         self.modules = []
-        for module in modules_list:
+        for module in moduleList:
             self.modules.append(module.Module())
+        
+        for module, moduleName in zip(self.modules, moduleNames):
+            self.modulesComboBox.addItem(moduleName)
+            self.moduleLayout.addWidget(module.widget)
+            module.widget.hide()
             
-        for module, module_name in zip(self.modules, module_names):
-            self.tabWidget.addTab(module.widget, module_name)
-            
-        self.tabIndex = 0
-        self.modules[self.tabIndex].attach(self.p2)
-        self.modules[self.tabIndex].updated.connect(self.update)
-        self.tabWidget.currentChanged.connect(self.tabIndexChanged) 
+        self.moduleIndex = 0
+        self.modules[self.moduleIndex].widget.show()
+        self.modulesComboBox.currentIndexChanged.connect(self.moduleIndexChanged) 
+
+        self.modules[self.moduleIndex].attach(self.p2)
+        self.modules[self.moduleIndex].updated.connect(self.update)
+
         
 
     def lineProfileButtonClicked(self):       
@@ -309,11 +314,13 @@ class Window(QMainWindow):
     
     
         
-    def tabIndexChanged(self):
-        self.modules[self.tabIndex].detach()        
-        self.tabIndex = self.tabWidget.currentIndex()
-        self.modules[self.tabIndex].updated.connect(self.update)
-        self.modules[self.tabIndex].attach(self.p2)
+    def moduleIndexChanged(self):
+        self.modules[self.moduleIndex].detach()
+        self.modules[self.moduleIndex].widget.hide()
+        self.moduleIndex = self.modulesComboBox.currentIndex()
+        self.modules[self.moduleIndex].widget.show()
+        self.modules[self.moduleIndex].updated.connect(self.update)
+        self.modules[self.moduleIndex].attach(self.p2)
         self.update()
         
         
@@ -366,7 +373,7 @@ class Window(QMainWindow):
         features = pd.DataFrame()
         if self.featureDetectionCheckBox.checkState():
             self.im2.setImage(self.processedImage)
-            features = self.modules[self.tabIndex].findFeatures(self.frameSlider.value(), self.im2)
+            features = self.modules[self.moduleIndex].findFeatures(self.frameSlider.value(), self.im2)
         else:
             if self.scalingComboBox.currentIndex() == 0:
                 self.im2.setImage(self.processedImage)
@@ -1038,7 +1045,7 @@ class Window(QMainWindow):
     def saveSettings(self):
         
         self.settings.setValue('Dir', self.dir)
-        self.settings.setValue('TabIndex', self.tabWidget.currentIndex())
+        self.settings.setValue('TabIndex', self.modulesComboBox.currentIndex())
         self.settings.setValue('TrackingState', self.featureDetectionCheckBox.checkState())
         self.settings.setValue('SelectedFilter', self.selectedFilter)
         self.settings.setValue('Pre-Processing/softwareBinning', self.softwareBinningSpinBox.value())
@@ -1080,7 +1087,7 @@ class Window(QMainWindow):
             self.dir = self.settings.value('Dir', '.')
             self.selectedFilter = int(self.settings.value('SelectedFilter', '0'))
             self.featureDetectionCheckBox.setCheckState(int(self.settings.value('TrackingState', '2')))
-            self.tabWidget.setCurrentIndex(int(self.settings.value('TabIndex', '0'))) 
+            #self.tabWidget.setCurrentIndex(int(self.settings.value('TabIndex', '0'))) 
             self.softwareBinningSpinBox.setValue(int(self.settings.value('Pre-Processing/softwareBinning', '1')))
             self.subtractMeanCheckBox.setCheckState(int(self.settings.value('Pre-Processing/subtractMeanState', '0')))
             self.medianCheckBox.setCheckState(int(self.settings.value('Pre-Processing/medianState', '0')))
@@ -1166,7 +1173,8 @@ class Window(QMainWindow):
             self.endFrameSpinBox.setEnabled(False)
         self.featureDetectionCheckBox.setEnabled(state)
         if self.featureDetectionCheckBox.checkState:
-            self.tabWidget.setEnabled(True)
+            self.modulesComboBox.setEnabled(True)
+            self.moduleFrame.setEnabled(True)
         self.removeFilesButton.setEnabled(state)
         self.lineProfileButton.setEnabled(state)
         self.scaleBar1CheckBox.setEnabled(state)
