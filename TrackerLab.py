@@ -86,7 +86,7 @@ class Window(QMainWindow):
                            'TIFF Files (*.tif)',
                            'MP4 Video (*.mp4)', 
                            'PNG Image (*.png)', 
-                           'JPG Image (*.jpg, *.jpeg)']
+                           'JPG Image (*.jpg *.jpeg)']
         
         self.preferences.radioButtonHDF5.setChecked(self.hdf5)
         self.preferences.radioButtonCSV.setChecked(self.csv)
@@ -304,11 +304,11 @@ class Window(QMainWindow):
 
     def featureDetectionCheckBoxChanged(self):
         if self.featureDetectionCheckBox.checkState():
-            self.modules[self.tabIndex].attach(self.p2)
-            self.tabWidget.setEnabled(True)
+            self.modules[self.moduleIndex].attach(self.p2)
+            self.moduleFrame.setEnabled(True)
         else:
-            self.modules[self.tabIndex].detach()
-            self.tabWidget.setEnabled(False)
+            self.modules[self.moduleIndex].detach()
+            self.moduleFrame.setEnabled(False)
             self.im2.setLookupTable(self.colormaps[self.colormapComboBox.currentIndex()])
         self.update()
     
@@ -1172,8 +1172,8 @@ class Window(QMainWindow):
             self.startFrameSpinBox.setEnabled(False)
             self.endFrameSpinBox.setEnabled(False)
         self.featureDetectionCheckBox.setEnabled(state)
-        if self.featureDetectionCheckBox.checkState:
-            self.modulesComboBox.setEnabled(True)
+        self.modulesComboBox.setEnabled(state)
+        if self.featureDetectionCheckBox.checkState():
             self.moduleFrame.setEnabled(True)
         self.removeFilesButton.setEnabled(state)
         self.lineProfileButton.setEnabled(state)
