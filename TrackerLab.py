@@ -437,6 +437,7 @@ class Window(QMainWindow):
             
             self.maskLabel.setText("<font color='#ff0000'>Mask: (%d, %d) (%d, %d)</font>" % (self.maskX, self.maskY, self.maskW, self.maskH))
             
+                                   
     def roiCheckBoxChanged(self):
         # If the ROI bounds are larger than the image set ROI to the size of the image (This might be the case if a smaller image displayed) 
         if self.roiX > self.dimx or self.roiX + self.roiW > self.dimx or self.roiY > self.dimy or self.roiY + self.roiH > self.dimy:

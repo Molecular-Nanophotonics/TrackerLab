@@ -17,7 +17,11 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5 import QtWidgets
 import pyqtgraph as pg
 
-import tensorflow as tf
+try:
+	import tensorflow as tf
+except:
+	print('Error Importing TensorFlow.')
+	
 import configparser
             
 from ..Utils import pgutils
