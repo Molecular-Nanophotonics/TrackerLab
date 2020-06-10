@@ -46,7 +46,6 @@ import platform
 
 import importlib
 
-
 moduleNames = []
 for m in os.listdir('Modules'):
     if os.path.isdir(os.path.join('Modules', m)) and m != 'Utils' and m != 'Template' and m != '__pycache__':
@@ -567,8 +566,8 @@ class Window(QMainWindow):
             self.p1.scene().sigMouseMoved.connect(self.mouseMoved)   
             self.p2.getViewBox().scene().sigMouseMoved.connect(self.mouseMoved)
         
-            if not self.featureDetectionCheckBox.checkState():
-                self.tabWidget.setEnabled(False)
+            #if not self.featureDetectionCheckBox.checkState():
+            #    self.tabWidget.setEnabled(False)
             
             if self.exposure:
                 self.framerateSpinBox.setValue(1/self.exposure)
@@ -825,8 +824,8 @@ class Window(QMainWindow):
                 metadata['roiW'] = int(self.roiW)
                 metadata['roiH'] = int(self.roiH)
             
-            metadata['method'] = self.tabWidget.tabText(self.tabIndex)
-            for obj in self.tabWidget.currentWidget().findChildren(QtGui.QWidget):
+            metadata['module'] = self.modulesComboBox.currentText()
+            for obj in self.modules[self.moduleIndex].widget.findChildren(QWidget): #self.tabWidget.currentWidget().findChildren(QtGui.QWidget):
                 if obj.metaObject().className() == 'QSpinBox':
                     metadata[obj.objectName()] = obj.value();   
                 if obj.metaObject().className() == 'QCheckBox':

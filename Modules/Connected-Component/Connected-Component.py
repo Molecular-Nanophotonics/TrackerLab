@@ -96,7 +96,7 @@ class Module(QtWidgets.QWidget):
         
         # Overlay
         for item in self.items:
-            self.p.removeItem(item) 
+            self.p.removeItem(item)
         self.items = []
         if self.showOverlayCheckBox.checkState():
             for i, f in features.iterrows():
