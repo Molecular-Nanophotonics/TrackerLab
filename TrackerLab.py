@@ -694,19 +694,19 @@ class Window(QMainWindow):
           
     def loadTDMSImages(self, file):
         tdms_file = TdmsFile(file)
-        info = ''
-        p = tdms_file.object().properties
-        
+
+        p = tdms_file.properties # tdms_file.object().properties
         self.dimx = int(p['dimx'])
         self.dimy = int(p['dimy'])
         self.binning = int(p['binning'])
         self.frames = int(p['dimz'])
         self.exposure = float(p['exposure'].replace(',', '.'))
 
+        info = ''
         info += 'Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames) + '<br>'
         info += 'Binning: ' + str(self.binning) + '<br>'
         info += 'Exposure: ' + str(self.exposure) + ' s<br>'
-                                   
+        
         try:
             self.kinetic_cycle = float(p['kinetic_cycle'].replace(',', '.'))
             info += 'Kinetic Cycle: ' + str(self.kinetic_cycle) + ' s (' + '%.1f' % (1/self.kinetic_cycle) + ' fps)<br>'
@@ -728,7 +728,7 @@ class Window(QMainWindow):
             pass
             
         self.infoLabel.setText(info)
-        images = tdms_file.channel_data('Image', 'Image')
+        images = tdms_file['Image']['Image'].data # tdms_file.channel_data('Image', 'Image')
                 
         return images.reshape(self.frames, self.dimy, self.dimx)
     
