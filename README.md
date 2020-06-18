@@ -57,6 +57,6 @@ For more information on how to work with `*_feature` files and DataFrames in gen
 
 ## Adding New Feature Detection Tabs
 
-The software has a modular design making it easy to add new feature detection tabs. To add a new module tab, enter the `Modules` folder, copy the `Template.py` and `Template.ui` files and rename them to your desired module name, e.g., `MyModule.py` and `MyModule.ui`. The new module will be automatically loaded when restarting the application. To learn how a module works, open the `MyModule.py` and read the comments. The `MyModule.ui` can be edited with the *Qt Designer* contained in your Anacoda installation.
+The software has a modular design making it easy to add new feature detection tabs. To add a new module tab, enter the `MODULES` directory, copy the `Template` folder and rename it to your desired module name, e.g., `MyModule`. Then, enter the `MyModule` folder and rename the `Template.py` and `Template.ui` files accordingly, i.e., `MyModule.py` and `MyModule.ui`. The new module will be automatically loaded when restarting the application. To learn how a module works, open the `MyModule.py` and read the comments. The `MyModule.ui` can be edited with the *Qt Designer* contained in your Anacoda installation.
 
 
