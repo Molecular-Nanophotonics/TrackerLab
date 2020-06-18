@@ -57,7 +57,7 @@ For more information on how to work with `*_feature` files and DataFrames in gen
 
 ## Adding New Feature Detection Tabs
 
-The software has a modular design making it easy to add new feature detection tabs. To add a new module tab, enter `MODULES` and copy the `Template` directory. Then, rename the directory as well as the file within the directory according to your module name, e.g., `MyModule`:
+The software has a modular design making it easy to add new feature detection tabs. To add a new module tab, enter `MODULES` and copy the `Template` directory. Then, rename the directory as well as the files within the directory according to your module name, e.g., `MyModule`:
 ```
 ---MODULES
    ...
