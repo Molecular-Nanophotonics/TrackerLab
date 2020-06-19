@@ -102,11 +102,11 @@ class Module(QtWidgets.QWidget):
             for i, f in features.iterrows():
                 x0 = f.x + 0.5
                 y0 = f.y + 0.5
-                self.items.append(pgutils.EllipseItem([x0, y0], f.minor_axis_length, f.major_axis_length, -np.degrees(f.orientation) + 90, color='r', width=2))
+                self.items.append(pgutils.EllipseItem([x0, y0], f.minor_axis_length, f.major_axis_length, -np.degrees(f.orientation), color='r', width=2))
                 self.p.addItem(self.items[-1])
-                self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.major_axis_length*np.cos(f.orientation), y0 - 0.5*f.major_axis_length*np.sin(f.orientation)], color='b', width=2))
+                self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.minor_axis_length*np.cos(f.orientation), y0 - 0.5*f.minor_axis_length*np.sin(f.orientation)], color='b', width=2))
                 self.p.addItem(self.items[-1])
-                self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.minor_axis_length*np.sin(f.orientation), y0 + 0.5*f.minor_axis_length*np.cos(f.orientation)], color='b', width=2))
+                self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.major_axis_length*np.sin(f.orientation), y0 + 0.5*f.major_axis_length*np.cos(f.orientation)], color='b', width=2))
                 self.p.addItem(self.items[-1])
             
         if features.size > 0:
