@@ -694,8 +694,10 @@ class Window(QMainWindow):
           
     def loadTDMSImages(self, file):
         tdms_file = TdmsFile(file)
-
-        p = tdms_file.properties # tdms_file.object().properties
+        try:
+            p = tdms_file.properties # tdms_file.object().properties
+        except:
+            p = tdms_file.object().properties
         self.dimx = int(p['dimx'])
         self.dimy = int(p['dimy'])
         self.binning = int(p['binning'])
@@ -728,8 +730,11 @@ class Window(QMainWindow):
             pass
             
         self.infoLabel.setText(info)
-        images = tdms_file['Image']['Image'].data # tdms_file.channel_data('Image', 'Image')
-                
+        try:
+            images = tdms_file['Image']['Image'].data # tdms_file.channel_data('Image', 'Image')
+        except:
+            images = tdms_file.channel_data('Image', 'Image')
+            
         return images.reshape(self.frames, self.dimy, self.dimx)
     
          
