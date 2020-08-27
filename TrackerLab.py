@@ -1156,8 +1156,8 @@ class Window(QMainWindow):
         self.im1.clear()
         self.im2.clear()
         #self.sp1.clear()
-        self.lp1.clear()
-        self.lp2.clear()
+        self.p1.clear()
+        self.p2.clear()
         
     def setEnabled(self, state):
         self.fileListWidget.setEnabled(state)
