@@ -50,6 +50,7 @@ class Module(QtWidgets.QWidget):
     def detach(self):
         for item in self.items:
             self.p.removeItem(item) 
+            del item
         saveSettings(self.settingsFile, self.widget)
        
 
@@ -81,7 +82,8 @@ class Module(QtWidgets.QWidget):
             imageItem.setImage(edges.astype('int'))
         
         for item in self.items:
-            self.p.removeItem(item)          
+            self.p.removeItem(item) 
+            del item
         self.items = [] 
         
         if self.showOverlayCheckBox.checkState():

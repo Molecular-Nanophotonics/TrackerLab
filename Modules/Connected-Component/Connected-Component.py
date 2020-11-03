@@ -48,7 +48,8 @@ class Module(QtWidgets.QWidget):
         
     def detach(self):
         for item in self.items:
-            self.p.removeItem(item) 
+            self.p.removeItem(item)
+            del item
         saveSettings(self.settingsFile, self.widget)
         
 
@@ -97,6 +98,7 @@ class Module(QtWidgets.QWidget):
         # Overlay
         for item in self.items:
             self.p.removeItem(item)
+            del item
         self.items = []
         if self.showOverlayCheckBox.checkState():
             for i, f in features.iterrows():
@@ -113,16 +115,5 @@ class Module(QtWidgets.QWidget):
             self.numberOfFeatures.setText(str(features.shape[0]))
         else:
             self.numberOfFeatures.setText('0')
-            
-
-        '''
-        if features.size > 0:
-            drawOverlay.ellipses(features.x.values, features.y.values, features.minor_axis_length.values, features.major_axis_length.values, features.orientation.values, self.pc1, self.pc2)
-            self.numberOfFeatures.setText(str(features.shape[0]))
-        else:
-            self.pc1.setData() 
-            self.pc2.setData()
-            self.numberOfFeatures.setText('0')
-        '''
         
         return features

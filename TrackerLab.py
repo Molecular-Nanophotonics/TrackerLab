@@ -546,6 +546,13 @@ class Window(QMainWindow):
         self.selectFilesDialog()
         
         if self.files:
+            
+            if not self.fileList:
+                self.modules[self.moduleIndex].attach(self.p2)
+                #self.modules[self.moduleIndex].updated.connect(self.update)
+                self.p1.scene().sigMouseMoved.connect(self.mouseMoved)   
+                self.p2.getViewBox().scene().sigMouseMoved.connect(self.mouseMoved)
+                
             self.fileList = []
             self.fileListWidget.clear()
             for file in self.files:
@@ -563,10 +570,6 @@ class Window(QMainWindow):
             
             self.setEnabled(True)
             
-            # Connect mouseMoved events
-            self.p1.scene().sigMouseMoved.connect(self.mouseMoved)   
-            self.p2.getViewBox().scene().sigMouseMoved.connect(self.mouseMoved)
-        
             #if not self.featureDetectionCheckBox.checkState():
             #    self.tabWidget.setEnabled(False)
             
@@ -604,18 +607,32 @@ class Window(QMainWindow):
                 
                 
     def removeFiles(self):
+        displayedItemDeleted = False
         for item in self.fileListWidget.selectedItems():
             if item == self.displayedItem:
-                self.clearGraphs()
+                displayedItemDeleted = True
             del self.fileList[self.fileListWidget.row(item)]
             self.fileListWidget.takeItem(self.fileListWidget.row(item))
 
-        if not self.fileList:
-            self.clearGraphs()
-            self.infoLabel.clear()
-            self.cminSlider.setValue(0)
-            self.cmaxSlider.setValue(0)
-            self.setEnabled(False)
+        if displayedItemDeleted:
+            if self.fileList:
+                item = self.fileListWidget.item(0)
+                item.setIcon(self.displayedIcon)
+                self.displayedItem = item
+                self.displayedItemChanged(0)
+            else:
+                self.im1.clear()
+                self.im2.clear()
+                self.p1.scene().sigMouseMoved.disconnect(self.mouseMoved)   
+                self.p2.getViewBox().scene().sigMouseMoved.disconnect(self.mouseMoved)
+                self.modules[self.moduleIndex].detach()
+                #self.modules[self.moduleIndex].updated.disconnect(self.update)
+                self.mouseLabel.setText("x = 0\ty = 0\t[0]")
+                self.infoLabel.clear()
+                self.cminSlider.setValue(0)
+                self.cmaxSlider.setValue(0)
+                self.setEnabled(False)                
+                
             
        # print(self.fileList)            
     
