@@ -213,8 +213,8 @@ class Module(QtWidgets.QWidget):
                 x, y, phi = Track_single_JP(intensityImage[minYi:maxYi,minXi:maxXi])
                 crescent_width = Crescent_width(intensityImage[minYi:maxYi,minXi:maxXi], x, y, Crescent_ratio)
                 
-                features = features.append([{'y': x + minYi, # go bak to full image cords
-                                   'x': y + minXi,
+                features = features.append([{'x': x + minYi, # go bak to full image cords
+                                   'y': y + minXi,
                                    #'COM_x': orient_x + minYi, 
                                    #'COM_y': orient_y + minXi,
                                    'phi': phi,
@@ -237,8 +237,8 @@ class Module(QtWidgets.QWidget):
                 masked_images = Make_separated_JP_images(x = x_com-minXi, y = y_com-minYi, phi = orientation_pair, image = intensityImage[minYi:maxYi,minXi:maxXi])
                 for masked_image in masked_images:
                     x, y, phi = Track_single_JP(masked_image)
-                    features = features.append([{'y': x + minYi, # go bak to full image cords
-                                       'x': y + minXi,
+                    features = features.append([{'x': x + minYi, # go bak to full image cords
+                                       'y': y + minXi,
                                        'phi': phi,
                                        'minor_axis_length': region.minor_axis_length,
                                        'major_axis_length': region.major_axis_length,
@@ -290,12 +290,12 @@ class Module(QtWidgets.QWidget):
         self.items = []
         if self.showOverlayCheckBox.checkState():
             for i, f in features.iterrows():
-                x0 = f.x + 0.5
-                y0 = f.y + 0.5
+                x0 = f.y + 0.5
+                y0 = f.x + 0.5
                 self.items.append(pgutils.EllipseItem([x0, y0], f.minor_axis_length, f.major_axis_length, -np.degrees(f.phi), color='r', width=2))
                 self.p.addItem(self.items[-1])
-                self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.minor_axis_length*np.cos(f.phi), y0 - 0.5*f.minor_axis_length*np.sin(f.phi)], color='r', width=2))
-                self.p.addItem(self.items[-1])
+                #self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.minor_axis_length*np.cos(f.phi), y0 - 0.5*f.minor_axis_length*np.sin(f.phi)], color='r', width=2))
+                #self.p.addItem(self.items[-1])
                 self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.major_axis_length*np.sin(f.phi), y0 + 0.5*f.major_axis_length*np.cos(f.phi)], color='r', width=2))
                 self.p.addItem(self.items[-1])
                 # JP crescent width bar
