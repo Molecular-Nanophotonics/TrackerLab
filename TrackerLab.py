@@ -85,7 +85,8 @@ class Window(QMainWindow):
                            'TIFF Files (*.tif)',
                            'MP4 Video (*.mp4)', 
                            'PNG Image (*.png)', 
-                           'JPG Image (*.jpg *.jpeg)']
+                           'JPG Image (*.jpg *.jpeg)',
+                           'AVI Video (*.avi)']
         
         self.preferences.radioButtonHDF5.setChecked(self.hdf5)
         self.preferences.radioButtonCSV.setChecked(self.csv)
@@ -540,6 +541,8 @@ class Window(QMainWindow):
                 self.selectedFilter = 3
             if extension == '.jpg':
                 self.selectedFilter = 4
+            if extension == '.avi':
+                self.selectedFilter = 5
         
     def selectFiles(self):
         
@@ -556,7 +559,7 @@ class Window(QMainWindow):
             self.fileList = []
             self.fileListWidget.clear()
             for file in self.files:
-                if fnmatch.fnmatch(file,'*_movie.tdms') or fnmatch.fnmatch(file,'*_video.tdms') or fnmatch.fnmatch(file,'*.tif') or fnmatch.fnmatch(file,'*.mp4')  or fnmatch.fnmatch(file,'*.png') or fnmatch.fnmatch(file,'*.jpg'):
+                if fnmatch.fnmatch(file,'*_movie.tdms') or fnmatch.fnmatch(file,'*_video.tdms') or fnmatch.fnmatch(file,'*.tif') or fnmatch.fnmatch(file,'*.mp4')  or fnmatch.fnmatch(file,'*.png') or fnmatch.fnmatch(file,'*.jpg') or fnmatch.fnmatch(file,'*.avi'):
                     self.fileList.append(file)
                     item = QtGui.QListWidgetItem(os.path.basename(file))
                     item.setToolTip(file)
@@ -599,7 +602,7 @@ class Window(QMainWindow):
             self.selectFilesDialog()
             if self.files:
                 for file in self.files:
-                    if fnmatch.fnmatch(file, '*_movie.tdms') or fnmatch.fnmatch(file,'*_video.tdms') or fnmatch.fnmatch(file, '*.tif') or fnmatch.fnmatch(file,'*.mp4') or fnmatch.fnmatch(file,'*.png') or fnmatch.fnmatch(file,'*.jpg'):
+                    if fnmatch.fnmatch(file, '*_movie.tdms') or fnmatch.fnmatch(file,'*_video.tdms') or fnmatch.fnmatch(file, '*.tif') or fnmatch.fnmatch(file,'*.mp4') or fnmatch.fnmatch(file,'*.png') or fnmatch.fnmatch(file,'*.jpg') or fnmatch.fnmatch(file,'*.avi'):
                         self.fileList.append(file) 
                         item = QtGui.QListWidgetItem(os.path.basename(file))
                         item.setToolTip(file)
@@ -665,6 +668,9 @@ class Window(QMainWindow):
         if extension == '.jpg':
             self.images = self.loadJPGImage(file)
             self.infoLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames))
+        if extension == '.avi':
+            self.images = self.loadAVIVideo(file)
+            self.infoLabel.setText('Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames)) 
             
         if self.roiCheckBox.checkState():
             self.roiCheckBoxChanged()
@@ -767,6 +773,16 @@ class Window(QMainWindow):
         self.dimx = video.get_meta_data()['size'][0]
         self.dimy = video.get_meta_data()['size'][1]
         self.frames = video.get_length()
+        images = np.stack([video.get_data(i)[:,:,0] for i in range(self.frames)]) 
+        return images
+    
+    def loadAVIVideo(self, file):
+        video = imageio.get_reader(file)
+        self.dimx = video.get_meta_data()['size'][0]
+        self.dimy = video.get_meta_data()['size'][1]
+        images = np.array([np.mean(np.moveaxis(im, 2, 0), axis=0, keepdims=True)
+                for im in video.iter_data()])[:,0,:,:]
+        self.frames = np.shape(images)[0]
         images = np.stack([video.get_data(i)[:,:,0] for i in range(self.frames)]) 
         return images
     
