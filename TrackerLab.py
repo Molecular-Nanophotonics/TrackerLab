@@ -724,7 +724,12 @@ class Window(QMainWindow):
         self.dimx = int(p['dimx'])
         self.dimy = int(p['dimy'])
         self.binning = int(p['binning'])
-        self.frames = int(p['dimz'])
+        try:
+            self.frames = int(p['dimz'])
+        except:
+            self.frames = int(p['frames'])
+        
+        
         self.exposure = float(p['exposure'].replace(',', '.'))
 
         info = ''
