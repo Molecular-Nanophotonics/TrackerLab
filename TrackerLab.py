@@ -728,9 +728,10 @@ class Window(QMainWindow):
             self.frames = int(p['dimz'])
         except:
             self.frames = int(p['frames'])
-        
-        
-        self.exposure = float(p['exposure'].replace(',', '.'))
+        try:
+            self.exposure = float(p['exposure'].replace(',', '.'))
+        except:
+            self.exposure = float(p['exposure_time'].replace(',', '.'))
 
         info = ''
         info += 'Dimensions: ' + str(self.dimx) + ' x ' + str(self.dimy) + ' x ' + str(self.frames) + '<br>'
