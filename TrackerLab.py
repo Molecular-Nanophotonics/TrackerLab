@@ -345,7 +345,7 @@ class Window(QMainWindow):
         if self.scalingComboBox.currentIndex() == 0:
             self.im1.setImage(self.image1)
         else:
-            self.im1.setImage(self.image1, levels=[self.cminSlider.value(), self.cmaxSlider.value()])             
+            self.im1.setImage(self.image1, levels=[self.cminSpinBox.value(), self.cmaxSpinBox.value()])             
         
         self.processedImage = self.image1
         
@@ -508,22 +508,23 @@ class Window(QMainWindow):
             
     def cminSliderChanged(self, value):
         self.cminSpinBox.setValue(value)
-        self.im1.setLevels([self.cminSlider.value(), self.cmaxSlider.value()])
-        if not self.featureDetectionCheckBox.checkState():
-            self.im2.setLevels([self.cminSlider.value(), self.cmaxSlider.value()])
         
     def cminSpinBoxChanged(self, value):
         self.cminSlider.setValue(value)
+        self.im1.setLevels([self.cminSpinBox.value(), self.cmaxSpinBox.value()])
+        if not self.featureDetectionCheckBox.checkState():
+            self.im2.setLevels([self.cminSpinBox.value(), self.cmaxSpinBox.value()])
         
     def cmaxSliderChanged(self, value):
         self.cmaxSpinBox.setValue(value)
-        self.im1.setLevels([self.cminSlider.value(), self.cmaxSlider.value()])
-        if not self.featureDetectionCheckBox.checkState():
-            self.im2.setLevels([self.cminSlider.value(), self.cmaxSlider.value()])
+        
         
     def cmaxSpinBoxChanged(self, value):
         self.cmaxSlider.setValue(value)
-        
+        self.im1.setLevels([self.cminSpinBox.value(), self.cmaxSpinBox.value()])
+        if not self.featureDetectionCheckBox.checkState():
+            self.im2.setLevels([self.cminSpinBox.value(), self.cmaxSpinBox.value()])
+
 
     def selectFilesDialog(self):
         options = QtWidgets.QFileDialog.DontUseNativeDialog 
@@ -682,9 +683,9 @@ class Window(QMainWindow):
         
         cmaxmax = np.max(self.images) 
         self.cminSlider.setMaximum(cmaxmax)
-        self.cminSpinBox.setMaximum(cmaxmax)
+        self.cminSpinBox.setMaximum(2*cmaxmax)
         self.cmaxSlider.setMaximum(cmaxmax)
-        self.cmaxSpinBox.setMaximum(cmaxmax)
+        self.cmaxSpinBox.setMaximum(2*cmaxmax)
         
         #if not self.exportVideo:
         if self.scalingComboBox.currentIndex() == 0:
