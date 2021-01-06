@@ -778,8 +778,20 @@ class Window(QMainWindow):
         video = imageio.get_reader(file)
         self.dimx = video.get_meta_data()['size'][0]
         self.dimy = video.get_meta_data()['size'][1]
-        self.frames = video.get_length()
-        images = np.stack([video.get_data(i)[:,:,0] for i in range(self.frames)]) 
+        try:
+            self.frames = int(video.get_length())
+            images = np.stack([video.get_data(i)[:,:,0] for i in range(self.frames)])
+        except:
+            frame_tmp = 0
+            images = []
+            while frame_tmp >= 0:
+                try:
+                    images.append(video.get_data(frame_tmp))
+                    frame_tmp+=1
+                except:
+                    self.frames = frame_tmp
+                    frame_tmp = -1
+            images = np.array(images)[:,:,:,0]
         return images
     
     def loadAVIVideo(self, file):
@@ -943,7 +955,9 @@ class Window(QMainWindow):
             filename = os.path.splitext(self.fileList[0])[0].replace('_movie', '') + '.mp4'
         if os.path.splitext(self.fileList[0])[1] == '.tif':
             filename = os.path.splitext(self.fileList[0])[0] + '.mp4'
-        
+        if os.path.splitext(self.fileList[0])[1] == '.mp4':
+            filename = os.path.splitext(self.fileList[0])[0] + '_Trackerlab.mp4'
+
         commands = ['FFmpeg/ffmpeg',
                     '-loglevel', 'quiet',
                     '-y',  # overwrite output file if it exists
