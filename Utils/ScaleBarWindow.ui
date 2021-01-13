@@ -34,7 +34,7 @@
   <property name="windowTitle">
    <string>Scale Bar Settings</string>
   </property>
-  <widget class="QSpinBox" name="sbLengthSpinBox">
+  <widget class="QDoubleSpinBox" name="sbLengthSpinBox">
    <property name="geometry">
     <rect>
      <x>130</x>
@@ -46,8 +46,11 @@
    <property name="keyboardTracking">
     <bool>false</bool>
    </property>
-   <property name="value">
-    <number>5</number>
+   <property name="minimum">
+    <double>0.000000000000000</double>
+   </property>
+   <property name="maximum">
+    <double>999.000000000000000</double>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="sbYSpinBox">

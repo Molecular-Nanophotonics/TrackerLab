@@ -72,7 +72,7 @@ class ScaleBar:
         self.bar.setBrush(self.sbColor)
            
         # Label
-        self.label.setText(str(self.settingsDialog.sbLengthSpinBox.value()) + " \u03bcm")
+        self.label.setText('{:.3g}'.format(self.settingsDialog.sbLengthSpinBox.value())+" \u03bcm")
         self.label.setFont(QtGui.QFont("Helvetica", 0.04*self.dimy)) # (self.dimx + self.dimy)/2
         self.label.setBrush(self.sbColor)
         bRect = self.label.boundingRect()
