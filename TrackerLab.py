@@ -333,6 +333,7 @@ class Window(QMainWindow):
                  new_shape[1], arr.shape[1] // new_shape[1])
         return arr.reshape(shape).mean(-1).mean(1)
         
+        
     def update(self):
         
         if self.softwareBinningSpinBox.value() > 1:
@@ -350,14 +351,14 @@ class Window(QMainWindow):
         self.processedImage = self.image1
         
         # Image Pre-Processing 
-        if self.medianCheckBox.checkState():
-            self.processedImage = ndimage.median_filter(self.processedImage, self.medianSpinBox.value())
-        
-        
         if self.subtractMeanCheckBox.checkState():
             self.processedImage = self.processedImage - self.meanSeriesImage
-            self.processedImage[self.processedImage<0] = 0
-        
+            self.processedImage = self.processedImage - np.min(self.processedImage)
+            
+
+        if self.medianCheckBox.checkState():
+            self.processedImage = ndimage.median_filter(self.processedImage, self.medianSpinBox.value())
+
         
         if self.roiCheckBox.checkState():
             self.processedImage = self.roi.getArrayRegion(self.processedImage, img=self.im1)
@@ -679,7 +680,7 @@ class Window(QMainWindow):
         if self.maskCheckBox.checkState():
             self.maskCheckBoxChanged()
             
-        #self.meanSeriesImage = np.mean(self.images,axis=(0)) # image series mean for background subtraction
+        self.meanSeriesImage = np.mean(self.images,axis=(0)) # image series mean for background subtraction
         
         cmaxmax = np.max(self.images) 
         self.cminSlider.setMaximum(cmaxmax)
@@ -1220,6 +1221,7 @@ class Window(QMainWindow):
         self.colormapComboBox.setEnabled(state)
         self.scalingComboBox.setEnabled(state)
         self.maskTypeComboBox.setEnabled(state)
+        self.subtractMeanCheckBox.setEnabled(state)
         self.enableLevels(state) 
         self.batchButton.setEnabled(state)
         self.preprocessingFrame.setEnabled(state)

@@ -204,7 +204,7 @@
          <string>Substract Series Mean</string>
         </property>
         <property name="checkable">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
        <widget class="QComboBox" name="maskTypeComboBox">
