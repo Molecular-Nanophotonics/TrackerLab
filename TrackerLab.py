@@ -113,6 +113,7 @@ class Window(QMainWindow):
  
         self.medianCheckBox.stateChanged.connect(self.update)  
         self.subtractMeanCheckBox.stateChanged.connect(self.update)  
+        self.invertImageCheckBox.stateChanged.connect(self.update)  
         self.medianSpinBox.valueChanged.connect(self.update)
         self.softwareBinningSpinBox.valueChanged.connect(self.update)
         self.maskCheckBox.stateChanged.connect(self.maskCheckBoxChanged)
@@ -349,7 +350,7 @@ class Window(QMainWindow):
             self.im1.setImage(self.image1, levels=[self.cminSpinBox.value(), self.cmaxSpinBox.value()])             
         
         self.processedImage = self.image1
-        
+
         # Image Pre-Processing 
         if self.subtractMeanCheckBox.checkState():
             self.processedImage = self.processedImage - self.meanSeriesImage
@@ -369,7 +370,11 @@ class Window(QMainWindow):
             self.maskChanged()
             self.processedImage = self.mask*self.processedImage
         
+
+        if self.invertImageCheckBox.checkState():
+            self.processedImage = -self.processedImage + np.max(self.processedImage)
         
+
         # Feature Detection
         features = pd.DataFrame()
         if self.featureDetectionCheckBox.checkState():
@@ -869,6 +874,8 @@ class Window(QMainWindow):
             
             if self.medianCheckBox.checkState():
                 metadata['median'] = self.medianSpinBox.value()
+            if self.invertImageCheckBox.checkState():
+                metadata['invert_image'] = self.invertImageCheckBox.checkState()
             if self.subtractMeanCheckBox.checkState():
                 metadata['subtract_mean'] = self.subtractMeanCheckBox.checkState()
             if self.maskCheckBox.checkState():
@@ -1112,6 +1119,7 @@ class Window(QMainWindow):
         self.settings.setValue('Pre-Processing/medianState', self.medianCheckBox.checkState())
         self.settings.setValue('Pre-Processing/subtractMeanState', self.subtractMeanCheckBox.checkState())
         self.settings.setValue('Pre-Processing/medianValue', self.medianSpinBox.value())
+        self.settings.setValue('Pre-Processing/invertImage', self.invertImageCheckBox.checkState())
         self.settings.setValue('Pre-Processing/maskState', self.maskCheckBox.checkState())
         self.settings.setValue('Pre-Processing/maskType', self.maskTypeComboBox.currentIndex())
         self.settings.setValue('Pre-Processing/maskX', int(self.maskX))
@@ -1152,6 +1160,7 @@ class Window(QMainWindow):
             self.subtractMeanCheckBox.setCheckState(int(self.settings.value('Pre-Processing/subtractMeanState', '0')))
             self.medianCheckBox.setCheckState(int(self.settings.value('Pre-Processing/medianState', '0')))
             self.medianSpinBox.setValue(int(self.settings.value('Pre-Processing/medianValue', '2'))) 
+            self.invertImageCheckBox.setCheckState(int(self.settings.value('Pre-Processing/invertImage', '0')))
             self.maskCheckBox.setCheckState(int(self.settings.value('Pre-Processing/maskState', '0')))
             self.maskTypeComboBox.setCurrentIndex(int(self.settings.value('Pre-Processing/maskType', '0'))) 
             self.maskX = int(self.settings.value('Pre-Processing/maskX', '0'))  
@@ -1222,6 +1231,7 @@ class Window(QMainWindow):
         self.scalingComboBox.setEnabled(state)
         self.maskTypeComboBox.setEnabled(state)
         self.subtractMeanCheckBox.setEnabled(state)
+        self.invertImageCheckBox.setEnabled(state)
         self.enableLevels(state) 
         self.batchButton.setEnabled(state)
         self.preprocessingFrame.setEnabled(state)

@@ -294,6 +294,25 @@
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
+       <widget class="QCheckBox" name="invertImageCheckBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>170</y>
+          <width>161</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Invert Image</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
       </widget>
       <widget class="QLabel" name="preprocessingFrameLabel">
        <property name="geometry">
