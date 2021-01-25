@@ -244,47 +244,6 @@
      <string>Show Overlay</string>
     </property>
    </widget>
-   <widget class="QLabel" name="maxAreaLabel_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>100</y>
-      <width>111</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="layoutDirection">
-     <enum>Qt::LeftToRight</enum>
-    </property>
-    <property name="text">
-     <string>offset to weights:</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="flip_x_paramterDoubleSpinBox">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>100</y>
-      <width>61</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="keyboardTracking">
-     <bool>false</bool>
-    </property>
-    <property name="minimum">
-     <double>0.000000000000000</double>
-    </property>
-    <property name="maximum">
-     <double>1.000000000000000</double>
-    </property>
-    <property name="value">
-     <double>1.000000000000000</double>
-    </property>
-   </widget>
   </widget>
  </widget>
  <resources/>

@@ -39,7 +39,6 @@ class Module(QtWidgets.QWidget):
         self.invertCheckBox.stateChanged.connect(self.updated.emit)
         self.maxFeaturesSpinBox.valueChanged.connect(self.updated.emit)
         self.showOverlayCheckBox.stateChanged.connect(self.updated.emit)
-        self.flip_x_paramterDoubleSpinBox.valueChanged.connect(self.updated.emit)  
            
     def attach(self, plot):
         self.p = plot
@@ -61,7 +60,6 @@ class Module(QtWidgets.QWidget):
         max_area = self.maxAreaSpinBox.value()
         max_features = self.maxFeaturesSpinBox.value()
         invert = self.invertCheckBox.checkState()
-        flip_x_paramter = self.flip_x_paramterDoubleSpinBox.value()
 
         features = pd.DataFrame()           
         intensityImage = imageItem.image
@@ -95,7 +93,7 @@ class Module(QtWidgets.QWidget):
             x_matrix_particle_frame = x_matrix*np.cos(-orientation + np.pi/2) - y_matrix*np.sin(-orientation + np.pi/2)
             y_matrix_particle_frame = x_matrix*np.sin(-orientation + np.pi/2) + y_matrix*np.cos(-orientation + np.pi/2)
             
-            weight_matrix = np.cos( x_matrix_particle_frame / (L/4) ) + flip_x_paramter
+            weight_matrix = np.cos( x_matrix_particle_frame / (L/4) )
             weight_matrix[y_matrix_particle_frame < 0] = - weight_matrix[y_matrix_particle_frame < 0]
 
             direction_measure = np.mean( weight_matrix*intensity_image, axis = (0, 1) )
