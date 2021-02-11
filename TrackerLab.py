@@ -577,12 +577,16 @@ class Window(QMainWindow):
             #if not self.featureDetectionCheckBox.checkState():
             #    self.tabWidget.setEnabled(False)
             
-            if self.exposure:
-                self.framerateSpinBox.setValue(1/self.exposure)
-                #self.framerateSpinBox.setEnabled(False)
-            else:
-                self.framerateSpinBox.setValue(50) # default value
+            try:
+                if self.kinetic_cycle:
+                    self.framerateSpinBox.setValue(1/self.kinetic_cycle)
+            except:
+                if self.exposure:
+                    self.framerateSpinBox.setValue(1/self.exposure)
+                else:
+                    self.framerateSpinBox.setValue(50) # default value
             
+
             if self.colormaps:
                 self.colormapComboBox.setEnabled(True)
             self.scalingComboBox.setEnabled(True)
@@ -593,7 +597,7 @@ class Window(QMainWindow):
                 self.infoLabel.setText(self.infoLabel.text() + '<br>' + '<a href=\"file:///' + self.dir + '/' + self.protocolFile + '\">Edit Protocol File</a>')
                 self.infoLabel.setOpenExternalLinks(True)
             else:
-                self.infoLabel.setText(self.infoLabel.text() + '<br>'  + '<span style=\"color:#ff0000;\">No Protocol File Found</span>')
+                self.infoLabel.setText(self.infoLabel.text() + '<br>' + '<span style=\"color:#ff0000;\">No Protocol File Found</span>')
                
             
     def appendFiles(self):
@@ -725,6 +729,7 @@ class Window(QMainWindow):
         self.dimx = int(p['dimx'])
         self.dimy = int(p['dimy'])
         self.binning = int(p['binning'])
+        # backward compatibility checks
         try:
             self.frames = int(p['dimz'])
         except:
@@ -779,31 +784,19 @@ class Window(QMainWindow):
         video = imageio.get_reader(file)
         self.dimx = video.get_meta_data()['size'][0]
         self.dimy = video.get_meta_data()['size'][1]
-        try:
-            self.frames = int(video.get_length())
-            images = np.stack([video.get_data(i)[:,:,0] for i in range(self.frames)])
-        except:
-            frame_tmp = 0
-            images = []
-            while frame_tmp >= 0:
-                try:
-                    images.append(video.get_data(frame_tmp))
-                    frame_tmp+=1
-                except:
-                    self.frames = frame_tmp
-                    frame_tmp = -1
-            images = np.array(images)[:,:,:,0]
+        self.frames = video.count_frames()
+        images = np.stack([video.get_data(i)[:,:,0] for i in range(self.frames)])
         return images
     
+        
     def loadAVIVideo(self, file):
         video = imageio.get_reader(file)
         self.dimx = video.get_meta_data()['size'][0]
         self.dimy = video.get_meta_data()['size'][1]
-        images = np.array([np.mean(np.moveaxis(im, 2, 0), axis=0, keepdims=True)
-                for im in video.iter_data()])[:,0,:,:]
-        self.frames = np.shape(images)[0]
-        images = np.stack([video.get_data(i)[:,:,0] for i in range(self.frames)]) 
+        self.frames = video.count_frames()
+        images = np.stack([video.get_data(i)[:,:,0] for i in range(self.frames)])
         return images
+
     
     def loadPNGImage(self, file):
         images = io.imread(file)
@@ -865,6 +858,8 @@ class Window(QMainWindow):
             if os.path.splitext(file)[1] == '.tdms':
                 metadata['binning'] =  self.binning
                 metadata['exposure'] =  self.exposure
+                if self.kinetic_cycle:
+                    metadata['kinetic_cycle'] =  self.kinetic_cycle
             
             if self.medianCheckBox.checkState():
                 metadata['median'] = self.medianSpinBox.value()
@@ -897,7 +892,9 @@ class Window(QMainWindow):
                 
             # Save protocol, metadata and features in CSV file
             if self.csv:
-                file = os.path.splitext(file)[0].replace('_movie', '') + self.exportSuffix + '_features.csv'
+                file = os.path.splitext(file)[0].replace('_movie', '')
+                file = os.path.splitext(file)[0].replace('_video', '')
+                file += self.exportSuffix + '_features.csv'
                 if os.path.isfile(self.dir + '/' + self.protocolFile):
                     info = []
                     with open(self.dir + '/' + self.protocolFile, 'r') as f:
@@ -917,7 +914,10 @@ class Window(QMainWindow):
                 
             # Save features and metadata in HDF5 file
             if self.hdf5:
-                store = pd.HDFStore(os.path.splitext(file)[0].replace('_video', '') + self.exportSuffix + '_features.h5', 'w')
+                file = os.path.splitext(file)[0].replace('_movie', '')
+                file = os.path.splitext(file)[0].replace('_video', '')
+                file += self.exportSuffix + '_features.h5'
+                store = pd.HDFStore(file, 'w')
                 store.put('features', self.features)
                 store.put('metadata', metadata)
                 store.close()
