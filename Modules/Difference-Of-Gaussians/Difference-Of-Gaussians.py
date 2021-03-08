@@ -65,6 +65,7 @@ class Module(QtWidgets.QWidget):
                 features = features.append([{'y': mlist[j, 0],
                                              'x': mlist[j, 1],
                                              'max_intensity': image[mask==1].max(),
+                                             'mean_intenity': image[mask==1].mean(),
                                              'area': 2*np.pi*mlist[j, 2]**2,
                                              'frame': frame,}])
         
