@@ -354,7 +354,7 @@ class Window(QMainWindow):
         # Image Pre-Processing 
         if self.subtractMeanCheckBox.checkState():
             self.processedImage = self.processedImage - self.meanSeriesImage
-            self.processedImage = self.processedImage - np.min(self.processedImage)
+            #self.processedImage = self.processedImage - np.min(self.processedImage) # Why?
             
 
         if self.medianCheckBox.checkState():
@@ -689,7 +689,7 @@ class Window(QMainWindow):
         if self.maskCheckBox.checkState():
             self.maskCheckBoxChanged()
             
-        self.meanSeriesImage = np.mean(self.images,axis=(0)) # image series mean for background subtraction
+        self.meanSeriesImage = np.mean(self.images,axis=0) # image series mean for background subtraction
         
         cmaxmax = np.max(self.images) 
         self.cminSlider.setMaximum(cmaxmax)
@@ -864,8 +864,10 @@ class Window(QMainWindow):
             if os.path.splitext(file)[1] == '.tdms':
                 metadata['binning'] =  self.binning
                 metadata['exposure'] =  self.exposure
-                if self.kinetic_cycle:
+                try:
                     metadata['kinetic_cycle'] =  self.kinetic_cycle
+                except:
+                    pass
             
             if self.medianCheckBox.checkState():
                 metadata['median'] = self.medianSpinBox.value()
