@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Discription: Module for Connected-Component Labeling. 
+Discription: Module for YOLO. 
 Author(s):   M. Fränzl
 Date:        18/09/18
 """
@@ -20,7 +20,7 @@ import pyqtgraph as pg
 try:
 	import tensorflow as tf
 except:
-	print('Error Importing TensorFlow.')
+	print('TensorFlow package not found. YOLO module will be is disabled.')
 	
 import configparser
             
