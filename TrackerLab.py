@@ -968,6 +968,8 @@ class Window(QMainWindow):
             filename = os.path.splitext(self.fileList[0])[0] + '.mp4'
         if os.path.splitext(self.fileList[0])[1] == '.mp4':
             filename = os.path.splitext(self.fileList[0])[0] + '_Trackerlab.mp4'
+        if os.path.splitext(self.fileList[0])[1] == '.avi':
+            filename = os.path.splitext(self.fileList[0])[0] + '_Trackerlab.mp4'
 
         commands = ['FFmpeg/ffmpeg',
                     '-loglevel', 'quiet',
