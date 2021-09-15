@@ -353,13 +353,19 @@ class Window(QMainWindow):
 
         # Image Pre-Processing 
         if self.subtractMeanCheckBox.checkState():
-            if self.softwareBinningSpinBox.value() > 1:
-                self.meanSeriesImage_binned = self.softwareBinning(self.meanSeriesImage, self.softwareBinningSpinBox.value())
-            else: 
-                self.meanSeriesImage_binned = self.meanSeriesImage
+            try:
+                if self.softwareBinningSpinBox.value() > 1:
+                    self.meanSeriesImage_binned = self.softwareBinning(self.meanSeriesImage, self.softwareBinningSpinBox.value())
+                else: 
+                    self.meanSeriesImage_binned = self.meanSeriesImage
+            except: # there is a bug where this calculation is not done when a tdms is loaded initially with substract mean activated
+                self.meanSeriesImage = np.mean(self.images,axis=0) # image series mean for background subtraction
+                if self.softwareBinningSpinBox.value() > 1:
+                    self.meanSeriesImage_binned = self.softwareBinning(self.meanSeriesImage, self.softwareBinningSpinBox.value())
+                else: 
+                    self.meanSeriesImage_binned = self.meanSeriesImage
             self.processedImage = self.processedImage - self.meanSeriesImage_binned
-            self.processedImage = self.processedImage - np.min(self.processedImage) # Why? because for some featrue deteation techniques and evaluation scripts it is expected that the intensity value is always positive
-            
+        
 
         if self.medianCheckBox.checkState():
             self.processedImage = ndimage.median_filter(self.processedImage, self.medianSpinBox.value())
