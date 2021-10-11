@@ -213,11 +213,12 @@ class Module(QtWidgets.QWidget):
                 x, y, phi = Track_single_JP(intensityImage[minYi:maxYi,minXi:maxXi])
                 crescent_width = Crescent_width(intensityImage[minYi:maxYi,minXi:maxXi], x, y, Crescent_ratio)
                 
-                features = features.append([{'x': x + minYi, # go bak to full image cords
-                                   'y': y + minXi,
+                features = features.append([{'y': x + minYi, # go back to full image cords # y and y are inverted somewhere upstairs... with this you get the same as in the trackerlab window...
+                                   'x': y + minXi,
                                    #'COM_x': orient_x + minYi, 
                                    #'COM_y': orient_y + minXi,
-                                   'phi': phi,
+                                   'phi': -(phi - np.pi/2), # also the angle was measured somehow from the wrong axis...
+                                   'phi_region': region.orientation,
                                    'minor_axis_length': region.minor_axis_length,
                                    'major_axis_length': region.major_axis_length,
                                    'area': region.area,
@@ -237,9 +238,10 @@ class Module(QtWidgets.QWidget):
                 masked_images = Make_separated_JP_images(x = x_com-minXi, y = y_com-minYi, phi = orientation_pair, image = intensityImage[minYi:maxYi,minXi:maxXi])
                 for masked_image in masked_images:
                     x, y, phi = Track_single_JP(masked_image)
-                    features = features.append([{'x': x + minYi, # go bak to full image cords
-                                       'y': y + minXi,
-                                       'phi': phi,
+                    features = features.append([{'y': x + minYi, # go bak to full image cords
+                                       'x': y + minXi,
+                                       'phi': -(phi - np.pi/2),
+                                       'phi_region': region.orientation,
                                        'minor_axis_length': region.minor_axis_length,
                                        'major_axis_length': region.major_axis_length,
                                        'area': region.area,
@@ -290,13 +292,13 @@ class Module(QtWidgets.QWidget):
         self.items = []
         if self.showOverlayCheckBox.checkState():
             for i, f in features.iterrows():
-                x0 = f.y + 0.5
-                y0 = f.x + 0.5
-                self.items.append(pgutils.EllipseItem([x0, y0], f.minor_axis_length, f.major_axis_length, -np.degrees(f.phi), color='r', width=2))
+                x0 = f.x + 0.5
+                y0 = f.y + 0.5
+                self.items.append(pgutils.EllipseItem([x0, y0], f.minor_axis_length, f.major_axis_length, -np.degrees(f.phi_region), color='r', width=2))
                 self.p.addItem(self.items[-1])
                 #self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.minor_axis_length*np.cos(f.phi), y0 - 0.5*f.minor_axis_length*np.sin(f.phi)], color='r', width=2))
                 #self.p.addItem(self.items[-1])
-                self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.major_axis_length*np.sin(f.phi), y0 + 0.5*f.major_axis_length*np.cos(f.phi)], color='r', width=2))
+                self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.major_axis_length*np.cos(f.phi), y0 + 0.5*f.major_axis_length*np.sin(f.phi)], color='r', width=2))
                 self.p.addItem(self.items[-1])
                 # JP crescent width bar
                 box_h = f.bbox[2] - f.bbox[0]
