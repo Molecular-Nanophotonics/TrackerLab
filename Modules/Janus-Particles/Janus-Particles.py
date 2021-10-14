@@ -66,11 +66,11 @@ class Module(QtWidgets.QWidget):
         MaxArea = self.maxAreaSpinBox.value()
         MaxFeatures = self.maxFeaturesSpinBox.value()
         #invert = self.invertCheckBox.checkState()
-        MaxElipticity = self.MaxElipticitySpinBox.value()
+        MaxElipticity = self.MaxElipticitySpinBox.value()/100
         SeparateClosePairs = self.SeparateClosePairsCheckBox.checkState()
         MinAreaPair = self.MinAreaPairSpinBox.value()
         MaxAreaPair = self.MaxAreaPairSpinBox.value()
-        MinElipticityPair = self.MinElipticityPairSpinBox.value()
+        MinElipticityPair = self.MinElipticityPairSpinBox.value()/100
         Crescent_ratio = self.Crescent_ratioSpinBox.value()/100
         
         
@@ -210,11 +210,11 @@ class Module(QtWidgets.QWidget):
                 continue
             
             if not pairTrigger:
-                x, y, phi = Track_single_JP(intensityImage[minYi:maxYi,minXi:maxXi])
-                crescent_width = Crescent_width(intensityImage[minYi:maxYi,minXi:maxXi], x, y, Crescent_ratio)
+                y, x, phi = Track_single_JP(intensityImage[minYi:maxYi,minXi:maxXi])
+                #crescent_width = Crescent_width(intensityImage[minYi:maxYi,minXi:maxXi], x, y, Crescent_ratio)
                 
-                features = features.append([{'y': x + minYi, # go back to full image cords # y and y are inverted somewhere upstairs... with this you get the same as in the trackerlab window...
-                                   'x': y + minXi,
+                features = features.append([{'y': y + minYi, # go back to full image cords # y and y are inverted somewhere upstairs... with this you get the same as in the trackerlab window...
+                                   'x': x + minXi,
                                    #'COM_x': orient_x + minYi, 
                                    #'COM_y': orient_y + minXi,
                                    'phi': -(phi - np.pi/2), # also the angle was measured somehow from the wrong axis...
@@ -227,14 +227,14 @@ class Module(QtWidgets.QWidget):
                                    'hu_moments' : list(region.weighted_moments_hu),
                                    'max_intensity': region.max_intensity,
                                    'summed_intensity': region.area * region.mean_intensity,
-                                   'crescent_width' : crescent_width,
+                                   #'crescent_width' : crescent_width,
                                    'frame': frame,
                                    'ClosePairStatus': pairTrigger,
                                    }])
                 j += 1 # feature added
             elif pairTrigger:
                 y_com,x_com = region.centroid
-                orientation_pair = region.orientation
+                orientation_pair = region.orientation +np.pi/2
                 masked_images = Make_separated_JP_images(x = x_com-minXi, y = y_com-minYi, phi = orientation_pair, image = intensityImage[minYi:maxYi,minXi:maxXi])
                 for masked_image in masked_images:
                     x, y, phi = Track_single_JP(masked_image)
@@ -242,47 +242,20 @@ class Module(QtWidgets.QWidget):
                                        'x': y + minXi,
                                        'phi': -(phi - np.pi/2),
                                        'phi_region': region.orientation,
-                                       'minor_axis_length': region.minor_axis_length,
-                                       'major_axis_length': region.major_axis_length,
+                                       'minor_axis_length': np.sqrt(region.area/2)/np.pi,
+                                       'major_axis_length': np.sqrt(region.area/2)/np.pi,
                                        'area': region.area,
                                        'bbox': region.bbox,
                                        'eccentricity': region.eccentricity,
                                        'hu_moments' : region.moments_hu,
                                        'max_intensity': np.max(masked_image),
                                        'summed_intensity': np.sum(masked_image),
-                                       'crescent_width' : crescent_width,
+                                       #'crescent_width' : crescent_width,
                                        'frame': frame,
                                        'ClosePairStatus': pairTrigger,
                                        }])
                     j += 1 # feature added
-            ##Overlay (old)
-            #if features.size > 0:
-            #    
-            #    axesX_b = []
-            #    axesY_b = []
-            #    clist_b = []
-            #    axesX_r = []
-            #    axesY_r = []
-            #    clist_r = []
-            #    for index, s in features.iterrows():
-            #        # JP Orientation vector
-            #        line_length = (s.bbox[2] -  s.bbox[0])/2
-            #        axesX_r.extend([s.x, s.x + line_length*np.sin(s.phi)])
-            #        axesY_r.extend([s.y, s.y + line_length*np.cos(s.phi)])
-            #        clist_r.extend([1,0])
-            #        
-            #        box_h = s.bbox[2] - s.bbox[0]
-            #        box_w = s.bbox[3] - s.bbox[1]
-            #        axesX_b.extend([s.x - box_w/2, s.x + box_w/2])
-            #        axesY_b.extend([s.y + box_h/2 , s.y + box_h/2])
-            #        clist_b.extend([1,0])
-            #        axesX_r.extend([s.x - box_w/2, s.x - box_w/2 + s.crescent_width*box_w])
-            #        axesY_r.extend([s.y + box_h/2 + 1, s.y + box_h/2 + 1])
-            #        clist_r.extend([1,0])
-            #        
-            #    lp2.setData(x=axesX_r, y=axesY_r, connect=np.array(clist_r))
-            #    lp1.setData(x=axesX_b, y=axesY_b, connect=np.array(clist_b))
-        
+
         if self.showThresholdCheckBox.checkState():
             imageItem.setImage(THImage)
         
@@ -300,11 +273,11 @@ class Module(QtWidgets.QWidget):
                 #self.p.addItem(self.items[-1])
                 self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.major_axis_length*np.cos(f.phi), y0 + 0.5*f.major_axis_length*np.sin(f.phi)], color='r', width=2))
                 self.p.addItem(self.items[-1])
-                # JP crescent width bar
-                box_h = f.bbox[2] - f.bbox[0]
-                box_w = f.bbox[3] - f.bbox[1]
-                self.items.append(pgutils.LineItem([x0 - box_w/2, y0 - box_h/4*3], [x0 - box_w/2 + f.crescent_width*box_w, y0 - box_h/4*3], color='r', width=4))
-                self.p.addItem(self.items[-1])
+                ## JP crescent width bar
+                #box_h = f.bbox[2] - f.bbox[0]
+                #box_w = f.bbox[3] - f.bbox[1]
+                #self.items.append(pgutils.LineItem([x0 - box_w/2, y0 - box_h/4*3], [x0 - box_w/2 + f.crescent_width*box_w, y0 - box_h/4*3], color='r', width=4))
+                #self.p.addItem(self.items[-1])
                 
         
         if features.size > 0:
