@@ -39,12 +39,12 @@ class Module(QtWidgets.QWidget):
         self.maxFeaturesSpinBox.valueChanged.connect(self.updated.emit)
         self.showOverlayCheckBox.stateChanged.connect(self.updated.emit)
         self.showThresholdCheckBox.stateChanged.connect(self.updated.emit)
-        self.MaxElipticitySpinBox.valueChanged.connect(self.updated.emit)
+        self.MinSphericitySpinBox.valueChanged.connect(self.updated.emit)
         self.SeparateClosePairsCheckBox.stateChanged.connect(self.updated.emit)
         self.MinAreaPairSpinBox.valueChanged.connect(self.updated.emit)
         self.MaxAreaPairSpinBox.valueChanged.connect(self.updated.emit)
-        self.MinElipticityPairSpinBox.valueChanged.connect(self.updated.emit)
-        self.Crescent_ratioSpinBox.valueChanged.connect(self.updated.emit)
+        self.MaxSphericityPairSpinBox.valueChanged.connect(self.updated.emit)
+        #self.Crescent_ratioSpinBox.valueChanged.connect(self.updated.emit)
         
         
     def attach(self, plot):
@@ -66,12 +66,12 @@ class Module(QtWidgets.QWidget):
         MaxArea = self.maxAreaSpinBox.value()
         MaxFeatures = self.maxFeaturesSpinBox.value()
         #invert = self.invertCheckBox.checkState()
-        MaxElipticity = self.MaxElipticitySpinBox.value()/100
+        MinSphericity = self.MinSphericitySpinBox.value()/100
         SeparateClosePairs = self.SeparateClosePairsCheckBox.checkState()
         MinAreaPair = self.MinAreaPairSpinBox.value()
         MaxAreaPair = self.MaxAreaPairSpinBox.value()
-        MinElipticityPair = self.MinElipticityPairSpinBox.value()/100
-        Crescent_ratio = self.Crescent_ratioSpinBox.value()/100
+        MaxSphericityPair = self.MaxSphericityPairSpinBox.value()/100
+        #Crescent_ratio = self.Crescent_ratioSpinBox.value()/100
         
         
         def Threshold(image,TH,new_value,**kwargs):
@@ -161,35 +161,35 @@ class Module(QtWidgets.QWidget):
             image2 = image - image1
             return [image1,image2]
         
-        def Crescent_width(JP_image,x_JP,y_JP,Crescent_ratio):
-            nbins = 10
-            phi_edges = np.linspace(-np.pi, np.pi, nbins+1)
-            #dphi = phi_edges[1] - phi_edges[0]
-            #phi_mids = phi_edges[:-1] + dphi/2
-            #i_list = np.arange(nbins)
-            dimy = np.shape(JP_image)[0]
-            dimx = np.shape(JP_image)[1]
-            x_list = np.arange(dimx) - dimx/2
-            y_list = np.arange(dimy) - dimx/2
-            x_M, y_M = np.meshgrid(x_list, y_list)
-            r_M = np.sqrt(x_M**2 + y_M**2)
-            phi_M = np.arctan2(x_M,y_M)
-            #phi_hist = np.zeros(nbins)
-            mean_int_list = np.zeros(nbins)
-            for i in range(nbins):
-                #phi_hist[i] = np.sum( (phi_M > phi_edges[i])&(phi_M < phi_edges[i+1]) )
-                mean_int_list[i] = np.mean( JP_image[(phi_M > phi_edges[i]) & (phi_M < phi_edges[i+1]) & (r_M < np.mean([dimx,dimy])/2)] )
-            max_int = np.max(mean_int_list)
-            #min_int = np.min(mean_int_list)
-            #min_int = 0.5*max_int
-            #int_TH = 0.5*(min_int + max_int)
-            int_TH = Crescent_ratio*(max_int)
-            width = np.sum(mean_int_list > int_TH)/nbins
-            return width 
+        #def Crescent_width(JP_image,x_JP,y_JP,Crescent_ratio):
+        #    nbins = 10
+        #    phi_edges = np.linspace(-np.pi, np.pi, nbins+1)
+        #    #dphi = phi_edges[1] - phi_edges[0]
+        #    #phi_mids = phi_edges[:-1] + dphi/2
+        #    #i_list = np.arange(nbins)
+        #    dimy = np.shape(JP_image)[0]
+        #    dimx = np.shape(JP_image)[1]
+        #    x_list = np.arange(dimx) - dimx/2
+        #    y_list = np.arange(dimy) - dimx/2
+        #    x_M, y_M = np.meshgrid(x_list, y_list)
+        #    r_M = np.sqrt(x_M**2 + y_M**2)
+        #    phi_M = np.arctan2(x_M,y_M)
+        #    #phi_hist = np.zeros(nbins)
+        #    mean_int_list = np.zeros(nbins)
+        #    for i in range(nbins):
+        #        #phi_hist[i] = np.sum( (phi_M > phi_edges[i])&(phi_M < phi_edges[i+1]) )
+        #        mean_int_list[i] = np.mean( JP_image[(phi_M > phi_edges[i]) & (phi_M < phi_edges[i+1]) & (r_M < np.mean([dimx,dimy])/2)] )
+        #    max_int = np.max(mean_int_list)
+        #    #min_int = np.min(mean_int_list)
+        #    #min_int = 0.5*max_int
+        #    #int_TH = 0.5*(min_int + max_int)
+        #    int_TH = Crescent_ratio*(max_int)
+        #    width = np.sum(mean_int_list > int_TH)/nbins
+        #    return width 
            
         features = pd.DataFrame()
         intensityImage = imageItem.image
-        THImage = (intensityImage > threshold).astype(int) # relative threshold
+        THImage = (intensityImage > threshold).astype('int') # relative threshold
         labelImage = skimage.measure.label(THImage)
         regions = skimage.measure.regionprops(label_image=labelImage, intensity_image=intensityImage) # http://scikit-image.org/docs/dev/api/skimage.measure.html
         min_dist_boundray = 15  # in pxl
@@ -200,8 +200,9 @@ class Module(QtWidgets.QWidget):
                 break
             # area filter and then look for JP close pair indications
             pairTrigger = False
-            if region.area < MinArea or region.area > MaxArea or region.eccentricity > MaxElipticity:   # do not add this feature exept check it for pairs
-                if SeparateClosePairs and region.area > MinAreaPair and region.area < MaxAreaPair and region.eccentricity > MinElipticityPair:
+            sphericity = region.minor_axis_length/region.major_axis_length
+            if region.area < MinArea or region.area > MaxArea or sphericity < MinSphericity:   # do not add this feature but first check it for pairs
+                if SeparateClosePairs and region.area > MinAreaPair and region.area < MaxAreaPair and sphericity <= MaxSphericityPair:
                     pairTrigger = True
                 else:
                     continue # ignor feature if none of this applied
@@ -221,10 +222,11 @@ class Module(QtWidgets.QWidget):
                                    'phi_region': region.orientation,
                                    'minor_axis_length': region.minor_axis_length,
                                    'major_axis_length': region.major_axis_length,
+                                   'sphericity': sphericity,
                                    'area': region.area,
                                    'bbox': region.bbox,
-                                   'eccentricity': region.eccentricity,
-                                   'hu_moments' : list(region.weighted_moments_hu),
+                                   #'eccentricity': region.eccentricity,
+                                   #'hu_moments' : list(region.weighted_moments_hu),
                                    'max_intensity': region.max_intensity,
                                    'summed_intensity': region.area * region.mean_intensity,
                                    #'crescent_width' : crescent_width,
@@ -237,17 +239,23 @@ class Module(QtWidgets.QWidget):
                 orientation_pair = region.orientation +np.pi/2
                 masked_images = Make_separated_JP_images(x = x_com-minXi, y = y_com-minYi, phi = orientation_pair, image = intensityImage[minYi:maxYi,minXi:maxXi])
                 for masked_image in masked_images:
-                    x, y, phi = Track_single_JP(masked_image)
-                    features = features.append([{'y': x + minYi, # go bak to full image cords
-                                       'x': y + minXi,
+                    intensityImage_JP = masked_image
+                    THImage_JP = (intensityImage_JP > threshold).astype('int') # relative threshold
+                    labelImage_JP = skimage.measure.label(THImage_JP)
+                    region_JP = skimage.measure.regionprops(label_image=labelImage_JP, intensity_image=intensityImage_JP)[0]
+                    sphericity_JP = region_JP.minor_axis_length/region_JP.major_axis_length
+                    y, x, phi = Track_single_JP(masked_image)
+                    features = features.append([{'y': y + minYi, # go bak to full image cords
+                                       'x': x + minXi,
                                        'phi': -(phi - np.pi/2),
-                                       'phi_region': region.orientation,
-                                       'minor_axis_length': np.sqrt(region.area/2)/np.pi,
-                                       'major_axis_length': np.sqrt(region.area/2)/np.pi,
-                                       'area': region.area,
-                                       'bbox': region.bbox,
-                                       'eccentricity': region.eccentricity,
-                                       'hu_moments' : region.moments_hu,
+                                       'phi_region': region_JP.orientation,
+                                       'minor_axis_length': region_JP.minor_axis_length,
+                                       'major_axis_length': region_JP.major_axis_length,
+                                       'sphericity': sphericity_JP,
+                                       'area': region_JP.area,
+                                       'bbox': region_JP.bbox,
+                                       #'eccentricity': region_JP.eccentricity,
+                                       #'hu_moments' : region_JP.moments_hu,
                                        'max_intensity': np.max(masked_image),
                                        'summed_intensity': np.sum(masked_image),
                                        #'crescent_width' : crescent_width,

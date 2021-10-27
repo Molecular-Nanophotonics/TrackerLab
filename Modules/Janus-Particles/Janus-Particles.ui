@@ -244,7 +244,7 @@
      <string>Show Overlay</string>
     </property>
    </widget>
-   <widget class="QSpinBox" name="MaxElipticitySpinBox">
+   <widget class="QSpinBox" name="MinSphericitySpinBox">
     <property name="geometry">
      <rect>
       <x>120</x>
@@ -266,12 +266,12 @@
      <number>100</number>
     </property>
    </widget>
-   <widget class="QLabel" name="maxAreaLabel_2">
+   <widget class="QLabel" name="MinSphericity">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>90</y>
-      <width>91</width>
+      <width>111</width>
       <height>21</height>
      </rect>
     </property>
@@ -279,7 +279,7 @@
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="text">
-     <string>Max. Elipticity:</string>
+     <string>Min. Sphericity %:</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -364,7 +364,7 @@
      <number>250</number>
     </property>
    </widget>
-   <widget class="QLabel" name="maxAreaLabel_4">
+   <widget class="QLabel" name="maxpairsphericity">
     <property name="geometry">
      <rect>
       <x>210</x>
@@ -377,13 +377,13 @@
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="text">
-     <string>Min. pair Elipticity:</string>
+     <string>Max. pair Sphericity:</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
     </property>
    </widget>
-   <widget class="QSpinBox" name="MinElipticityPairSpinBox">
+   <widget class="QSpinBox" name="MaxSphericityPairSpinBox">
     <property name="geometry">
      <rect>
       <x>340</x>
