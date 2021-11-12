@@ -200,6 +200,8 @@ class Module(QtWidgets.QWidget):
                 break
             # area filter and then look for JP close pair indications
             pairTrigger = False
+            if region.area == 1:
+                break
             sphericity = region.minor_axis_length/region.major_axis_length
             if region.area < MinArea or region.area > MaxArea or sphericity < MinSphericity:   # do not add this feature but first check it for pairs
                 if SeparateClosePairs and region.area > MinAreaPair and region.area < MaxAreaPair and sphericity <= MaxSphericityPair:
