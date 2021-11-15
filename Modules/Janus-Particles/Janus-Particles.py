@@ -45,8 +45,10 @@ class Module(QtWidgets.QWidget):
         self.MaxAreaPairSpinBox.valueChanged.connect(self.updated.emit)
         self.MaxSphericityPairSpinBox.valueChanged.connect(self.updated.emit)
         #self.Crescent_ratioSpinBox.valueChanged.connect(self.updated.emit)
-        
-        
+        self.UseMinValueCheckBox.stateChanged.connect(self.updated.emit)
+        self.RJPSpinBox.valueChanged.connect(self.updated.emit)
+
+
     def attach(self, plot):
         self.p = plot
         self.items = []
@@ -60,7 +62,7 @@ class Module(QtWidgets.QWidget):
         
 
     def findFeatures(self, frame, imageItem):
-            
+        from copy import deepcopy
         threshold = self.thresholdSpinBox.value()
         MinArea = self.minAreaSpinBox.value()
         MaxArea = self.maxAreaSpinBox.value()
@@ -72,7 +74,8 @@ class Module(QtWidgets.QWidget):
         MaxAreaPair = self.MaxAreaPairSpinBox.value()
         MaxSphericityPair = self.MaxSphericityPairSpinBox.value()/100
         #Crescent_ratio = self.Crescent_ratioSpinBox.value()/100
-        
+        UseMinValue = self.UseMinValueCheckBox.checkState()
+        RJP = self.RJPSpinBox.value()
         
         def Threshold(image,TH,new_value,**kwargs):
             """eats a xy grayscale image and applys threshold TH with new value. 
@@ -216,7 +219,19 @@ class Module(QtWidgets.QWidget):
                 y, x, phi = Track_single_JP(intensityImage[minYi:maxYi,minXi:maxXi])
                 #crescent_width = Crescent_width(intensityImage[minYi:maxYi,minXi:maxXi], x, y, Crescent_ratio)
                 
-                features = features.append([{'y': y + minYi, # go back to full image cords # y and y are inverted somewhere upstairs... with this you get the same as in the trackerlab window...
+                ## use the intensity minimum to try to correct the position bias from the bright side
+                if UseMinValue: 
+                    x_bbox_min, y_bbox_min, x_bbox_max, y_bbox_max = np.array([x - RJP, y - RJP, x + RJP, y + RJP]).astype('int') # make image of center of the JP
+                    JP_image_smaller = intensityImage[minYi:maxYi,minXi:maxXi][y_bbox_min:y_bbox_max,x_bbox_min:x_bbox_max]
+                    
+                    TH_center = 1.2*np.min(JP_image_smaller)
+                    TH_coords = np.argwhere(JP_image_smaller <= TH_center)
+                    x_dark_center = np.mean(TH_coords[:,1]) + x - RJP
+                    y_dark_center = np.mean(TH_coords[:,0]) + y - RJP
+                    x = (x + x_dark_center)/2
+                    y = (y + y_dark_center)/2
+
+                features = features.append([{'y': y + minYi, # go back to full image cords 
                                    'x': x + minXi,
                                    #'COM_x': orient_x + minYi, 
                                    #'COM_y': orient_y + minXi,
@@ -247,6 +262,22 @@ class Module(QtWidgets.QWidget):
                     region_JP = skimage.measure.regionprops(label_image=labelImage_JP, intensity_image=intensityImage_JP)[0]
                     sphericity_JP = region_JP.minor_axis_length/region_JP.major_axis_length
                     y, x, phi = Track_single_JP(masked_image)
+
+                    ## use the intensity minimum to try to correct the position bias from the bright side
+                    if UseMinValue: 
+                        
+                        
+                        x_bbox_min, y_bbox_min, x_bbox_max, y_bbox_max = np.array([x - RJP, y - RJP, x + RJP, y + RJP]).astype('int') # make image of center of the JP
+                        JP_image_smaller = deepcopy(intensityImage[minYi:maxYi,minXi:maxXi][y_bbox_min:y_bbox_max,x_bbox_min:x_bbox_max])
+                        JP_image_smaller[JP_image_smaller==0] = np.max(JP_image_smaller) # make all of the zeros very large so that the threshold in the following works fine
+                        TH_center = 1.2*np.min(JP_image_smaller)
+                        TH_coords = np.argwhere(JP_image_smaller <= TH_center)
+                        x_dark_center = np.mean(TH_coords[:,1]) + x - RJP
+                        y_dark_center = np.mean(TH_coords[:,0]) + y - RJP
+                        
+                        x = (x + x_dark_center)/2
+                        y = (y + y_dark_center)/2
+
                     features = features.append([{'y': y + minYi, # go bak to full image cords
                                        'x': x + minXi,
                                        'phi': -(phi - np.pi/2),
