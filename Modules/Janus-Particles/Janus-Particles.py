@@ -201,17 +201,36 @@ class Module(QtWidgets.QWidget):
         for region in regions:
             if j >= MaxFeatures: # do not add feature
                 break
+            minYi, minXi, maxYi, maxXi = region.bbox
             # area filter and then look for JP close pair indications
             pairTrigger = False
+
             if region.area == 1:
                 break
             sphericity = region.minor_axis_length/region.major_axis_length
             if region.area < MinArea or region.area > MaxArea or sphericity < MinSphericity:   # do not add this feature but first check it for pairs
                 if SeparateClosePairs and region.area > MinAreaPair and region.area < MaxAreaPair and sphericity <= MaxSphericityPair:
                     pairTrigger = True
-                else:
+                else: # its not a JP!
+                    y0 = region.centroid[0]
+                    x0 = region.centroid[1]
+                    features = features.append([{'y': y0, # go bak to full image cords
+                                       'x': x0 ,
+                                       'bbox': region.bbox,
+                                       'frame': frame,
+                                       'area': region.area,
+                                       'max_intensity': region.max_intensity,
+                                       'summed_intensity': region.area * region.mean_intensity,
+                                       'is_JP': 0
+                                       }])
+                    j += 1 # feature added minor_axis_length
+                    
+
+
+
+                    #IS_JP = 0
+                    #sphericity = 0
                     continue # ignor feature if none of this applied
-            minYi, minXi, maxYi, maxXi = region.bbox
             if minYi < min_dist_boundray and maxYi > dim-min_dist_boundray and minXi < min_dist_boundray and maxXi > dim-min_dist_boundray: 
                 continue
             
@@ -232,23 +251,20 @@ class Module(QtWidgets.QWidget):
                     y = (y + y_dark_center)/2
 
                 features = features.append([{'y': y + minYi, # go back to full image cords 
-                                   'x': x + minXi,
-                                   #'COM_x': orient_x + minYi, 
-                                   #'COM_y': orient_y + minXi,
-                                   'phi': -(phi - np.pi/2), # also the angle was measured somehow from the wrong axis...
-                                   'phi_region': region.orientation,
-                                   'minor_axis_length': region.minor_axis_length,
-                                   'major_axis_length': region.major_axis_length,
-                                   'sphericity': sphericity,
-                                   'area': region.area,
-                                   'bbox': region.bbox,
-                                   #'eccentricity': region.eccentricity,
-                                   #'hu_moments' : list(region.weighted_moments_hu),
-                                   'max_intensity': region.max_intensity,
-                                   'summed_intensity': region.area * region.mean_intensity,
-                                   #'crescent_width' : crescent_width,
-                                   'frame': frame,
-                                   'ClosePairStatus': pairTrigger,
+                                                'x': x + minXi,
+                                                'phi': -(phi - np.pi/2), # also the angle was measured somehow from the wrong axis...
+                                                'phi_region': region.orientation,
+                                                'minor_axis_length': region.minor_axis_length,
+                                                'major_axis_length': region.major_axis_length,
+                                                'sphericity': sphericity,
+                                                'area': region.area,
+                                                'bbox': region.bbox,
+                                                'max_intensity': region.max_intensity,
+                                                'summed_intensity': region.area * region.mean_intensity,
+                                                #'crescent_width' : crescent_width,
+                                                'frame': frame,
+                                                'ClosePairStatus': pairTrigger,
+                                                'is_JP': 1,
                                    }])
                 j += 1 # feature added
             elif pairTrigger:
@@ -287,13 +303,12 @@ class Module(QtWidgets.QWidget):
                                        'sphericity': sphericity_JP,
                                        'area': region_JP.area,
                                        'bbox': region_JP.bbox,
-                                       #'eccentricity': region_JP.eccentricity,
-                                       #'hu_moments' : region_JP.moments_hu,
                                        'max_intensity': np.max(masked_image),
                                        'summed_intensity': np.sum(masked_image),
                                        #'crescent_width' : crescent_width,
                                        'frame': frame,
                                        'ClosePairStatus': pairTrigger,
+                                       'is_JP': 1
                                        }])
                     j += 1 # feature added
 
@@ -305,22 +320,34 @@ class Module(QtWidgets.QWidget):
             self.p.removeItem(item)
         self.items = []
         if self.showOverlayCheckBox.checkState():
-            for i, f in features.iterrows():
-                x0 = f.x + 0.5
-                y0 = f.y + 0.5
-                self.items.append(pgutils.EllipseItem([x0, y0], f.minor_axis_length, f.major_axis_length, -np.degrees(f.phi_region), color='r', width=2))
-                self.p.addItem(self.items[-1])
-                #self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.minor_axis_length*np.cos(f.phi), y0 - 0.5*f.minor_axis_length*np.sin(f.phi)], color='r', width=2))
-                #self.p.addItem(self.items[-1])
-                self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.major_axis_length*np.cos(f.phi), y0 + 0.5*f.major_axis_length*np.sin(f.phi)], color='r', width=2))
-                self.p.addItem(self.items[-1])
+            for i, f in features.iterrows():                
+                if f.is_JP == 1:
+                    x0 = f.x + 0.5
+                    y0 = f.y + 0.5
+                    self.items.append(pgutils.EllipseItem([x0, y0], f.minor_axis_length, f.major_axis_length, -np.degrees(f.phi_region), color='b', width=2))
+                    self.p.addItem(self.items[-1])
+                    #self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.minor_axis_length*np.cos(f.phi), y0 - 0.5*f.minor_axis_length*np.sin(f.phi)], color='r', width=2))
+                    #self.p.addItem(self.items[-1])
+                    self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.major_axis_length*np.cos(f.phi), y0 + 0.5*f.major_axis_length*np.sin(f.phi)], color='b', width=2))
+                    self.p.addItem(self.items[-1])
+                
+                else:
+                    x0 = f.x + 0.5
+                    y0 = f.y + 0.5
+                    y_min, x_min, y_max, x_max = f.bbox
+                    self.items.append(pgutils.LineItem([x_min, y_min], [x_max, y_max], color='r', width=6))
+                    self.p.addItem(self.items[-1])
+                    self.items.append(pgutils.LineItem([x_max, y_min], [x_min, y_max], color='r', width=6))
+                    self.p.addItem(self.items[-1])
+
+
+
                 ## JP crescent width bar
                 #box_h = f.bbox[2] - f.bbox[0]
                 #box_w = f.bbox[3] - f.bbox[1]
                 #self.items.append(pgutils.LineItem([x0 - box_w/2, y0 - box_h/4*3], [x0 - box_w/2 + f.crescent_width*box_w, y0 - box_h/4*3], color='r', width=4))
                 #self.p.addItem(self.items[-1])
-                
-        
+
         if features.size > 0:
             self.numberOfFeatures.setText(str(features.shape[0]))
         else:
