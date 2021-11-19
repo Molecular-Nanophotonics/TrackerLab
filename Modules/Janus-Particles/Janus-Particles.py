@@ -220,6 +220,8 @@ class Module(QtWidgets.QWidget):
                                        'bbox': region.bbox,
                                        'frame': frame,
                                        'area': region.area,
+                                       'minor_axis_length': region.minor_axis_length,
+                                        'major_axis_length': region.major_axis_length,
                                        'max_intensity': region.max_intensity,
                                        'summed_intensity': region.area * region.mean_intensity,
                                        'is_JP': 0
