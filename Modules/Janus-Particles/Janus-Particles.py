@@ -205,12 +205,10 @@ class Module(QtWidgets.QWidget):
             # area filter and then look for JP close pair indications
             pairTrigger = False
 
-            if region.area == 10:
+            if region.area == 1:
                 break
-            try:
-                sphericity = region.minor_axis_length/region.major_axis_length
-            except:
-                sphericity = 0
+            sphericity = region.minor_axis_length/region.major_axis_length
+
             if region.area < MinArea or region.area > MaxArea or sphericity < MinSphericity:   # do not add this feature but first check it for pairs
                 if SeparateClosePairs and region.area > MinAreaPair and region.area < MaxAreaPair and sphericity <= MaxSphericityPair:
                     pairTrigger = True
@@ -273,13 +271,18 @@ class Module(QtWidgets.QWidget):
             elif pairTrigger:
                 y_com,x_com = region.centroid
                 orientation_pair = region.orientation +np.pi/2
-                masked_images = Make_separated_JP_images(x = x_com-minXi, y = y_com-minYi, phi = orientation_pair, image = intensityImage[minYi:maxYi,minXi:maxXi])
+                masked_images = Make_separated_JP_images(x = x_com-minXi, y = y_com-minYi, phi = orientation_pair, image = intensityImage[minYi:maxYi,minXi:maxXi]*region.image)
                 for masked_image in masked_images:
                     intensityImage_JP = masked_image
                     THImage_JP = (intensityImage_JP > threshold).astype('int') # relative threshold
                     labelImage_JP = skimage.measure.label(THImage_JP)
                     region_JP = skimage.measure.regionprops(label_image=labelImage_JP, intensity_image=intensityImage_JP)[0]
-                    sphericity_JP = region_JP.minor_axis_length/region_JP.major_axis_length
+                    #try:
+                    sphericity_JP = region.minor_axis_length/region.major_axis_length
+                    #except:
+                    #    sphericity_JP = 0
+                    #    print('region_JP.bbox',region_JP.bbox)
+                    #    print('np.sum(masked_image)',np.sum(masked_image))
                     y, x, phi = Track_single_JP(masked_image)
 
                     ## use the intensity minimum to try to correct the position bias from the bright side
@@ -333,7 +336,8 @@ class Module(QtWidgets.QWidget):
                     #self.p.addItem(self.items[-1])
                     self.items.append(pgutils.LineItem([x0, y0], [x0 + 0.5*f.major_axis_length*np.cos(f.phi), y0 + 0.5*f.major_axis_length*np.sin(f.phi)], color='b', width=2))
                     self.p.addItem(self.items[-1])
-                
+
+
                 else:
                     x0 = f.x + 0.5
                     y0 = f.y + 0.5
