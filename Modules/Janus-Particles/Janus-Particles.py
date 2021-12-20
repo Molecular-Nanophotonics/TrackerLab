@@ -206,7 +206,7 @@ class Module(QtWidgets.QWidget):
             pairTrigger = False
 
             if region.area == 1:
-                break
+                continue
             sphericity = region.minor_axis_length/region.major_axis_length
 
             if region.area < MinArea or region.area > MaxArea or sphericity < MinSphericity:   # do not add this feature but first check it for pairs
